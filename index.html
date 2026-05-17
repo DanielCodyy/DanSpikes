@@ -1195,34 +1195,15 @@ function wCodeToEmoji(c){
   return c===0?'☀️':c<=2?'🌤️':c===3?'⛅':c<=48?'🌫️':c<=55?'🌦️':c<=67?'🌧️':c<=77?'🌨️':c<=82?'🌦️':c<=99?'⛈️':'🌡️';
 }
 async function fetchWeather(){
-  var condEmoji={clear:'☀️',sunny:'☀️','partly cloudy':'🌤️','mostly cloudy':'⛅',cloudy:'⛅',overcast:'☁️',fog:'🌫️',mist:'🌫️',drizzle:'🌦️','light rain':'🌦️',rain:'🌧️','heavy rain':'🌧️',snow:'🌨️',sleet:'🌨️',thunder:'⛈️',storm:'⛈️',wind:'💨'};
-  var toEmoji=function(c){c=(c||'').toLowerCase();for(var k in condEmoji){if(c.indexOf(k)>=0)return condEmoji[k];}return '🌡️';};
   try{
-    var msgs=[{role:'user',content:'What is the current temperature and weather condition in Paris France right now? Reply with ONLY a JSON object, no markdown: {"temp_c":<integer celsius>,"condition":"<brief condition in English>"}'}];
-    var apiCall=async function(m,tools){
-      return (await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-        body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:200,tools:tools||[],messages:m})})).json();
-    };
-    var d=await apiCall(msgs,[{type:'web_search_20250305',name:'web_search'}]);
-    // Handle multi-turn if model used web_search tool
-    if(d.stop_reason==='tool_use'&&d.content){
-      msgs.push({role:'assistant',content:d.content});
-      var tr=d.content.filter(function(c){return c.type==='tool_use';}).map(function(c){return{type:'tool_result',tool_use_id:c.id,content:'Search completed'};});
-      msgs.push({role:'user',content:tr});
-      d=await apiCall(msgs,[{type:'web_search_20250305',name:'web_search'}]);
-    }
-    var text=(d.content||[]).filter(function(c){return c.type==='text';}).map(function(c){return c.text;}).join('');
-    var m=text.replace(/```[a-z]*/g,'').match(/\{[^}]+\}/);
-    if(m){
-      var w=JSON.parse(m[0]);
-      if(w.temp_c!=null){
-        // temp might be F if Claude misunderstood — sanity check: Paris unlikely >50°C or <-30°C
-        var t=Math.round(w.temp_c);
-        if(t>50)t=Math.round((t-32)*5/9); // convert F->C if model returned F
-        weatherData.temp=t;
-        weatherData.emoji=toEmoji(w.condition);
-        updateTabInfo();
-      }
+    var res=await fetch('https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&current=temperature_2m,weather_code&timezone=Europe%2FParis&forecast_days=1');
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    var data=await res.json();
+    var cur=data.current;
+    if(cur&&cur.temperature_2m!=null){
+      weatherData.temp=Math.round(cur.temperature_2m);
+      weatherData.emoji=wCodeToEmoji(cur.weather_code||0);
+      updateTabInfo();
     }
   }catch(e){console.warn('Weather:',e);}
 }
