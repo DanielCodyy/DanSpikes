@@ -196,6 +196,41 @@ a.chip:hover{color:var(--accent)}
 .lk-title{font-size:12px;font-weight:600}
 .lk-meta{font-size:11px;color:var(--text-soft);margin-top:2px}
 .lk-eye{font-size:14px;color:var(--text-faint)}
+.badge.expense{background:#dbeafe;color:#1e40af}
+.exp-rate-bar{background:var(--surface-2);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--text-soft);margin-bottom:10px}
+.exp-cat-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.exp-cat-chip{padding:6px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:600;color:var(--text-soft)}
+.exp-add-btn{width:100%;padding:10px;border-radius:10px;background:var(--accent);color:#fff;font-size:14px;font-weight:600;margin-bottom:12px;border:none;cursor:pointer}
+.exp-form{background:var(--surface-2);border-radius:10px;padding:14px;margin-bottom:14px}
+.exp-form label{font-size:11px;color:var(--text-soft);font-weight:600;text-transform:uppercase;display:block;margin-bottom:4px}
+.exp-form input,.exp-form select{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:13px;margin-bottom:10px}
+.exp-form .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.exp-cvt{font-size:12px;color:var(--text-faint);margin-top:-8px;margin-bottom:10px}
+.exp-group-h{font-size:11px;font-weight:600;color:var(--text-faint);text-transform:uppercase;margin:10px 0 6px;padding-left:2px}
+.exp-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface-2);border-radius:8px;margin-bottom:4px;font-size:13px}
+.exp-row .e-cat{font-size:15px;width:20px;flex-shrink:0}
+.exp-row .e-desc{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exp-row .e-eur{color:var(--text-soft);font-size:12px;white-space:nowrap}
+.exp-row .e-usd{font-weight:600;white-space:nowrap;min-width:48px;text-align:right}
+.exp-row .e-del{color:var(--text-faint);font-size:14px;padding:0 2px;flex-shrink:0;cursor:pointer}
+.exp-row .e-del:hover{color:#dc2626}
+.exp-total-bar{background:var(--accent-soft);border-radius:8px;padding:10px 14px;margin-top:10px}
+.exp-total-bar .et-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:13px}
+.exp-total-bar .et-label{color:var(--text-soft)}
+.exp-total-bar .et-val{font-weight:600}
+.et-main .et-val{font-size:16px;color:var(--accent)}
+.exp-progress{height:6px;background:var(--border);border-radius:999px;overflow:hidden;margin:6px 0}
+.exp-progress-fill{height:100%;background:var(--accent);border-radius:999px;transition:width .4s}
+.exp-empty{text-align:center;padding:30px 20px;color:var(--text-soft);font-size:13px}
+.exp-empty .e{font-size:36px;margin-bottom:8px}
+.adhoc-form{background:var(--accent-soft);border-radius:8px;padding:12px;margin-top:0;margin-bottom:10px}
+.adhoc-form label{font-size:11px;color:var(--text-soft);font-weight:600;text-transform:uppercase;display:block;margin-bottom:4px}
+.adhoc-form input,.adhoc-form select{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:13px;margin-bottom:8px}
+.exp-loc-mini{margin-top:10px;padding-top:8px;border-top:1px dashed var(--border)}
+.exp-loc-mini-h{font-size:11px;color:var(--text-faint);font-weight:600;text-transform:uppercase;margin-bottom:4px}
+.exp-loc-mini-row{font-size:12px;color:var(--text-soft);display:flex;justify-content:space-between;padding:2px 0;gap:8px}
+.exp-loc-mini-row span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.exp-loc-mini-total{font-size:12px;font-weight:600;color:var(--text);display:flex;justify-content:space-between;margin-top:4px;padding-top:4px;border-top:1px solid var(--border)}
 </style>
 </head>
 <body>
@@ -562,6 +597,16 @@ var bookings = [];
 var modalTab = 'rsv';
 var stagedFile = null;
 var stagedData = null;
+var expenses = [];
+var adHocLocations = [];
+var exchangeRate = { rate: 1.08, fetchedAt: null };
+
+var expCats = {
+  attraction:{ emoji:'🎫', label:{ zh:'门票/景点', en:'Attraction' } },
+  food:      { emoji:'🍽️', label:{ zh:'餐饮',     en:'Food' } },
+  transport: { emoji:'🚇', label:{ zh:'交通',     en:'Transport' } },
+  shopping:  { emoji:'🛍️', label:{ zh:'购物/其他', en:'Shopping' } }
+};
 var apiKey = (function(){try{return localStorage.getItem('anthropic_api_key')||'';}catch(e){return '';}})();
 function getApiKey(){return apiKey;}
 function saveApiKey(k){apiKey=k;try{localStorage.setItem('anthropic_api_key',k);}catch(e){}}
@@ -585,6 +630,56 @@ async function toggleCheckin(id){if(checkins[id])delete checkins[id];else checki
 
 async function loadBookings(){var r=await sGet('bookings_list');if(r){try{bookings=JSON.parse(r.value)||[];}catch(e){bookings=[];}}}
 async function saveBookings(){await sSet('bookings_list',JSON.stringify(bookings));}
+async function loadExpenses(){var r=await sGet('expenses_list');if(r){try{expenses=JSON.parse(r.value)||[];}catch(e){expenses=[];}}}
+async function saveExpenses(){await sSet('expenses_list',JSON.stringify(expenses));}
+async function loadAdHocLocations(){var r=await sGet('adhoc_locations');if(r){try{adHocLocations=JSON.parse(r.value)||[];}catch(e){adHocLocations=[];}}}
+async function saveAdHocLocations(){await sSet('adhoc_locations',JSON.stringify(adHocLocations));}
+
+// ===== Exchange rate =====
+async function fetchExchangeRate(){
+  try{
+    if(exchangeRate.fetchedAt&&(Date.now()-new Date(exchangeRate.fetchedAt).getTime())<3600000){updateRateDisplay();return;}
+    var r=await fetch('https://api.frankfurter.app/latest?from=EUR&to=USD');
+    if(!r.ok)throw new Error('rate fetch failed');
+    var data=await r.json();
+    exchangeRate={rate:data.rates.USD,fetchedAt:new Date().toISOString()};
+  }catch(e){if(!exchangeRate.rate)exchangeRate={rate:1.08,fetchedAt:null};}
+  updateRateDisplay();
+}
+function updateRateDisplay(){
+  var el=document.getElementById('expRateBar');
+  if(!el)return;
+  var ago=exchangeRate.fetchedAt?Math.round((Date.now()-new Date(exchangeRate.fetchedAt).getTime())/60000):null;
+  var agoStr=ago===null?(lang==='zh'?'备用汇率':'fallback rate'):ago<2?(lang==='zh'?'刚刚':'just now'):ago<60?ago+(lang==='zh'?'分钟前':' min ago'):Math.round(ago/60)+(lang==='zh'?'小时前':' hr ago');
+  el.textContent='💱 1 EUR = '+(exchangeRate.rate).toFixed(4)+' USD · '+agoStr;
+}
+
+// ===== Expense helpers =====
+function effectiveLocs(dayIndex){
+  var d=days[dayIndex];
+  var locs=d.locations.slice();
+  adHocLocations.forEach(function(al){if(al.dayIndex===dayIndex)locs.push(al);});
+  locs.sort(function(a,b){
+    var ta=(typeof a.time==='string'?a.time:'') ||'99:99';
+    var tb=(typeof b.time==='string'?b.time:'') ||'99:99';
+    ta=ta.replace(/^(\d{1,2}:\d{2}).*/,'$1');
+    tb=tb.replace(/^(\d{1,2}:\d{2}).*/,'$1');
+    return ta<tb?-1:ta>tb?1:0;
+  });
+  return locs;
+}
+function expensesForLoc(locId){return expenses.filter(function(e){return e.linkedLocId===locId;});}
+function totalUSD(expArr){return expArr.reduce(function(s,e){return s+(e.amountUSD||0);},0);}
+function totalEUR(expArr){return expArr.reduce(function(s,e){return s+(e.amountEUR||0);},0);}
+async function geocodeAddress(query){
+  try{
+    var r=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(query+' Paris')+'&format=json&limit=1');
+    if(!r.ok)throw new Error('geo fail');
+    var data=await r.json();
+    if(!data||!data[0])return null;
+    return{lat:parseFloat(data[0].lat),lon:parseFloat(data[0].lon),displayName:data[0].display_name};
+  }catch(e){return null;}
+}
 
 // ===== File helpers =====
 function compressImage(file){
@@ -797,6 +892,10 @@ function renderTimeline(){
       } else if(trans[idx]) html+=renderTransit(trans[idx]);
     }
   });
+  // Ad-hoc locations for this day
+  adHocLocations.filter(function(al){return al.dayIndex===currentDay;}).forEach(function(al){
+    html+=renderAdHocCard(al,d.color);
+  });
   el.innerHTML=html;
   attachCardHandlers();
   var tg=document.getElementById('toggleOpt');
@@ -818,6 +917,9 @@ function renderLocationCard(loc,idx,color){
   else if(loc.reservation==='fixed') badges.push('<span class="badge fixed">'+tx.badges.fixed+'</span>');
   if(visited) badges.push('<span class="badge visited">✓ '+tx.badges.visited+'</span>');
   if(linked.length) badges.push('<span class="badge linked">📎 '+linked.length+'</span>');
+  var locExps=expensesForLoc(loc.id);
+  var locExpTotal=totalUSD(locExps);
+  if(locExps.length) badges.push('<span class="badge expense">💰 $'+locExpTotal.toFixed(0)+'</span>');
   var cls='card '+(loc.optional?'optional ':'')+(loc.reservation==='fixed'?'fixed ':'')+(visited?'visited':'');
   var linkedHtml='';
   if(linked.length){
@@ -847,6 +949,9 @@ function renderLocationCard(loc,idx,color){
     '<a class="btn primary" href="'+loc.mapsLink+'" target="_blank">📍 '+tx.openMaps+'</a>'+
     (loc.bookingUrl?'<a class="btn" href="'+loc.bookingUrl+'" target="_blank">🎫 '+tx.bookOfficial+'</a>':'')+
     '</div>'+linkedHtml+
+    (locExps.length?'<div class="exp-loc-mini"><div class="exp-loc-mini-h">💰 '+(lang==='zh'?'本地点花销':'Expenses here')+'</div>'+
+    locExps.map(function(e){var cat=expCats[e.category]||{emoji:'💳'};return '<div class="exp-loc-mini-row"><span>'+cat.emoji+' '+esc(e.description||'')+'</span><span>€'+e.amountEUR.toFixed(2)+' = $'+e.amountUSD.toFixed(2)+'</span></div>';}).join('')+
+    '<div class="exp-loc-mini-total"><span>Total</span><span>$'+locExpTotal.toFixed(2)+'</span></div></div>':'')+
     '</div></div></div>';
 }
 
@@ -881,6 +986,16 @@ function attachCardHandlers(){
     card.querySelectorAll('img[data-bk-thumb]').forEach(async function(img){
       var r=await sGet('booking_'+img.dataset.bkThumb);
       if(r && r.value) img.src=r.value;
+    });
+    // Ad-hoc delete
+    card.querySelectorAll('[data-del-adhoc]').forEach(function(btn){
+      btn.addEventListener('click',async function(e){
+        e.stopPropagation();
+        var id=btn.dataset.delAdhoc;
+        adHocLocations=adHocLocations.filter(function(al){return al.id!==id;});
+        await saveAdHocLocations();
+        renderTimeline();renderMap();
+      });
     });
   });
 }
@@ -927,6 +1042,18 @@ function renderMap(){
         if(a && b) L.polyline([a.coords,b.coords],{color:d.color,weight:2.5,opacity:0.5,dashArray:tr.mode==='walk'?'4,5':null}).addTo(linesLayer);
       });
     });
+    // Ad-hoc markers (all days)
+    adHocLocations.forEach(function(al){
+      var dc=days[al.dayIndex]?days[al.dayIndex].color:'#f97316';
+      var icon=L.divIcon({className:'custom-marker',html:'<div class="mm" style="background:#f97316">📍</div>',iconSize:[28,28],iconAnchor:[14,14],popupAnchor:[0,-14]});
+      var m=L.marker(al.coords,{icon:icon}).addTo(markersLayer);
+      var exps=expensesForLoc(al.id);
+      m.bindPopup('<div class="popup"><div class="pn">'+esc(al.name.zh||al.name.en)+'</div>'+
+        (exps.length?'<div class="pt">💰 $'+totalUSD(exps).toFixed(2)+'</div>':'')+
+        '</div>');
+      markersById[al.id]=m;
+      bounds.push(al.coords);
+    });
     if(bounds.length) map.fitBounds(bounds,{padding:[40,40]});
     showLegend(true);
   } else {
@@ -936,6 +1063,17 @@ function renderMap(){
       addLoc(loc,d.color,idx+1);
       bounds.push(loc.coords);
       lookup[loc.id]=loc;
+    });
+    // Ad-hoc markers (current day)
+    adHocLocations.filter(function(al){return al.dayIndex===currentDay;}).forEach(function(al){
+      var icon=L.divIcon({className:'custom-marker',html:'<div class="mm" style="background:#f97316">📍</div>',iconSize:[28,28],iconAnchor:[14,14],popupAnchor:[0,-14]});
+      var m=L.marker(al.coords,{icon:icon}).addTo(markersLayer);
+      var exps=expensesForLoc(al.id);
+      m.bindPopup('<div class="popup"><div class="pn">'+esc(al.name.zh||al.name.en)+'</div>'+
+        (exps.length?'<div class="pt">💰 $'+totalUSD(exps).toFixed(2)+'</div>':'')+
+        '</div>');
+      markersById[al.id]=m;
+      bounds.push(al.coords);
     });
     d.transit.forEach(function(tr){
       var a=lookup[tr.from], b=lookup[tr.to];
@@ -974,7 +1112,7 @@ function renderModal(){
   var body=document.getElementById('modalBody');
   if(modalTab==='rsv') body.innerHTML=renderRsv();
   else if(modalTab==='bk'){body.innerHTML=renderBookingsTab();attachBookingHandlers();}
-  else if(modalTab==='bd') body.innerHTML=renderBudget();
+  else if(modalTab==='bd'){body.innerHTML=renderExpenses();attachExpenseHandlers();}
   else if(modalTab==='tips') body.innerHTML=renderTips();
   else body.innerHTML=renderLinks();
 }
@@ -995,6 +1133,238 @@ function renderRsv(){
   });
   html+='</div>';
   return html;
+}
+
+// ===== Expense tracker =====
+function renderExpenses(){
+  var catTotals={};
+  Object.keys(expCats).forEach(function(k){catTotals[k]=0;});
+  expenses.forEach(function(e){if(catTotals[e.category]!==undefined)catTotals[e.category]+=e.amountUSD||0;});
+  var grandUSD=totalUSD(expenses);
+  var grandEUR=totalEUR(expenses);
+  var cap=budgetTotal.sel;
+  var pct=Math.min(100,Math.round(grandUSD/cap*100));
+  var html='<div class="modal-section">';
+  html+='<div class="exp-rate-bar" id="expRateBar">💱 …</div>';
+  html+='<div class="exp-cat-chips">';
+  Object.keys(expCats).forEach(function(k){
+    var c=expCats[k];
+    html+='<span class="exp-cat-chip">'+c.emoji+' $'+catTotals[k].toFixed(0)+'</span>';
+  });
+  html+='</div>';
+  html+='<button class="exp-add-btn" id="expAddBtn">+ '+(lang==='zh'?'记一笔 💸':'Add Expense 💸')+'</button>';
+  html+='<div id="expFormWrap" style="display:none">'+renderExpenseFormHtml()+'</div>';
+  if(expenses.length===0){
+    html+='<div class="exp-empty"><div class="e">💸</div>'+(lang==='zh'?'还没有花销记录<br><small style="font-size:11px;color:var(--text-faint)">点击「记一笔」开始记账</small>':'No expenses yet<br><small style="font-size:11px;color:var(--text-faint)">Tap &quot;Add Expense&quot; to start</small>')+'</div>';
+  } else {
+    var byDate={};
+    expenses.forEach(function(e){if(!byDate[e.date])byDate[e.date]=[];byDate[e.date].push(e);});
+    Object.keys(byDate).sort().forEach(function(dt){
+      html+='<div class="exp-group-h">'+dt+'</div>';
+      byDate[dt].forEach(function(e){
+        var cat=expCats[e.category]||{emoji:'💳'};
+        html+='<div class="exp-row">'+
+          '<span class="e-cat">'+cat.emoji+'</span>'+
+          '<span class="e-desc" title="'+esc(e.description)+'">'+esc(e.description||(lang==='zh'?'未命名':'Unnamed'))+'</span>'+
+          '<span class="e-eur">€'+e.amountEUR.toFixed(2)+'</span>'+
+          '<span class="e-usd">$'+e.amountUSD.toFixed(2)+'</span>'+
+          '<button class="e-del" data-del-exp="'+e.id+'" title="'+(lang==='zh'?'删除':'Delete')+'">✕</button>'+
+          '</div>';
+      });
+    });
+  }
+  html+='<div class="exp-total-bar">'+
+    '<div class="et-row et-main"><span class="et-label">'+(lang==='zh'?'实际总支出':'Total Spent')+'</span>'+
+    '<span class="et-val">$'+grandUSD.toFixed(2)+'</span></div>'+
+    '<div class="exp-progress"><div class="exp-progress-fill" style="width:'+pct+'%"></div></div>'+
+    '<div class="et-row"><span class="et-label">'+(lang==='zh'?'约合欧元':'≈ EUR')+'</span><span class="et-val">€'+grandEUR.toFixed(2)+'</span></div>'+
+    '<div class="et-row"><span class="et-label">'+(lang==='zh'?'预算上限':'Budget cap')+'</span><span class="et-val">$'+cap.toLocaleString()+'</span></div>'+
+    '<div class="et-row"><span class="et-label">'+(lang==='zh'?'剩余预算':'Remaining')+'</span>'+
+    '<span class="et-val" style="color:'+(grandUSD>cap?'#dc2626':'var(--check)')+'">$'+(cap-grandUSD).toFixed(0)+'</span></div>'+
+    '</div></div>';
+  return html;
+}
+
+function renderExpenseFormHtml(){
+  var rate=exchangeRate.rate||1.08;
+  var locOpts='<option value="">-- '+(lang==='zh'?'不关联':'No link')+'</option>';
+  days.forEach(function(d,di){
+    locOpts+='<optgroup label="D'+(di+1)+' · '+L_(d.dayName)+'">';
+    d.locations.forEach(function(l){locOpts+='<option value="'+l.id+'">'+L_(l.name)+'</option>';});
+    locOpts+='</optgroup>';
+  });
+  adHocLocations.forEach(function(al){
+    locOpts+='<option value="'+al.id+'">[临时] '+esc(al.name.zh||al.name.en)+'</option>';
+  });
+  locOpts+='<option value="__new__">＋ '+(lang==='zh'?'新建地点':'New location')+'</option>';
+  var catOpts=Object.keys(expCats).map(function(k){return '<option value="'+k+'">'+expCats[k].emoji+' '+L_(expCats[k].label)+'</option>';}).join('');
+  var today=currentDay>=0&&currentDay<days.length?days[currentDay].date:new Date().toISOString().split('T')[0];
+  return '<div class="exp-form" id="expForm">'+
+    '<div class="row2">'+
+    '<div><label>'+(lang==='zh'?'金额':'Amount')+'</label>'+
+    '<input type="number" id="expAmt" min="0" step="0.01" placeholder="0.00"/></div>'+
+    '<div><label>'+(lang==='zh'?'货币':'Currency')+'</label>'+
+    '<select id="expCur"><option value="EUR">EUR €</option><option value="USD">USD $</option></select></div>'+
+    '</div>'+
+    '<div class="exp-cvt" id="expCvt">≈ $0.00</div>'+
+    '<label>'+(lang==='zh'?'分类':'Category')+'</label>'+
+    '<select id="expCat">'+catOpts+'</select>'+
+    '<label>'+(lang==='zh'?'描述':'Description')+'</label>'+
+    '<input type="text" id="expDesc" placeholder="'+(lang==='zh'?'例：卢浮宫门票':'e.g. Louvre ticket')+'"/>'+
+    '<label>'+(lang==='zh'?'关联行程点':'Link to stop')+'</label>'+
+    '<select id="expLoc">'+locOpts+'</select>'+
+    '<div id="adhocFormWrap" style="display:none">'+renderAdhocSubFormHtml()+'</div>'+
+    '<label>'+(lang==='zh'?'日期':'Date')+'</label>'+
+    '<input type="date" id="expDate" value="'+today+'"/>'+
+    '<div style="display:flex;gap:8px">'+
+    '<button class="btn primary" id="expSaveBtn">'+(lang==='zh'?'保存':'Save')+'</button>'+
+    '<button class="btn" id="expCancelBtn">'+(lang==='zh'?'取消':'Cancel')+'</button>'+
+    '</div></div>';
+}
+
+function renderAdhocSubFormHtml(){
+  var dayOpts=days.map(function(d,di){return '<option value="'+di+'"'+(di===Math.max(0,currentDay)?' selected':'')+'>D'+(di+1)+' · '+L_(d.dayName)+'</option>';}).join('');
+  return '<div class="adhoc-form">'+
+    '<label>'+(lang==='zh'?'地点名称':'Location name')+'</label>'+
+    '<input type="text" id="adhocName" placeholder="'+(lang==='zh'?'例：Café de Flore':'e.g. Café de Flore')+'"/>'+
+    '<button class="btn" id="adhocGeoBtn" type="button" style="margin-bottom:8px">🔍 '+(lang==='zh'?'搜索巴黎坐标':'Find Paris coords')+'</button>'+
+    '<div id="adhocGeoResult" style="font-size:11px;color:var(--text-faint);margin-bottom:8px"></div>'+
+    '<label>'+(lang==='zh'?'所属天':'Day')+'</label>'+
+    '<select id="adhocDay">'+dayOpts+'</select>'+
+    '<label>'+(lang==='zh'?'时间 (HH:MM)':'Time (HH:MM)')+'</label>'+
+    '<input type="time" id="adhocTime" value="12:00"/>'+
+    '</div>';
+}
+
+function attachExpenseHandlers(){
+  updateRateDisplay();
+  var addBtn=document.getElementById('expAddBtn');
+  var formWrap=document.getElementById('expFormWrap');
+  if(addBtn)addBtn.addEventListener('click',function(){
+    var shown=formWrap.style.display!=='none';
+    formWrap.style.display=shown?'none':'block';
+    if(!shown)attachExpenseFormHandlers();
+  });
+  document.querySelectorAll('[data-del-exp]').forEach(function(btn){
+    btn.addEventListener('click',async function(){
+      var id=btn.dataset.delExp;
+      expenses=expenses.filter(function(e){return e.id!==id;});
+      await saveExpenses();
+      var body=document.getElementById('modalBody');
+      body.innerHTML=renderExpenses();
+      attachExpenseHandlers();
+      renderTimeline();renderMap();
+    });
+  });
+}
+
+function attachExpenseFormHandlers(){
+  var rate=exchangeRate.rate||1.08;
+  var cvtEl=document.getElementById('expCvt');
+  var amtEl=document.getElementById('expAmt');
+  var curEl=document.getElementById('expCur');
+  var locEl=document.getElementById('expLoc');
+  var adhocWrap=document.getElementById('adhocFormWrap');
+  var pendingCoords=null;
+
+  function updateCvt(){
+    var v=parseFloat(amtEl.value)||0;
+    cvtEl.textContent=curEl.value==='EUR'?'≈ $'+(v*rate).toFixed(2):'≈ €'+(v/rate).toFixed(2);
+  }
+  if(amtEl)amtEl.addEventListener('input',updateCvt);
+  if(curEl)curEl.addEventListener('change',updateCvt);
+
+  if(locEl)locEl.addEventListener('change',function(){
+    adhocWrap.style.display=locEl.value==='__new__'?'block':'none';
+    pendingCoords=null;
+    var gr=document.getElementById('adhocGeoResult');
+    if(gr)gr.textContent='';
+  });
+
+  var geoBtn=document.getElementById('adhocGeoBtn');
+  if(geoBtn)geoBtn.addEventListener('click',async function(){
+    var nm=(document.getElementById('adhocName')||{}).value||'';nm=nm.trim();
+    if(!nm)return;
+    geoBtn.textContent='⏳';geoBtn.disabled=true;
+    var res=await geocodeAddress(nm);
+    geoBtn.textContent='🔍 '+(lang==='zh'?'搜索巴黎坐标':'Find Paris coords');geoBtn.disabled=false;
+    var gr=document.getElementById('adhocGeoResult');
+    if(res){pendingCoords=[res.lat,res.lon];gr.innerHTML='<span style="color:var(--check)">✓ '+res.lat.toFixed(4)+', '+res.lon.toFixed(4)+'</span>';}
+    else{gr.textContent=lang==='zh'?'未找到坐标，请稍后重试':'No result found, try again';}
+  });
+
+  var cancelBtn=document.getElementById('expCancelBtn');
+  if(cancelBtn)cancelBtn.addEventListener('click',function(){
+    document.getElementById('expFormWrap').style.display='none';
+  });
+
+  var saveBtn=document.getElementById('expSaveBtn');
+  if(saveBtn)saveBtn.addEventListener('click',async function(){
+    var amtVal=parseFloat((amtEl||{}).value);
+    if(!amtVal||amtVal<=0){alert(lang==='zh'?'请输入有效金额':'Enter a valid amount');return;}
+    var curVal=(curEl||{}).value||'EUR';
+    var catVal=(document.getElementById('expCat')||{}).value||'attraction';
+    var descVal=((document.getElementById('expDesc')||{}).value||'').trim();
+    var locVal=(locEl||{}).value||'';
+    var dateVal=(document.getElementById('expDate')||{}).value||new Date().toISOString().split('T')[0];
+    var r=exchangeRate.rate||1.08;
+    var amtEUR=curVal==='EUR'?amtVal:amtVal/r;
+    var amtUSD=curVal==='EUR'?amtVal*r:amtVal;
+
+    if(locVal==='__new__'){
+      var adhocName=((document.getElementById('adhocName')||{}).value||'').trim();
+      if(!adhocName){alert(lang==='zh'?'请输入地点名称':'Enter location name');return;}
+      if(!pendingCoords){alert(lang==='zh'?'请先搜索坐标':'Search for coordinates first');return;}
+      var adhocDayIdx=parseInt((document.getElementById('adhocDay')||{}).value||'0');
+      var adhocTime=(document.getElementById('adhocTime')||{}).value||'12:00';
+      var al={id:'adhoc_'+Date.now(),isAdHoc:true,name:{zh:adhocName,en:adhocName},coords:pendingCoords,dayIndex:adhocDayIdx,time:adhocTime,desc:''};
+      adHocLocations.push(al);
+      await saveAdHocLocations();
+      locVal=al.id;
+    }
+
+    var exp={
+      id:'exp_'+Date.now()+Math.random().toString(36).substr(2,4),
+      amount:amtVal,currency:curVal,amountUSD:amtUSD,amountEUR:amtEUR,
+      category:catVal,description:descVal,linkedLocId:locVal,date:dateVal,
+      addedAt:new Date().toISOString()
+    };
+    expenses.push(exp);
+    await saveExpenses();
+    var body=document.getElementById('modalBody');
+    body.innerHTML=renderExpenses();
+    attachExpenseHandlers();
+    renderTimeline();renderMap();
+  });
+}
+
+function renderAdHocCard(al,color){
+  var locExps=expensesForLoc(al.id);
+  var expTotal=totalUSD(locExps);
+  var badges=[];
+  if(locExps.length)badges.push('<span class="badge expense">💰 $'+expTotal.toFixed(0)+'</span>');
+  var expHtml='';
+  if(locExps.length){
+    expHtml='<div class="exp-loc-mini"><div class="exp-loc-mini-h">💰 '+(lang==='zh'?'本地点花销':'Expenses')+'</div>';
+    locExps.forEach(function(e){
+      var cat=expCats[e.category]||{emoji:'💳'};
+      expHtml+='<div class="exp-loc-mini-row"><span>'+cat.emoji+' '+esc(e.description||'')+'</span><span>€'+e.amountEUR.toFixed(2)+' = $'+e.amountUSD.toFixed(2)+'</span></div>';
+    });
+    expHtml+='<div class="exp-loc-mini-total"><span>Total</span><span>$'+expTotal.toFixed(2)+'</span></div></div>';
+  }
+  return '<div class="card optional" data-loc="'+al.id+'" style="--day-color:'+color+';border-style:dashed">'+
+    '<div class="body"><div class="head">'+
+    '<div class="dot" style="background:#f97316;box-shadow:0 0 0 2px var(--surface),0 0 0 3px #f97316">📍</div>'+
+    '<div class="info"><div class="time">'+esc(al.time||'')+'</div>'+
+    '<div class="name">'+esc(al.name.zh||al.name.en)+'</div>'+
+    (badges.length?'<div class="badges">'+badges.join('')+'</div>':'')+
+    '</div></div></div>'+
+    '<div class="details"><div class="details-inner">'+
+    (al.desc?'<div class="desc">'+esc(al.desc)+'</div>':'')+
+    '<div class="actions">'+
+    '<button class="btn" style="color:#dc2626;border-color:#fca5a5" data-del-adhoc="'+al.id+'">'+(lang==='zh'?'🗑 删除此地点':'🗑 Remove')+'</button>'+
+    '</div>'+expHtml+
+    '</div></div></div>';
 }
 
 function renderBudget(){
@@ -1260,6 +1630,9 @@ async function init(){
   initMap();
   await loadCheckins();
   await loadBookings();
+  await loadExpenses();
+  await loadAdHocLocations();
+  fetchExchangeRate();
   setLang('zh');
   document.getElementById('langBtn').addEventListener('click',function(){setLang(lang==='zh'?'en':'zh');});
   document.getElementById('infoBtn').addEventListener('click',openModal);
