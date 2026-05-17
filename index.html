@@ -322,7 +322,7 @@ var t = {
     openMaps:'在 Google Maps 打开', bookOfficial:'官方订票',
     checkInDo:'○ 打卡', checkInDone:'✓ 已打卡',
     modalTitle:'行程助手',
-    tabs:{rsv:'🎫 订票', bk:'📂 我的预订', bd:'💰 花销', tips:'💡 小贴士', links:'🔗 链接'},
+    tabs:{rsv:'🎫 订票', bk:'📂 我的预订', bd:'💰 花销', tips:'💡 小贴士', links:'🔗 链接', sync:'☁️ 同步'},
     rsvHead:'订票清单', rsvSub:'建议出发前完成所有「必预约」项',
     bdHead:'预算估算 (USD)', bdTotal:'预计总支出',
     tipsHead:'出门前 & 当地小贴士', linksHead:'实用链接',
@@ -357,7 +357,7 @@ var t = {
     openMaps:'Open in Google Maps', bookOfficial:'Official booking',
     checkInDo:'○ Check in', checkInDone:'✓ Visited',
     modalTitle:'Trip Assistant',
-    tabs:{rsv:'🎫 Bookings', bk:'📂 My Reservations', bd:'💰 Expenses', tips:'💡 Tips', links:'🔗 Links'},
+    tabs:{rsv:'🎫 Bookings', bk:'📂 My Reservations', bd:'💰 Expenses', tips:'💡 Tips', links:'🔗 Links', sync:'☁️ Sync'},
     rsvHead:'Reservation checklist', rsvSub:'Complete all "must" items before departure',
     bdHead:'Budget estimate (USD)', bdTotal:'Estimated total',
     tipsHead:'Pre-trip and on-the-ground tips', linksHead:'Useful links',
@@ -650,6 +650,12 @@ function saveApiKey(k){apiKey=k;try{localStorage.setItem('anthropic_api_key',k);
 var geminiKey = (function(){try{return localStorage.getItem('gemini_api_key')||'';}catch(e){return '';}})();
 function getGeminiKey(){return geminiKey;}
 function saveGeminiKey(k){geminiKey=k;try{localStorage.setItem('gemini_api_key',k);}catch(e){}}
+var githubToken=(function(){try{return localStorage.getItem('github_token')||'';}catch(e){return '';}})();
+var gistId=(function(){try{return localStorage.getItem('gist_id')||'';}catch(e){return '';}})();
+function getGithubToken(){return githubToken;}
+function saveGithubToken(t){githubToken=t;try{localStorage.setItem('github_token',t);}catch(e){}}
+function getGistId(){return gistId;}
+function saveGistId(id){gistId=id;try{localStorage.setItem('gist_id',id);}catch(e){}}
 
 function L_(o){if(o==null)return '';if(typeof o==='string')return o;return o[lang]||o.en||o.zh||'';}
 function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -671,6 +677,50 @@ async function loadExpenses(){var r=await sGet('expenses_list');if(r){try{expens
 async function saveExpenses(){await sSet('expenses_list',JSON.stringify(expenses));}
 async function loadAdHocLocations(){var r=await sGet('adhoc_locations');if(r){try{adHocLocations=JSON.parse(r.value)||[];}catch(e){adHocLocations=[];}}}
 async function saveAdHocLocations(){await sSet('adhoc_locations',JSON.stringify(adHocLocations));}
+
+// ===== GitHub Gist sync =====
+var GIST_FILE='paris_2026_trip.json';
+
+function buildSyncPayload(){
+  return JSON.stringify({v:1,checkins:checkins,bookings:bookings,expenses:expenses,adhocLocs:adHocLocations,at:new Date().toISOString()});
+}
+
+async function pushToGist(){
+  var tk=getGithubToken();
+  if(!tk)throw new Error('no_token');
+  var files={};files[GIST_FILE]={content:buildSyncPayload()};
+  var id=getGistId();
+  var body=id?{files:files}:{description:'Paris 2026 trip data',public:false,files:files};
+  var r=await fetch('https://api.github.com/gists'+(id?'/'+id:''),(function(){
+    return{method:id?'PATCH':'POST',headers:{'Authorization':'Bearer '+tk,'Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'},body:JSON.stringify(body)};
+  })());
+  if(r.status===401)throw new Error(lang==='zh'?'Token 无效或已过期':'Token invalid or expired');
+  if(!r.ok)throw new Error('GitHub '+r.status);
+  var d=await r.json();
+  if(!id){saveGistId(d.id);}
+  return d.id;
+}
+
+async function pullFromGist(){
+  var tk=getGithubToken(),id=getGistId();
+  if(!tk)throw new Error('no_token');
+  if(!id)throw new Error('no_id');
+  var r=await fetch('https://api.github.com/gists/'+id,{headers:{'Authorization':'Bearer '+tk,'X-GitHub-Api-Version':'2022-11-28'}});
+  if(r.status===401)throw new Error(lang==='zh'?'Token 无效或已过期':'Token invalid or expired');
+  if(r.status===404)throw new Error(lang==='zh'?'Gist ID 不存在':'Gist ID not found');
+  if(!r.ok)throw new Error('GitHub '+r.status);
+  var d=await r.json();
+  var f=d.files&&d.files[GIST_FILE];
+  if(!f||!f.content)throw new Error(lang==='zh'?'云端暂无数据':'No data in Gist yet');
+  return JSON.parse(f.content);
+}
+
+async function applyGistData(data){
+  if(data.checkins!=null){checkins=data.checkins;await saveCheckins();}
+  if(data.bookings!=null){bookings=data.bookings;await saveBookings();}
+  if(data.expenses!=null){expenses=data.expenses;await saveExpenses();}
+  if(data.adhocLocs!=null){adHocLocations=data.adhocLocs;await saveAdHocLocations();}
+}
 
 // ===== Exchange rate =====
 async function fetchExchangeRate(){
@@ -1143,7 +1193,7 @@ function renderModal(){
   var tx=t[lang];
   document.getElementById('modalTitle').textContent=tx.modalTitle;
   var tabs=document.getElementById('modalTabs');
-  var keys=['rsv','bk','bd','tips','links'];
+  var keys=['rsv','bk','bd','tips','links','sync'];
   tabs.innerHTML=keys.map(function(k){return '<button class="modal-tab '+(modalTab===k?'active':'')+'" data-tab="'+k+'">'+tx.tabs[k]+'</button>';}).join('');
   tabs.querySelectorAll('.modal-tab').forEach(function(b){b.addEventListener('click',function(){modalTab=b.dataset.tab;renderModal();});});
   var body=document.getElementById('modalBody');
@@ -1151,6 +1201,7 @@ function renderModal(){
   else if(modalTab==='bk'){body.innerHTML=renderBookingsTab();attachBookingHandlers();}
   else if(modalTab==='bd'){body.innerHTML=renderExpenses();attachExpenseHandlers();}
   else if(modalTab==='tips') body.innerHTML=renderTips();
+  else if(modalTab==='sync'){body.innerHTML=renderSync();attachSyncHandlers();}
   else body.innerHTML=renderLinks();
 }
 
@@ -1429,6 +1480,98 @@ function renderLinks(){
   links[lang].forEach(function(l){html+='<div class="tip"><a href="'+l.url+'" target="_blank" style="font-weight:500;font-size:13px">'+l.name+'</a><div style="font-size:11px;color:var(--text-faint);margin-top:3px;word-break:break-all">'+l.url+'</div></div>';});
   html+='<div style="font-size:11px;color:var(--text-faint);margin-top:14px;text-align:center">'+tx.storageHint+'</div></div>';
   return html;
+}
+
+function renderSync(){
+  var zh=lang==='zh';
+  var tk=getGithubToken(),id=getGistId();
+  return '<div class="modal-section">'+
+    '<h3>'+(zh?'☁️ 云端同步':'☁️ Cloud Sync')+'</h3>'+
+    '<p style="font-size:12px;color:var(--text-soft);margin:0 0 14px">'+(zh?'将行程数据（打卡、预订、花销、自定义地点）保存到 GitHub Gist，在多台设备间同步。':'Sync your trip data (check-ins, bookings, expenses, custom locations) via a private GitHub Gist.')+'</p>'+
+    // Token
+    '<div style="margin-bottom:12px">'+
+    '<label style="font-size:11px;font-weight:600;color:var(--text-soft);display:block;margin-bottom:4px">'+(zh?'GitHub Token (gist 权限)':'GitHub Token (gist scope)')+'</label>'+
+    '<div style="display:flex;gap:6px">'+
+    '<input id="syncToken" type="password" placeholder="ghp_..." value="'+esc(tk)+'" style="flex:1;padding:7px 10px;border-radius:8px;border:1px solid '+(tk?'var(--check)':'var(--border)')+';background:#fff;font-size:12px;font-family:monospace"/>'+
+    '<button class="btn" id="syncSaveToken" style="white-space:nowrap">✓ '+(zh?'保存':'Save')+'</button>'+
+    '</div>'+
+    '<div style="font-size:11px;color:var(--text-faint);margin-top:4px">'+
+    (tk?'<span style="color:var(--check)">✓ '+(zh?'已设置':'Set')+'</span> · ':'')+'<a href="https://github.com/settings/tokens/new?scopes=gist&description=Paris+2026+Trip" target="_blank" style="color:var(--accent)">'+(zh?'生成 Token →':'Generate Token →')+'</a>'+
+    '</div></div>'+
+    // Gist ID
+    '<div style="margin-bottom:14px">'+
+    '<label style="font-size:11px;font-weight:600;color:var(--text-soft);display:block;margin-bottom:4px">'+(zh?'Gist ID（首次推送后自动填写）':'Gist ID (auto-filled after first push)')+'</label>'+
+    '<div style="display:flex;gap:6px">'+
+    '<input id="syncGistId" type="text" placeholder="'+(zh?'留空则自动创建新 Gist':'Leave blank to create new Gist')+'" value="'+esc(id)+'" style="flex:1;padding:7px 10px;border-radius:8px;border:1px solid '+(id?'var(--check)':'var(--border)')+';background:#fff;font-size:12px;font-family:monospace"/>'+
+    '<button class="btn" id="syncSaveGistId" style="white-space:nowrap">✓ '+(zh?'保存':'Save')+'</button>'+
+    '</div></div>'+
+    // Action buttons
+    '<div style="display:flex;gap:8px;margin-bottom:12px">'+
+    '<button class="btn" id="syncPush" style="flex:1;justify-content:center;background:var(--accent);color:#fff;border-color:var(--accent)">⬆️ '+(zh?'推送到云端':'Push to Cloud')+'</button>'+
+    '<button class="btn" id="syncPull" style="flex:1;justify-content:center">⬇️ '+(zh?'从云端拉取':'Pull from Cloud')+'</button>'+
+    '</div>'+
+    '<div id="syncStatus" style="font-size:12px;min-height:20px;padding:6px 10px;border-radius:8px;display:none"></div>'+
+    '<div style="font-size:11px;color:var(--text-faint);margin-top:10px;padding:8px 10px;background:var(--surface-2);border-radius:8px">'+(zh?'💡 同步内容：打卡记录、预订信息、花销账单、自定义地点。附件图片仅存本地。':'💡 Synced: check-ins, bookings, expenses, custom locations. Attachment images are local-only.')+'</div>'+
+    '</div>';
+}
+
+function attachSyncHandlers(){
+  var zh=lang==='zh';
+  function showStatus(msg,ok){
+    var el=document.getElementById('syncStatus');
+    if(!el)return;
+    el.style.display='block';
+    el.style.background=ok?'#d1fae5':ok===false?'#fee2e2':'var(--surface-2)';
+    el.style.color=ok?'#065f46':ok===false?'#991b1b':'var(--text-soft)';
+    el.textContent=msg;
+  }
+  var saveTokenBtn=document.getElementById('syncSaveToken');
+  if(saveTokenBtn){saveTokenBtn.addEventListener('click',function(){
+    var v=(document.getElementById('syncToken').value||'').trim();
+    saveGithubToken(v);
+    var inp=document.getElementById('syncToken');
+    inp.style.borderColor=v?'var(--check)':'var(--border)';
+    showStatus(zh?'Token 已保存':'Token saved',true);
+  });}
+  var saveGistBtn=document.getElementById('syncSaveGistId');
+  if(saveGistBtn){saveGistBtn.addEventListener('click',function(){
+    var v=(document.getElementById('syncGistId').value||'').trim();
+    saveGistId(v);
+    var inp=document.getElementById('syncGistId');
+    inp.style.borderColor=v?'var(--check)':'var(--border)';
+    showStatus(zh?'Gist ID 已保存':'Gist ID saved',true);
+  });}
+  var pushBtn=document.getElementById('syncPush');
+  if(pushBtn){pushBtn.addEventListener('click',async function(){
+    var tk=getGithubToken();
+    if(!tk){showStatus(zh?'请先填写并保存 GitHub Token':'Please enter and save your GitHub Token',false);return;}
+    pushBtn.disabled=true;
+    showStatus(zh?'推送中…':'Pushing…',null);
+    try{
+      var newId=await pushToGist();
+      var idInput=document.getElementById('syncGistId');
+      if(idInput)idInput.value=newId;
+      showStatus((zh?'✓ 推送成功，Gist ID: ':'✓ Pushed! Gist ID: ')+newId,true);
+    }catch(e){showStatus((zh?'推送失败：':'Push failed: ')+e.message,false);}
+    pushBtn.disabled=false;
+  });}
+  var pullBtn=document.getElementById('syncPull');
+  if(pullBtn){pullBtn.addEventListener('click',async function(){
+    var tk=getGithubToken(),id=getGistId();
+    if(!tk){showStatus(zh?'请先填写并保存 GitHub Token':'Please enter and save your GitHub Token',false);return;}
+    if(!id){showStatus(zh?'请先填写 Gist ID，或先推送一次':'Enter a Gist ID or push first',false);return;}
+    if(!confirm(zh?'从云端拉取将覆盖本地数据，确定吗？':'Pull from cloud will overwrite local data. Continue?'))return;
+    pullBtn.disabled=true;
+    showStatus(zh?'拉取中…':'Pulling…',null);
+    try{
+      var data=await pullFromGist();
+      await applyGistData(data);
+      renderTimeline();renderMap();
+      var when=data.at?new Date(data.at).toLocaleString():'';
+      showStatus((zh?'✓ 拉取成功':'✓ Pulled')+(when?' · '+(zh?'云端存档：':'Saved: ')+when:''),true);
+    }catch(e){showStatus((zh?'拉取失败：':'Pull failed: ')+e.message,false);}
+    pullBtn.disabled=false;
+  });}
 }
 
 function locOptionsHtml(){
