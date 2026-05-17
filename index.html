@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>Paris · Jun 9-13, 2026</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<style>
+:root{--bg:#fafaf7;--surface:#fff;--surface-2:#f4f3ee;--border:#e5e4dd;--text:#1c1c1a;--text-soft:#6b6a64;--text-faint:#9a988e;--accent:#1e3a8a;--accent-soft:#eef2ff;--check:#059669;--shadow-sm:0 1px 2px rgba(0,0,0,.04);--shadow-md:0 4px 12px rgba(0,0,0,.08);--shadow-lg:0 12px 32px rgba(0,0,0,.12)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+input,select{font:inherit;color:inherit}
+.app{display:grid;grid-template-rows:auto auto 1fr;height:100vh;height:100dvh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm);z-index:1000}
+.topbar .title{display:flex;align-items:baseline;gap:8px;min-width:0}
+.topbar h1{font-size:15px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .sub{font-size:12px;color:var(--text-soft);white-space:nowrap}
+.topbar .actions{display:flex;gap:6px;flex-shrink:0}
+.icon-btn{width:36px;height:36px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:var(--text-soft)}
+.icon-btn:hover{background:var(--surface-2);color:var(--text)}
+.lang-toggle{height:32px;padding:0 10px;border-radius:8px;background:var(--surface-2);font-size:12px;font-weight:600;color:var(--text-soft);display:inline-flex;align-items:center;gap:4px}
+.lang-toggle .active{color:var(--accent)}
+.tabs-row{display:flex;align-items:center;background:var(--surface);border-bottom:1px solid var(--border)}
+.day-tabs{display:flex;gap:4px;padding:8px 12px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none}
+.day-tabs::-webkit-scrollbar{display:none}
+.day-tab{flex-shrink:0;padding:8px 14px;border-radius:999px;font-size:13px;color:var(--text-soft);border:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;align-items:center;min-width:64px}
+.day-tab .day-label{font-size:11px;color:var(--text-faint);line-height:1}
+.day-tab .day-num{font-size:14px;font-weight:600;line-height:1.2}
+.day-tab.active{color:#fff;background:var(--day-color,var(--accent));border-color:var(--day-color,var(--accent))}
+.day-tab.active .day-label{color:rgba(255,255,255,.85)}
+.main{display:grid;min-height:0;overflow:hidden}
+@media(min-width:900px){.main{grid-template-columns:minmax(0,1fr) minmax(380px,500px)}}
+@media(max-width:899px){.main{grid-template-rows:42vh 1fr}}
+#map{width:100%;height:100%;background:#dfe6ec;z-index:1}
+.timeline{background:var(--bg);overflow-y:auto;border-left:1px solid var(--border);padding:16px 14px 60px}
+@media(max-width:899px){.timeline{border-left:none;border-top:1px solid var(--border);padding:12px 12px 80px}}
+.day-header{padding:14px 16px;margin-bottom:14px;background:var(--surface);border-radius:12px;border-left:4px solid var(--day-color,var(--accent));box-shadow:var(--shadow-sm)}
+.day-header .date{font-size:12px;color:var(--text-faint)}
+.day-header .day-title{font-size:17px;font-weight:600;margin:2px 0 6px}
+.day-header .day-meta{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12px;color:var(--text-soft)}
+.day-header .day-meta strong{color:var(--text)}
+.progress-row{display:flex;align-items:center;gap:8px;margin-top:10px}
+.progress-track{flex:1;height:6px;background:var(--surface-2);border-radius:999px;overflow:hidden}
+.progress-fill{height:100%;background:var(--day-color,var(--accent));transition:width .4s}
+.progress-text{font-size:11px;color:var(--text-soft);white-space:nowrap}
+.strip{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;font-size:12px}
+.chip{padding:6px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--text-soft);display:inline-flex;align-items:center;gap:5px}
+.chip strong{color:var(--text)}
+a.chip{color:var(--text-soft)}
+a.chip:hover{color:var(--accent)}
+.card{background:var(--surface);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-sm);border:1px solid var(--border);margin-bottom:10px}
+.card.optional{border-style:dashed;opacity:.85}
+.card.fixed{border-color:var(--day-color,var(--accent))}
+.card.visited{background:linear-gradient(to right,rgba(5,150,105,.04),var(--surface) 30%)}
+.card .body{padding:12px 14px;cursor:pointer}
+.card .head{display:flex;align-items:flex-start;gap:10px}
+.dot{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--day-color,var(--accent));color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;position:relative;box-shadow:0 0 0 2px var(--surface),0 0 0 3px var(--day-color,var(--accent))}
+.dot.hotel{background:#1c1c1a;box-shadow:0 0 0 2px var(--surface),0 0 0 3px #1c1c1a}
+.dot.station,.dot.airport{background:#525252;box-shadow:0 0 0 2px var(--surface),0 0 0 3px #525252}
+.dot.checked::after{content:'✓';position:absolute;bottom:-4px;right:-4px;width:14px;height:14px;background:var(--check);color:#fff;border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 1.5px var(--surface)}
+.card .info{min-width:0;flex:1}
+.card .time{font-size:11px;color:var(--text-faint);font-weight:600}
+.card .name{font-size:14px;font-weight:600;margin:1px 0 2px}
+.card .name-fr{font-size:12px;color:var(--text-soft);font-style:italic}
+.badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.badge{font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;text-transform:uppercase}
+.badge.must{background:#fee2e2;color:#991b1b}
+.badge.rec{background:#fef3c7;color:#92400e}
+.badge.opt{background:#e0e7ff;color:#3730a3}
+.badge.free{background:#d1fae5;color:#065f46}
+.badge.fixed{background:#1c1c1a;color:#fff}
+.badge.visited{background:var(--check);color:#fff}
+.badge.linked{background:var(--accent-soft);color:var(--accent)}
+.card .details{max-height:0;overflow:hidden;transition:max-height .3s}
+.card.open .details{max-height:1500px;border-top:1px solid var(--border)}
+.card .details-inner{padding:12px 14px;font-size:13px}
+.card .desc{color:var(--text-soft);margin-bottom:8px}
+.card .notes{background:var(--surface-2);padding:8px 10px;border-radius:6px;font-size:12px;margin-bottom:10px}
+.card .meta-row{font-size:12px;color:var(--text-soft);margin-bottom:10px}
+.card .meta-row strong{color:var(--text)}
+.card .actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:500;background:var(--surface-2);color:var(--text);border:1px solid transparent}
+.btn:hover{background:var(--border);text-decoration:none}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.primary:hover{background:#1e2f6e}
+.btn.check{background:var(--surface);border-color:var(--border);color:var(--text-soft)}
+.btn.check.on{background:var(--check);border-color:var(--check);color:#fff}
+.transit{display:flex;align-items:center;gap:10px;margin:4px 0 6px;padding:6px 14px;font-size:12px;color:var(--text-soft)}
+.transit .rail{flex-shrink:0;width:26px;display:flex;justify-content:center;position:relative;height:32px}
+.transit .rail::before{content:'';position:absolute;top:0;bottom:0;width:2px;background:var(--mc,var(--text-faint));border-radius:1px}
+.transit.walk .rail::before{background-image:linear-gradient(to bottom,var(--mc) 50%,transparent 50%);background-size:2px 6px;background-color:transparent}
+.transit .mi{position:relative;z-index:1;width:22px;height:22px;background:var(--surface);border:1.5px solid var(--mc,var(--text-faint));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--mc,var(--text-faint))}
+.transit .tinfo{flex:1;min-width:0;padding:4px 0}
+.transit .tmode{font-weight:600;color:var(--mc,var(--text));font-size:11px;text-transform:uppercase}
+.transit .tdetails{font-size:12px;color:var(--text-soft);margin-top:1px}
+.transit .troute{font-size:11px;color:var(--text-faint);margin-top:2px;line-height:1.4}
+.leaflet-container{font-family:inherit}
+.mm{width:28px;height:28px;border-radius:50%;color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2.5px #fff,0 2px 6px rgba(0,0,0,.25);position:relative}
+.mm.hotel{background:#1c1c1a}
+.mm.airport,.mm.station{background:#525252;font-size:13px}
+.mm.visited::after{content:'✓';position:absolute;bottom:-3px;right:-3px;background:var(--check);color:#fff;width:14px;height:14px;border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 1.5px #fff}
+.leaflet-popup-content-wrapper{border-radius:10px;padding:0;overflow:hidden;box-shadow:var(--shadow-lg)}
+.leaflet-popup-content{margin:0;min-width:200px;max-width:240px;font-family:inherit}
+.popup{padding:10px 12px}
+.popup .pn{font-size:13px;font-weight:600}
+.popup .pfr{font-size:11px;color:var(--text-soft);font-style:italic;margin-bottom:6px}
+.popup .pt{font-size:11px;color:var(--text-faint)}
+.popup .pl{display:inline-block;margin-top:6px;font-size:11px;color:var(--accent)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:2000;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.show{display:flex}
+@media(min-width:600px){.modal-overlay{align-items:center}}
+.modal{background:var(--surface);width:100%;max-width:600px;max-height:88vh;border-radius:16px 16px 0 0;overflow:hidden;display:flex;flex-direction:column}
+@media(min-width:600px){.modal{border-radius:16px;max-height:82vh}}
+.modal-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.modal-head h2{font-size:16px;font-weight:600;margin:0}
+.modal-tabs{display:flex;padding:0 8px;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.modal-tabs::-webkit-scrollbar{display:none}
+.modal-tab{padding:12px 14px;font-size:13px;color:var(--text-soft);font-weight:500;border-bottom:2px solid transparent;white-space:nowrap}
+.modal-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.modal-body{padding:14px 16px;overflow-y:auto;flex:1}
+.modal-section{margin-bottom:18px}
+.modal-section h3{font-size:12px;text-transform:uppercase;color:var(--text-soft);margin:0 0 8px}
+.rsv-item{padding:10px 12px;background:var(--surface-2);border-radius:8px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start}
+.rsv-item .b{flex-shrink:0;width:6px;height:6px;border-radius:50%;margin-top:7px}
+.rsv-item.must .b{background:#dc2626}
+.rsv-item.rec .b{background:#d97706}
+.rsv-item.opt .b{background:#4f46e5}
+.rsv-item .body2{flex:1;min-width:0}
+.rsv-item .n{font-size:13px;font-weight:600}
+.rsv-item .w{font-size:11px;color:var(--text-soft);margin:2px 0 4px}
+.rsv-item .note{font-size:12px;color:var(--text-soft);margin-bottom:6px}
+.rsv-item .url{font-size:11px;color:var(--accent);word-break:break-all}
+.bd-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.bd-row:last-of-type{border-bottom:none}
+.bd-row .c{font-size:13px}
+.bd-row .nt{font-size:11px;color:var(--text-soft);margin-top:2px}
+.bd-row .a{font-weight:600;font-size:14px;white-space:nowrap}
+.bd-row.total{background:var(--surface-2);padding:12px 14px;border-radius:8px;margin-top:10px;border-bottom:none}
+.bd-row.total .a{color:var(--accent);font-size:17px}
+.tip{padding:10px 12px;background:var(--surface-2);border-radius:8px;margin-bottom:8px}
+.tip h4{margin:0 0 4px;font-size:13px;font-weight:600}
+.tip p{margin:0;font-size:12px;color:var(--text-soft)}
+.ctl-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ctl-label{font-size:11px;color:var(--text-faint);text-transform:uppercase;font-weight:600}
+.toggle-opt{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-soft);padding:4px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--border)}
+.toggle-opt input{margin:0;accent-color:var(--accent)}
+.legend{position:absolute;bottom:12px;left:12px;z-index:999;background:var(--surface);padding:8px 12px;border-radius:8px;box-shadow:var(--shadow-md);font-size:11px;display:none;border:1px solid var(--border)}
+.legend.show{display:block}
+.legend .li{display:flex;align-items:center;gap:6px;margin:2px 0}
+.legend .ld{width:10px;height:10px;border-radius:50%}
+.bk-empty{text-align:center;padding:30px 20px;color:var(--text-soft);font-size:13px}
+.bk-empty .e{font-size:36px;margin-bottom:8px}
+.bk-drop{display:block;border:2px dashed var(--border);border-radius:12px;padding:22px 16px;text-align:center;background:var(--surface);cursor:pointer;margin-bottom:14px}
+.bk-drop:hover{border-color:var(--accent)}
+.bk-stage{padding:12px;background:var(--surface-2);border-radius:10px;margin-bottom:12px}
+.bk-prev{width:100%;height:160px;background:#fff;border:1px dashed var(--border);border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.bk-prev img{max-width:100%;max-height:100%;object-fit:contain}
+.bk-prev .pdf-ph{font-size:36px;opacity:.5}
+.bk-fields{display:flex;flex-direction:column;gap:8px}
+.bk-fields label{font-size:11px;color:var(--text-soft);font-weight:600;text-transform:uppercase}
+.bk-fields input,.bk-fields select{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:13px}
+.bk-fields .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bk-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.bk-ai-status{font-size:11px;color:var(--text-soft);margin-top:6px}
+.bk-group{margin-bottom:16px}
+.bk-group h4{font-size:11px;color:var(--text-faint);margin:0 0 8px;text-transform:uppercase}
+.bk-card{display:flex;gap:10px;padding:10px;background:var(--surface-2);border-radius:10px;margin-bottom:8px;align-items:flex-start}
+.bk-thumb{flex-shrink:0;width:56px;height:56px;border-radius:6px;background:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.bk-thumb img{width:100%;height:100%;object-fit:cover}
+.bk-thumb .pdf-ph{font-size:22px;opacity:.5}
+.bk-card .bk-info{flex:1;min-width:0}
+.bk-card .bk-title{font-size:13px;font-weight:600}
+.bk-card .bk-meta{font-size:11px;color:var(--text-soft);margin-top:3px}
+.bk-mini{display:flex;gap:4px;margin-top:6px}
+.bk-mini button{font-size:11px;padding:4px 8px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--text-soft)}
+.bk-mini button:hover{color:var(--text)}
+.bk-mini button.danger:hover{color:#dc2626;border-color:#fca5a5}
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:3000;display:none;align-items:center;justify-content:center;padding:20px}
+.lb.show{display:flex}
+.lb img{max-width:100%;max-height:100%;object-fit:contain}
+.lb iframe{width:94vw;height:90vh;border:none;background:#fff;border-radius:8px}
+.lb .x{position:fixed;top:12px;right:12px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;display:flex;align-items:center;justify-content:center;z-index:1}
+.sp{display:inline-block;width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lk-block{margin-top:12px;padding-top:10px;border-top:1px dashed var(--border)}
+.lk-h{font-size:11px;color:var(--text-faint);font-weight:600;text-transform:uppercase;margin-bottom:6px}
+.lk-item{display:flex;gap:10px;padding:8px;background:var(--surface-2);border-radius:8px;margin-bottom:6px;align-items:center;cursor:pointer}
+.lk-thumb{flex-shrink:0;width:44px;height:44px;border-radius:6px;background:#fff;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.lk-thumb img{width:100%;height:100%;object-fit:cover}
+.lk-thumb .pdf-ph{font-size:20px;opacity:.5}
+.lk-info{flex:1;min-width:0}
+.lk-title{font-size:12px;font-weight:600}
+.lk-meta{font-size:11px;color:var(--text-soft);margin-top:2px}
+.lk-eye{font-size:14px;color:var(--text-faint)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="title"><h1 id="topTitle">Paris</h1><span class="sub" id="topSub">Jun 9-13, 2026</span></div>
+    <div class="actions">
+      <button class="lang-toggle" id="langBtn"><span id="langZh" class="active">中</span><span style="color:var(--text-faint)">/</span><span id="langEn">EN</span></button>
+      <button class="icon-btn" id="infoBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      </button>
+    </div>
+  </header>
+  <div class="tabs-row">
+    <nav class="day-tabs" id="dayTabs"></nav>
+    <div style="flex-shrink:0;padding:0 12px 0 10px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:3px;border-left:1px solid var(--border);min-width:68px;min-height:50px">
+      <div id="tabClock" style="font-size:12px;color:var(--text-soft);font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums">🕐 --:--</div>
+      <div id="tabWeather" style="font-size:12px;color:var(--text-soft);white-space:nowrap">⛅ --</div>
+    </div>
+  </div>
+  <div class="main">
+    <div style="position:relative;min-height:0">
+      <div id="map"></div>
+      <div class="legend" id="allLegend"></div>
+    </div>
+    <div class="timeline" id="timeline"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="infoModal">
+  <div class="modal">
+    <div class="modal-head"><h2 id="modalTitle">行程助手</h2><button class="icon-btn" id="closeModal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-tabs" id="modalTabs"></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+<div class="lb" id="lightbox">
+  <button class="x" id="lbClose"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  <img id="lbImg" alt="" style="display:none"/>
+  <iframe id="lbPdf" style="display:none"></iframe>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+var NL = String.fromCharCode(10);
+var dayColors = ['#e11d48','#ea580c','#059669','#2563eb','#7c3aed'];
+
+var t = {
+  zh: {
+    title:'🇫🇷 巴黎', sub:'2026 年 6 月 9-13 日',
+    intensity:{light:'轻',moderate:'中',high:'高'},
+    badges:{must:'必预约',rec:'推荐预约',opt:'可选',free:'免费',fixed:'固定',visited:'已打卡'},
+    rsvLabel:{must:'必须预约',rec:'推荐预约',opt:'可选预约'},
+    openMaps:'在 Google Maps 打开', bookOfficial:'官方订票',
+    checkInDo:'○ 打卡', checkInDone:'✓ 已打卡',
+    modalTitle:'行程助手',
+    tabs:{rsv:'🎫 订票', bk:'📂 我的预订', bd:'💰 花销', tips:'💡 小贴士', links:'🔗 链接'},
+    rsvHead:'订票清单', rsvSub:'建议出发前完成所有「必预约」项',
+    bdHead:'预算估算 (USD)', bdTotal:'预计总支出',
+    tipsHead:'出门前 & 当地小贴士', linksHead:'实用链接',
+    daysUntil:function(d){return d>0?'距出发还有 '+d+' 天':d===0?'今天出发 🛫':'行程已开始 第 '+(Math.abs(d)+1)+' 天'},
+    allDays:'全程', allDaysLabel:'5 天总览',
+    showOptional:'显示可选',
+    transitMode:{metro:'地铁',rer:'RER',walk:'步行','rer-metro':'RER + 地铁','metro-rer':'地铁 + RER',tgv:'TGV'},
+    cost:'费用', notesLabel:'备注',
+    weather:'天气', ratp:'RATP 实时',
+    timeNow:function(h){return '当地 '+h},
+    legend:'日期图例',
+    progress:function(v,tot){return v+'/'+tot+' 已打卡'},
+    bkEmpty:'还没有预订信息',
+    bkHint:'上传酒店、机票、火车票或景点票（图片或 PDF），AI 会自动归档并绑定到对应行程点',
+    bkAdd:'+ 上传订单', bkSave:'保存', bkCancel:'取消', bkAI:'✨ AI 自动识别',
+    bkCat:'类别', bkTitle:'标题', bkDate:'日期', bkLoc:'地点', bkRef:'参考号',
+    bkLink:'🔗 绑定到行程点（保存后会出现在该点位卡片上）',
+    bkNone:'（暂不绑定 / 让 AI 自动判断）',
+    cats:{hotel:'🏨 住宿',transport:'🚆 交通',attraction:'🎫 景点门票',other:'📄 其他'},
+    bkAdded:'添加于', bkView:'查看', bkDelete:'删除',
+    aiRunning:'AI 正在识别…', aiDone:'AI 识别完成（可编辑后保存）', aiFail:'AI 识别失败，请手动填写',
+    confirmDel:'确定删除这个预订？',
+    storageHint:'💾 打卡和预订数据会自动保存',
+    linkedHead:'关联的预订',
+    saving:'保存中…'
+  },
+  en: {
+    title:'🇫🇷 Paris', sub:'Jun 9-13, 2026',
+    intensity:{light:'Light',moderate:'Moderate',high:'High'},
+    badges:{must:'MUST',rec:'Recommended',opt:'Optional',free:'Free',fixed:'Fixed',visited:'Visited'},
+    rsvLabel:{must:'Booking required',rec:'Recommended',opt:'Optional'},
+    openMaps:'Open in Google Maps', bookOfficial:'Official booking',
+    checkInDo:'○ Check in', checkInDone:'✓ Visited',
+    modalTitle:'Trip Assistant',
+    tabs:{rsv:'🎫 Bookings', bk:'📂 My Reservations', bd:'💰 Expenses', tips:'💡 Tips', links:'🔗 Links'},
+    rsvHead:'Reservation checklist', rsvSub:'Complete all "must" items before departure',
+    bdHead:'Budget estimate (USD)', bdTotal:'Estimated total',
+    tipsHead:'Pre-trip and on-the-ground tips', linksHead:'Useful links',
+    daysUntil:function(d){return d>0?d+' day'+(d>1?'s':'')+' until departure':d===0?'Departing today 🛫':'Day '+(Math.abs(d)+1)+' of trip'},
+    allDays:'All', allDaysLabel:'5-day overview',
+    showOptional:'Show optional',
+    transitMode:{metro:'Metro',rer:'RER',walk:'Walk','rer-metro':'RER + Metro','metro-rer':'Metro + RER',tgv:'TGV'},
+    cost:'Cost', notesLabel:'Notes',
+    weather:'Weather', ratp:'RATP live',
+    timeNow:function(h){return 'Paris '+h},
+    legend:'Day legend',
+    progress:function(v,tot){return v+'/'+tot+' visited'},
+    bkEmpty:'No reservations yet',
+    bkHint:'Upload hotel, flight, train, or attraction tickets (image or PDF). AI will auto-file and link to the matching stop.',
+    bkAdd:'+ Upload', bkSave:'Save', bkCancel:'Cancel', bkAI:'✨ AI auto-extract',
+    bkCat:'Category', bkTitle:'Title', bkDate:'Date', bkLoc:'Location', bkRef:'Reference',
+    bkLink:'🔗 Link to itinerary stop (will appear on that card)',
+    bkNone:'(none / let AI auto-detect)',
+    cats:{hotel:'🏨 Lodging',transport:'🚆 Transport',attraction:'🎫 Attraction tickets',other:'📄 Other'},
+    bkAdded:'Added', bkView:'View', bkDelete:'Delete',
+    aiRunning:'AI is reading…', aiDone:'AI done (review and save)', aiFail:'AI failed - please fill manually',
+    confirmDel:'Delete this reservation?',
+    storageHint:'💾 Check-ins and reservations are saved automatically',
+    linkedHead:'Linked reservations',
+    saving:'Saving…'
+  }
+};
+
+// Compact location data. Notes only where critical.
+var days = [
+  {date:'2026-06-09',color:dayColors[0],dayName:{zh:'周二 · 抵达',en:'Tue · Arrival'},area:{zh:'西岱岛 / 拉丁区',en:'Île de la Cité / Latin Quarter'},intensity:'light',
+   locations:[
+     {id:'cdg',time:'08:40',special:'airport',name:{zh:'CDG 机场 2E',en:'CDG Terminal 2E',fr:'Aéroport CDG · T2E'},coords:[49.0034,2.5677],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Paris+CDG+Terminal+2E',
+      desc:{zh:'抵达戴高乐机场',en:'Arrive at CDG'},reservation:'fixed',
+      notes:{zh:'预留时间通关、取行李、换乘 RER。',en:'Allow time for immigration and RER transfer.'}},
+     {id:'hotel',time:{zh:'上午晚些',en:'Late morning'},special:'hotel',name:{zh:'碧雅碧雅酒店',en:'Hôtel Piapia',fr:'Hôtel Piapia · 14 Rue des Maraîchers, 75020'},coords:[48.8473,2.4080],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Hotel+Piapia+14+Rue+des+Maraichers+75020+Paris',
+      bookingUrl:'https://www.piapiahotel.com/en/contact-and-location.html',
+      desc:{zh:'入住或寄存行李',en:'Check in or store luggage'},reservation:'fixed',cost:{zh:'机场铁路约 €14',en:'Airport rail ~€14'},
+      notes:{zh:'最近地铁 Porte de Vincennes (1 号线)。',en:'Nearest metro: Porte de Vincennes (Line 1).'}},
+     {id:'notredame',time:'14:00-15:00',name:{zh:'巴黎圣母院',en:'Notre-Dame de Paris',fr:'Cathédrale Notre-Dame de Paris'},coords:[48.8530,2.3499],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Notre-Dame+de+Paris',
+      bookingUrl:'https://www.notredamedeparis.fr/en/visit/reservation-free/',
+      desc:{zh:'2024 年底重新开放',en:'Reopened late 2024'},reservation:'free',cost:{zh:'免费',en:'Free'},
+      notes:{zh:'官网可预约免费时段减少排队。',en:'Book free entry slot to reduce queue.'}},
+     {id:'sainte-chapelle',time:'15:00-16:00',name:{zh:'圣礼拜堂',en:'Sainte-Chapelle',fr:'Sainte-Chapelle'},coords:[48.8554,2.3450],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Sainte-Chapelle+Paris',
+      bookingUrl:'https://tickets.monuments-nationaux.fr/en-GB/families?site=2035141861660400306',
+      desc:{zh:'哥特彩窗精品',en:'Gothic stained-glass'},reservation:'must',cost:{zh:'付费门票',en:'Paid ticket'},
+      notes:{zh:'白天光线最佳。',en:'Best light during day.'}},
+     {id:'conciergerie',time:'16:00-16:45',optional:true,name:{zh:'巴黎古监狱',en:'Conciergerie',fr:'Conciergerie'},coords:[48.8566,2.3454],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Conciergerie+Paris',
+      bookingUrl:'https://www.paris-conciergerie.fr/en',
+      desc:{zh:'法国大革命遗址',en:'French Revolution site'},reservation:'opt',cost:{zh:'付费',en:'Paid'},
+      notes:{zh:'疲劳时可跳过。',en:'Skip if tired.'}},
+     {id:'shakespeare',time:'17:00-18:30',name:{zh:'莎士比亚书店 + 拉丁区',en:'Shakespeare and Co + Latin Quarter',fr:'Shakespeare and Company'},coords:[48.8525,2.3473],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Shakespeare+and+Company+Paris',
+      desc:{zh:'英文书店 + 左岸散步',en:'English bookshop + Left Bank stroll'},reservation:'free',cost:{zh:'免费',en:'Free'},notes:{zh:'',en:''}},
+     {id:'trocadero',time:{zh:'傍晚',en:'Evening'},optional:true,name:{zh:'夏佑宫广场',en:'Trocadéro',fr:'Place du Trocadéro'},coords:[48.8619,2.2876],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Trocadero+Paris',
+      desc:{zh:'铁塔夜景最佳点',en:'Best Eiffel night view'},reservation:'opt',cost:{zh:'免费',en:'Free'},
+      notes:{zh:'体力允许时再去。',en:'Only if you have energy.'}}
+   ],
+   transit:[
+     {from:'cdg',to:'hotel',mode:'rer-metro',cost:'€14',duration:{zh:'约 75 分钟',en:'~75 min'},route:{zh:'CDG → RER B → Châtelet → RER A → Nation → 1 号线 → Porte de Vincennes',en:'CDG → RER B → Châtelet → RER A → Nation → Line 1 → Porte de Vincennes'},notes:{zh:'带行李换乘多。',en:'Multiple transfers with luggage.'}},
+     {from:'hotel',to:'notredame',mode:'metro',cost:'€2.15',duration:{zh:'约 25 分钟',en:'~25 min'},route:{zh:'Porte de Vincennes → 1 号线 → Hôtel de Ville',en:'Porte de Vincennes → Line 1 → Hôtel de Ville'},notes:{zh:'',en:''}},
+     {from:'notredame',to:'sainte-chapelle',mode:'walk',cost:'-',duration:{zh:'约 5 分钟',en:'~5 min'},route:{zh:'步行穿西岱岛',en:'Walk across Île de la Cité'},notes:{zh:'',en:''}},
+     {from:'sainte-chapelle',to:'conciergerie',mode:'walk',cost:'-',duration:{zh:'约 2 分钟',en:'~2 min'},route:{zh:'相邻',en:'Adjacent'},notes:{zh:'',en:''}},
+     {from:'conciergerie',to:'shakespeare',mode:'walk',cost:'-',duration:{zh:'约 8 分钟',en:'~8 min'},route:{zh:'过塞纳河',en:'Across the Seine'},notes:{zh:'',en:''}},
+     {from:'shakespeare',to:'trocadero',mode:'metro',cost:'€2.15',duration:{zh:'约 25 分钟',en:'~25 min'},route:{zh:'地铁至 Trocadéro',en:'Metro to Trocadéro'},notes:{zh:'',en:''}}
+   ]},
+  {date:'2026-06-10',color:dayColors[1],dayName:{zh:'周三 · 中心区',en:'Wed · Central'},area:{zh:'卢浮宫 / 香榭丽舍 / 铁塔',en:'Louvre / Champs / Eiffel'},intensity:'high',
+   locations:[
+     {id:'louvre',time:'09:00-12:00',name:{zh:'卢浮宫',en:'Louvre Museum',fr:'Musée du Louvre'},coords:[48.8606,2.3376],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Louvre+Museum+Paris',
+      bookingUrl:'https://ticket.louvre.fr/en',
+      desc:{zh:'世界最大艺术博物馆',en:'Largest art museum'},reservation:'must',cost:{zh:'门票或通票',en:'Ticket or Pass'},
+      notes:{zh:'预约 9:00 或 9:30 入场。',en:'Book 9:00 or 9:30 entry.'}},
+     {id:'tuileries',time:'12:00-12:45',name:{zh:'杜乐丽花园',en:'Jardin des Tuileries',fr:'Jardin des Tuileries'},coords:[48.8634,2.3278],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Jardin+des+Tuileries+Paris',
+      desc:{zh:'卢浮宫西侧花园',en:'Garden west of Louvre'},reservation:'free',cost:{zh:'免费',en:'Free'},notes:{zh:'',en:''}},
+     {id:'concorde',time:'12:45-13:15',name:{zh:'协和广场',en:'Place de la Concorde',fr:'Place de la Concorde'},coords:[48.8656,2.3212],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Place+de+la+Concorde+Paris',
+      desc:{zh:'巴黎最大广场',en:'Largest square in Paris'},reservation:'free',cost:{zh:'免费',en:'Free'},notes:{zh:'',en:''}},
+     {id:'champs',time:'13:15-15:00',name:{zh:'香榭丽舍大道',en:'Champs-Élysées',fr:'Avenue des Champs-Élysées'},coords:[48.8698,2.3076],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Champs-Elysees+Paris',
+      desc:{zh:'从协和到凯旋门',en:'Concorde to Arc'},reservation:'free',cost:{zh:'免费',en:'Free'},
+      notes:{zh:'游客密集，注意贵重物品。',en:'Tourist-heavy; watch valuables.'}},
+     {id:'arc',time:'15:00-16:00',name:{zh:'凯旋门',en:'Arc de Triomphe',fr:'Arc de Triomphe'},coords:[48.8738,2.2950],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Arc+de+Triomphe+Paris',
+      bookingUrl:'https://www.paris-arc-de-triomphe.fr/en',
+      desc:{zh:'城市中轴核心',en:'Axial landmark'},reservation:'rec',cost:{zh:'外观免费；登顶付费',en:'Exterior free; rooftop paid'},
+      notes:{zh:'登顶视野极佳。',en:'Strong rooftop view.'}},
+     {id:'eiffel',time:'17:00-19:30',name:{zh:'埃菲尔铁塔',en:'Eiffel Tower',fr:'Tour Eiffel'},coords:[48.8584,2.2945],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Eiffel+Tower+Paris',
+      bookingUrl:'https://ticket.toureiffel.paris/en',
+      desc:{zh:'巴黎象征',en:'Symbol of Paris'},reservation:'rec',cost:{zh:'外观免费；登塔付费',en:'Exterior free; tower paid'},
+      notes:{zh:'勿带大件行李。',en:'No large luggage.'}},
+     {id:'champ-mars',time:{zh:'夜晚',en:'Evening'},name:{zh:'战神广场',en:'Champ de Mars',fr:'Champ-de-Mars'},coords:[48.8556,2.2987],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Champ+de+Mars+Paris',
+      desc:{zh:'铁塔南侧草坪',en:'Lawn south of Eiffel'},reservation:'free',cost:{zh:'免费',en:'Free'},notes:{zh:'',en:''}}
+   ],
+   transit:[
+     {from:'hotel',to:'louvre',mode:'metro',cost:'€2.15',duration:{zh:'约 20 分钟',en:'~20 min'},route:{zh:'1 号线 → Palais Royal',en:'Line 1 → Palais Royal'},notes:{zh:'',en:''}},
+     {from:'louvre',to:'tuileries',mode:'walk',cost:'-',duration:{zh:'约 5 分钟',en:'~5 min'},route:{zh:'步行',en:'Walk'},notes:{zh:'',en:''}},
+     {from:'tuileries',to:'concorde',mode:'walk',cost:'-',duration:{zh:'约 10 分钟',en:'~10 min'},route:{zh:'穿过杜乐丽',en:'Through Tuileries'},notes:{zh:'',en:''}},
+     {from:'concorde',to:'champs',mode:'walk',cost:'-',duration:{zh:'约 8 分钟',en:'~8 min'},route:{zh:'沿香榭丽舍起点',en:'Start of Champs'},notes:{zh:'',en:''}},
+     {from:'champs',to:'arc',mode:'walk',cost:'-',duration:{zh:'约 20 分钟',en:'~20 min'},route:{zh:'沿大道步行',en:'Walk the avenue'},notes:{zh:'',en:''}},
+     {from:'arc',to:'eiffel',mode:'metro',cost:'€2.15',duration:{zh:'约 10 分钟',en:'~10 min'},route:{zh:'6 号线至 Trocadéro',en:'Line 6 to Trocadéro'},notes:{zh:'',en:''}},
+     {from:'eiffel',to:'champ-mars',mode:'walk',cost:'-',duration:{zh:'约 5 分钟',en:'~5 min'},route:{zh:'铁塔南侧',en:'South side'},notes:{zh:'',en:''}}
+   ]},
+  {date:'2026-06-11',color:dayColors[2],dayName:{zh:'周四 · 凡尔赛',en:'Thu · Versailles'},area:{zh:'凡尔赛宫殿',en:'Palace of Versailles'},intensity:'high',
+   locations:[
+     {id:'versailles-station',time:'09:00',special:'station',name:{zh:'凡尔赛 Rive Gauche',en:'Versailles Rive Gauche',fr:'Gare de Versailles-Château-Rive-Gauche'},coords:[48.8019,2.1322],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Versailles+Chateau+Rive+Gauche',
+      desc:{zh:'RER C 终点',en:'RER C terminus'},reservation:'fixed',cost:{zh:'RER 票价',en:'RER fare'},
+      notes:{zh:'早出发，班次偶有调整。',en:'Leave early; sometimes service changes.'}},
+     {id:'versailles',time:'09:30-12:30',name:{zh:'凡尔赛宫',en:'Palace of Versailles',fr:'Château de Versailles'},coords:[48.8049,2.1204],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Palace+of+Versailles',
+      bookingUrl:'https://en.chateauversailles.fr/plan-your-visit/tickets-and-prices',
+      desc:{zh:'路易十四的宫殿',en:'Louis XIV palace'},reservation:'must',cost:{zh:'Passport 或宫殿票',en:'Passport or palace ticket'},
+      notes:{zh:'免费入场也常需预约时段。',en:'Free entry often needs time slot.'}},
+     {id:'versailles-gardens',time:'12:30-15:00',name:{zh:'凡尔赛花园',en:'Gardens of Versailles',fr:'Jardins de Versailles'},coords:[48.8050,2.1149],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Gardens+of+Versailles',
+      bookingUrl:'https://www.chateauversailles-spectacles.fr/en/',
+      desc:{zh:'法式古典园林',en:'French formal garden'},reservation:'rec',cost:{zh:'有音乐花园日可能付费',en:'Paid on show days'},
+      notes:{zh:'当日如有花园音乐/喷泉需另购票。',en:'Garden show days may need extra ticket.'}},
+     {id:'trianon',time:'15:00-17:00',name:{zh:'大特里阿农 / 小特里阿农',en:'Grand & Petit Trianon',fr:'Grand & Petit Trianon'},coords:[48.8146,2.1052],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Grand+Trianon+Versailles',
+      bookingUrl:'https://en.chateauversailles.fr/plan-your-visit/tickets-and-prices',
+      desc:{zh:'王宫北端小型宫殿',en:'Smaller palaces north of estate'},reservation:'rec',cost:{zh:'含 Passport 内',en:'Included in Passport'},
+      notes:{zh:'通常较主宫殿开放晚。',en:'Opens later than main palace.'}}
+   ],
+   transit:[
+     {from:'hotel',to:'versailles-station',mode:'metro-rer',cost:'€5+',duration:{zh:'约 75 分钟',en:'~75 min'},route:{zh:'1 号线 → 转 RER C',en:'Line 1 → RER C'},notes:{zh:'用 Google Maps 确认换乘点。',en:'Verify transfer with Google Maps.'}},
+     {from:'versailles-station',to:'versailles',mode:'walk',cost:'-',duration:{zh:'约 10 分钟',en:'~10 min'},route:{zh:'步行到宫殿',en:'Walk to palace'},notes:{zh:'',en:''}},
+     {from:'versailles',to:'versailles-gardens',mode:'walk',cost:'-',duration:{zh:'约 5 分钟',en:'~5 min'},route:{zh:'宫殿背后',en:'Behind the palace'},notes:{zh:'',en:''}},
+     {from:'versailles-gardens',to:'trianon',mode:'walk',cost:'-',duration:{zh:'约 25 分钟',en:'~25 min'},route:{zh:'步行穿园',en:'Walk through gardens'},notes:{zh:'',en:''}}
+   ]},
+  {date:'2026-06-12',color:dayColors[3],dayName:{zh:'周五 · 左岸 + 蒙马特',en:'Fri · Left Bank + Montmartre'},area:{zh:'左岸 / 蒙马特',en:'Left Bank / Montmartre'},intensity:'moderate',
+   locations:[
+     {id:'orsay',time:'09:30-12:00',name:{zh:'奥赛博物馆',en:"Musée d'Orsay",fr:"Musée d'Orsay"},coords:[48.8600,2.3266],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Musee+d+Orsay+Paris',
+      bookingUrl:'https://billetterie.musee-orsay.fr/en-GB/home',
+      desc:{zh:'印象派宝库',en:'Impressionism treasure'},reservation:'rec',cost:{zh:'门票或通票',en:'Ticket or Pass'},
+      notes:{zh:'比卢浮宫紧凑。',en:'More compact than Louvre.'}},
+     {id:'saint-germain',time:'12:00-13:30',name:{zh:'圣日耳曼德佩',en:'Saint-Germain-des-Prés',fr:'Saint-Germain-des-Prés'},coords:[48.8537,2.3340],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Saint-Germain-des-Pres+Paris',
+      desc:{zh:'左岸咖啡街区',en:'Café quarter'},reservation:'free',cost:{zh:'免费',en:'Free'},notes:{zh:'',en:''}},
+     {id:'luxembourg',time:'13:30-14:30',name:{zh:'卢森堡公园',en:'Luxembourg Gardens',fr:'Jardin du Luxembourg'},coords:[48.8462,2.3372],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Luxembourg+Gardens+Paris',
+      desc:{zh:'当地人爱的公园',en:'Beloved local park'},reservation:'free',cost:{zh:'免费',en:'Free'},notes:{zh:'',en:''}},
+     {id:'pantheon',time:'14:45-16:00',optional:true,name:{zh:'万神殿',en:'Panthéon',fr:'Panthéon'},coords:[48.8462,2.3464],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Pantheon+Paris',
+      bookingUrl:'https://tickets.monuments-nationaux.fr/en-GB/families?site=2007056652440400272',
+      desc:{zh:'雨果、伏尔泰长眠之地',en:'Resting place of Hugo, Voltaire'},reservation:'opt',cost:{zh:'付费',en:'Paid'},notes:{zh:'',en:''}},
+     {id:'sacre-coeur',time:'17:00-18:30',name:{zh:'圣心大教堂',en:'Sacré-Cœur',fr:'Basilique du Sacré-Cœur'},coords:[48.8867,2.3431],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Sacre-Coeur+Paris',
+      desc:{zh:'蒙马特山顶白色教堂',en:'White basilica atop Montmartre'},reservation:'free',cost:{zh:'教堂免费',en:'Church free'},
+      notes:{zh:'游客密集，背包前置。',en:'Tourist-heavy; bag in front.'}},
+     {id:'place-tertre',time:'18:30-20:00',name:{zh:'小丘广场 / 蒙马特',en:'Place du Tertre / Montmartre',fr:'Place du Tertre'},coords:[48.8865,2.3401],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Place+du+Tertre+Paris',
+      desc:{zh:'街头艺术家广场',en:'Street artists square'},reservation:'free',cost:{zh:'免费',en:'Free'},
+      notes:{zh:'夜里早些下山更安全。',en:'Head down before dark.'}}
+   ],
+   transit:[
+     {from:'hotel',to:'orsay',mode:'metro',cost:'€2.15',duration:{zh:'约 35 分钟',en:'~35 min'},route:{zh:'1 号线 → Concorde → 12 号线 → Solférino',en:'Line 1 → Concorde → Line 12 → Solférino'},notes:{zh:'',en:''}},
+     {from:'orsay',to:'saint-germain',mode:'walk',cost:'-',duration:{zh:'约 12 分钟',en:'~12 min'},route:{zh:'沿河',en:'Along river'},notes:{zh:'',en:''}},
+     {from:'saint-germain',to:'luxembourg',mode:'walk',cost:'-',duration:{zh:'约 10 分钟',en:'~10 min'},route:{zh:'向南',en:'South'},notes:{zh:'',en:''}},
+     {from:'luxembourg',to:'pantheon',mode:'walk',cost:'-',duration:{zh:'约 8 分钟',en:'~8 min'},route:{zh:'步行',en:'Walk'},notes:{zh:'',en:''}},
+     {from:'pantheon',to:'sacre-coeur',mode:'metro',cost:'€2.15',duration:{zh:'约 40 分钟',en:'~40 min'},route:{zh:'转 12 号线 → Abbesses',en:'Line 12 → Abbesses'},notes:{zh:'夜里用光线好的出口。',en:'Use well-lit exits at night.'}},
+     {from:'sacre-coeur',to:'place-tertre',mode:'walk',cost:'-',duration:{zh:'约 3 分钟',en:'~3 min'},route:{zh:'步行',en:'Walk'},notes:{zh:'',en:''}}
+   ]},
+  {date:'2026-06-13',color:dayColors[4],dayName:{zh:'周六 · 离开日',en:'Sat · Departure'},area:{zh:'巴士底 / 玛黑 / 里昂',en:'Bastille / Marais / Gare de Lyon'},intensity:'light',
+   locations:[
+     {id:'hotel-d5',time:{zh:'上午',en:'Morning'},special:'hotel',name:{zh:'酒店退房',en:'Hotel check-out',fr:'Hôtel Piapia'},coords:[48.8473,2.4080],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Hotel+Piapia+14+Rue+des+Maraichers+75020+Paris',
+      desc:{zh:'退房，行李寄存或随身',en:'Check out'},reservation:'fixed',
+      notes:{zh:'今早不安排博物馆。',en:'No museum this morning.'}},
+     {id:'bastille',time:'10:30-11:30',optional:true,name:{zh:'巴士底广场',en:'Place de la Bastille',fr:'Place de la Bastille'},coords:[48.8531,2.3692],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Place+de+la+Bastille+Paris',
+      desc:{zh:'法国大革命象征',en:'French Revolution symbol'},reservation:'opt',cost:{zh:'免费',en:'Free'},notes:{zh:'',en:''}},
+     {id:'vosges',time:'11:30-12:00',optional:true,name:{zh:'孚日广场 / 玛黑',en:'Place des Vosges / Le Marais',fr:'Place des Vosges'},coords:[48.8556,2.3656],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Place+des+Vosges+Paris',
+      desc:{zh:'最古老的广场之一',en:'Oldest squares'},reservation:'opt',cost:{zh:'免费',en:'Free'},notes:{zh:'',en:''}},
+     {id:'gare-lyon',time:'12:15',special:'station',name:{zh:'巴黎里昂车站',en:'Paris Gare de Lyon',fr:'Gare de Lyon'},coords:[48.8443,2.3744],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Paris+Gare+de+Lyon',
+      desc:{zh:'前往巴塞罗那的车站',en:'Departure station'},reservation:'fixed',cost:{zh:'地铁',en:'Metro'},
+      notes:{zh:'提前 1 小时到站。',en:'Arrive 1 hr early.'}},
+     {id:'tgv',time:'13:18-21:03',name:{zh:'TGV INOUI 9735',en:'TGV INOUI 9735',fr:'TGV INOUI 9735'},coords:[48.8443,2.3744],
+      mapsLink:'https://www.google.com/maps/search/?api=1&query=Barcelona+Sants',
+      desc:{zh:'巴黎 → 巴塞罗那',en:'Paris → Barcelona'},reservation:'fixed',cost:{zh:'$143',en:'$143'},
+      notes:{zh:'护照、签证、票据随身。',en:'Carry passport, visa, tickets.'}}
+   ],
+   transit:[
+     {from:'hotel-d5',to:'bastille',mode:'metro',cost:'€2.15',duration:{zh:'约 15 分钟',en:'~15 min'},route:{zh:'1 号线 → Bastille',en:'Line 1 → Bastille'},notes:{zh:'行李看好。',en:'Watch luggage.'}},
+     {from:'bastille',to:'vosges',mode:'walk',cost:'-',duration:{zh:'约 5 分钟',en:'~5 min'},route:{zh:'步行',en:'Walk'},notes:{zh:'',en:''}},
+     {from:'vosges',to:'gare-lyon',mode:'metro',cost:'€2.15',duration:{zh:'约 10 分钟',en:'~10 min'},route:{zh:'1 号线 → Gare de Lyon',en:'Line 1 → Gare de Lyon'},notes:{zh:'',en:''}},
+     {from:'gare-lyon',to:'tgv',mode:'tgv',cost:'$143',duration:{zh:'7 小时 45 分',en:'7h 45min'},route:{zh:'TGV INOUI 9735 直达',en:'TGV INOUI 9735 direct'},notes:{zh:'',en:''}}
+   ]}
+];
+
+var reservations = [
+  {priority:'must',name:{zh:'卢浮宫',en:'Louvre'},when:{zh:'6/10 09:00 或 09:30',en:'Jun 10, 09:00 or 09:30'},url:'https://ticket.louvre.fr/en',note:{zh:'建议清晨入场。',en:'Book early morning.'}},
+  {priority:'must',name:{zh:'圣礼拜堂',en:'Sainte-Chapelle'},when:{zh:'6/9 15:00',en:'Jun 9, 15:00'},url:'https://tickets.monuments-nationaux.fr/en-GB/families?site=2035141861660400306',note:{zh:'圣母院之后顺道。',en:'After Notre-Dame.'}},
+  {priority:'must',name:{zh:'凡尔赛宫',en:'Palace of Versailles'},when:{zh:'6/11 09:30',en:'Jun 11, 09:30'},url:'https://en.chateauversailles.fr/plan-your-visit/tickets-and-prices',note:{zh:'检查花园活动日。',en:'Check garden show rules.'}},
+  {priority:'rec',name:{zh:'奥赛',en:"Musée d'Orsay"},when:{zh:'6/12 09:30',en:'Jun 12, 09:30'},url:'https://billetterie.musee-orsay.fr/en-GB/home',note:{zh:'官网或通票。',en:'Online or Pass.'}},
+  {priority:'opt',name:{zh:'埃菲尔铁塔（登塔）',en:'Eiffel Tower (up)'},when:{zh:'6/10 傍晚',en:'Jun 10 evening'},url:'https://ticket.toureiffel.paris/en',note:{zh:'外观免费。',en:'Exterior free.'}},
+  {priority:'opt',name:{zh:'凯旋门登顶',en:'Arc rooftop'},when:{zh:'6/10 下午',en:'Jun 10 PM'},url:'https://www.paris-arc-de-triomphe.fr/en',note:{zh:'外观免费。',en:'Exterior free.'}},
+  {priority:'opt',name:{zh:'圣母院（免费预约）',en:'Notre-Dame (free)'},when:{zh:'6/9 下午',en:'Jun 9 PM'},url:'https://www.notredamedeparis.fr/en/visit/reservation-free/',note:{zh:'减少排队。',en:'Reduces queue.'}},
+  {priority:'opt',name:{zh:'万神殿',en:'Panthéon'},when:{zh:'6/12 下午',en:'Jun 12 PM'},url:'https://tickets.monuments-nationaux.fr/en-GB/families?site=2007056652440400272',note:{zh:'体力允许时。',en:'If energy allows.'}},
+  {priority:'opt',name:{zh:'Paris Museum Pass 4 日',en:'Paris Museum Pass 4-day'},when:{zh:'6/10 起激活',en:'Activate Jun 10'},url:'https://www.parismuseumpass.fr/en',note:{zh:'不含铁塔。',en:'Excludes Eiffel.'}}
+];
+
+var budget = [
+  {cat:{zh:'巴黎酒店 4 晚',en:'Hotel, 4 nights'},sel:650,note:{zh:'实际可替换',en:'Replace with actual'}},
+  {cat:{zh:'巴黎交通 + 机场铁路',en:'Transit + airport rail'},sel:80,note:{zh:'',en:''}},
+  {cat:{zh:'TGV 到巴塞罗那',en:'TGV to Barcelona'},sel:143,note:{zh:'TGV INOUI 9735',en:'TGV INOUI 9735'}},
+  {cat:{zh:'门票',en:'Tickets'},sel:165,note:{zh:'卢浮+圣礼拜+凡尔赛+奥赛',en:'Louvre+Sainte+Versailles+Orsay'}},
+  {cat:{zh:'餐饮 4.5 天',en:'Food, 4.5 days'},sel:270,note:{zh:'咖啡 + 简餐',en:'Cafés + casual'}},
+  {cat:{zh:'缓冲',en:'Buffer'},sel:100,note:{zh:'',en:''}}
+];
+var budgetTotal = {low:1108, high:1788, sel:1408};
+
+var tips = {
+  zh:[
+    {icon:'🌡️',title:'天气',body:'6 月巴黎 14-22°C，可能阵雨。薄外套 + 雨伞。日落约 21:50。'},
+    {icon:'🎫',title:'交通票',body:'4 天行程量大，建议 Navigo Easy + 充值，或 Paris Visite。'},
+    {icon:'🥖',title:'用餐',body:'多数餐厅 12:00-14:30 / 19:00-22:30，下午常关门。'},
+    {icon:'🎒',title:'安全',body:'香榭丽舍、铁塔、蒙马特、地铁扒手多。背包前置。'},
+    {icon:'🚇',title:'地铁',body:'1 号线是主轴。Porte de Vincennes 是出发站。'},
+    {icon:'🏛️',title:'通票',body:'卢浮 + 凡尔赛 + 圣礼拜 + 奥赛 + 凯旋门都登，4 日 Museum Pass 划算。'},
+    {icon:'📱',title:'App',body:'Bonjour RATP, Citymapper, Google 翻译。'}
+  ],
+  en:[
+    {icon:'🌡️',title:'Weather',body:'June avg 14-22°C, possible rain. Light jacket + umbrella. Sunset ~21:50.'},
+    {icon:'🎫',title:'Transit',body:'For 4 packed days, consider Navigo Easy + carnet, or Paris Visite.'},
+    {icon:'🥖',title:'Meals',body:'Most restaurants 12:00-14:30 / 19:00-22:30; closed mid-afternoon.'},
+    {icon:'🎒',title:'Safety',body:'Champs, Eiffel, Montmartre, metro have pickpockets. Bag in front.'},
+    {icon:'🚇',title:'Metro',body:'Line 1 is your axis. Porte de Vincennes is home.'},
+    {icon:'🏛️',title:'Pass',body:'Louvre + Versailles + Sainte + Orsay + Arc - 4-day Pass usually pays off.'},
+    {icon:'📱',title:'Apps',body:'Bonjour RATP, Citymapper, Google Translate.'}
+  ]
+};
+
+var links = {
+  zh:[
+    {name:'Météo France 天气',url:'https://meteofrance.com/previsions-meteo-france/paris/75000'},
+    {name:'Bonjour RATP',url:'https://www.bonjour-ratp.fr/'},
+    {name:'Citymapper 巴黎',url:'https://citymapper.com/paris'},
+    {name:'Île-de-France 票价',url:'https://www.iledefrance-mobilites.fr/en/tarifs-titre-de-transport-en-commun-2026'},
+    {name:'Hôtel Piapia',url:'https://www.piapiahotel.com/en/contact-and-location.html'},
+    {name:'Paris Museum Pass',url:'https://www.parismuseumpass.fr/en'}
+  ],
+  en:[
+    {name:'Météo France',url:'https://meteofrance.com/previsions-meteo-france/paris/75000'},
+    {name:'Bonjour RATP',url:'https://www.bonjour-ratp.fr/'},
+    {name:'Citymapper Paris',url:'https://citymapper.com/paris'},
+    {name:'Île-de-France fares',url:'https://www.iledefrance-mobilites.fr/en/tarifs-titre-de-transport-en-commun-2026'},
+    {name:'Hôtel Piapia',url:'https://www.piapiahotel.com/en/contact-and-location.html'},
+    {name:'Paris Museum Pass',url:'https://www.parismuseumpass.fr/en'}
+  ]
+};
+
+// ===== State =====
+var lang = 'zh';
+var currentDay = 0;
+var showOptional = true;
+var map, markersLayer, linesLayer;
+var markersById = {};
+var checkins = {};
+var bookings = [];
+var modalTab = 'rsv';
+var stagedFile = null;
+var stagedData = null;
+
+function L_(o){if(o==null)return '';if(typeof o==='string')return o;return o[lang]||o.en||o.zh||'';}
+function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function modeColor(m){return {metro:'#1e3a8a',rer:'#7c3aed','rer-metro':'#5b3a9c','metro-rer':'#5b3a9c',walk:'#059669',tgv:'#dc2626'}[m]||'#525252';}
+function modeIcon(m){return m==='walk'?'🚶':m==='tgv'?'🚄':(m==='rer'||m==='rer-metro'||m==='metro-rer')?'🚆':'Ⓜ';}
+
+// ===== Storage =====
+async function sGet(k){try{return await window.storage.get(k);}catch(e){return null;}}
+async function sSet(k,v){try{return await window.storage.set(k,v);}catch(e){return null;}}
+async function sDel(k){try{return await window.storage.delete(k);}catch(e){return null;}}
+
+async function loadCheckins(){var r=await sGet('checkins');if(r){try{checkins=JSON.parse(r.value);}catch(e){}}}
+async function saveCheckins(){await sSet('checkins',JSON.stringify(checkins));}
+async function toggleCheckin(id){if(checkins[id])delete checkins[id];else checkins[id]=new Date().toISOString();await saveCheckins();renderTimeline();renderMap();}
+
+async function loadBookings(){var r=await sGet('bookings_list');if(r){try{bookings=JSON.parse(r.value)||[];}catch(e){bookings=[];}}}
+async function saveBookings(){await sSet('bookings_list',JSON.stringify(bookings));}
+
+// ===== File helpers =====
+function compressImage(file){
+  return new Promise(function(resolve,reject){
+    var img=new Image();
+    img.onload=function(){
+      var maxDim=1800,q=0.85;
+      var ratio=Math.min(1,maxDim/Math.max(img.width,img.height));
+      var w=Math.round(img.width*ratio),h=Math.round(img.height*ratio);
+      var c=document.createElement('canvas');c.width=w;c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(img.src);
+      resolve(c.toDataURL('image/jpeg',q));
+    };
+    img.onerror=function(){reject(new Error('image load failed'));};
+    img.src=URL.createObjectURL(file);
+  });
+}
+function fileToBase64(f){
+  return new Promise(function(resolve,reject){
+    var r=new FileReader();
+    r.onload=function(){resolve(r.result);};
+    r.onerror=reject;
+    r.readAsDataURL(f);
+  });
+}
+
+// ===== AI extract =====
+async function aiExtractBooking(dataUrl, mime){
+  var base64 = dataUrl.split(',')[1];
+  var isPdf = mime === 'application/pdf';
+  var stopsList = [];
+  days.forEach(function(d, di){
+    d.locations.forEach(function(l){
+      stopsList.push(l.id + '=' + (l.name && l.name.en ? l.name.en : '') + ' [D' + (di+1) + ']');
+    });
+  });
+  var stops = stopsList.join(', ');
+  var promptText = 'You are looking at a travel booking ' + (isPdf ? 'PDF' : 'image') +
+    '. Read it carefully and return ONLY a JSON object (no markdown fences, no other text) with these fields: ' +
+    '{"category":"hotel" or "transport" or "attraction" or "other", "title":"short descriptive title", ' +
+    '"date":"YYYY-MM-DD or date range", "location":"place name", "reference":"booking/confirmation # if visible", ' +
+    '"linkedLocId":"one of the trip stop IDs below, or empty string if no clear match"}. ' +
+    'Available trip stop IDs: ' + stops + '. ' +
+    'Match hints: Hotel Piapia -> hotel; TGV to Barcelona -> tgv; Louvre -> louvre; ' +
+    'Versailles palace -> versailles; Sainte-Chapelle -> sainte-chapelle; CDG airport -> cdg; ' +
+    'Notre-Dame -> notredame; Orsay -> orsay; Arc de Triomphe -> arc; Eiffel Tower -> eiffel. ' +
+    'For multi-night hotel reservations, use the arrival-day id. Return ONLY the JSON object.';
+  var sourceBlock = isPdf
+    ? {type:'document', source:{type:'base64', media_type:'application/pdf', data:base64}}
+    : {type:'image', source:{type:'base64', media_type:mime, data:base64}};
+  var res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:800,
+      messages:[{role:'user', content:[sourceBlock, {type:'text', text:promptText}]}]
+    })
+  });
+  if (!res.ok) throw new Error('API ' + res.status);
+  var data = await res.json();
+  var textBlock = null;
+  if (data.content && data.content.length) {
+    for (var i=0; i<data.content.length; i++) {
+      if (data.content[i].type === 'text') { textBlock = data.content[i]; break; }
+    }
+  }
+  var txt = (textBlock && textBlock.text) || '';
+  var clean = txt.replace(/```json/g, '').replace(/```/g, '').trim();
+  try { return JSON.parse(clean); } catch (e) { return null; }
+}
+
+function showNotif(msg, isError){
+  var n=document.createElement('div');
+  n.style.cssText='position:fixed;top:80px;left:50%;transform:translateX(-50%);background:'+(isError?'#dc2626':'#1c1c1a')+';color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;z-index:9999;max-width:90vw;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.3);line-height:1.5';
+  n.textContent=msg;
+  document.body.appendChild(n);
+  setTimeout(function(){if(n.parentNode)n.parentNode.removeChild(n);},5000);
+}
+
+function dataURLtoBlob(dataURL){
+  var arr=dataURL.split(',');
+  var mime=arr[0].match(/:(.*?);/)[1];
+  var bstr=atob(arr[1]);
+  var n=bstr.length;
+  var u8=new Uint8Array(n);
+  while(n--)u8[n]=bstr.charCodeAt(n);
+  return new Blob([u8],{type:mime});
+}
+
+// ===== Booking view (shared) =====
+async function openBookingView(id){
+  var r=await sGet('booking_'+id);
+  if(!r||!r.value){
+    showNotif(lang==='zh'?'⚠ 文件数据不存在，请删除此条记录并重新上传':'⚠ File data not found. Please delete and re-upload.',true);
+    return;
+  }
+  var bk=null;
+  for(var i=0;i<bookings.length;i++){if(bookings[i].id===id){bk=bookings[i];break;}}
+  var isImg=bk&&bk.mime&&bk.mime.indexOf('image/')===0;
+  if(isImg){
+    var lb=document.getElementById('lightbox');
+    var lbImg=document.getElementById('lbImg');
+    var lbPdf=document.getElementById('lbPdf');
+    lbImg.src=r.value;lbImg.style.display='';
+    lbPdf.style.display='none';
+    lb.classList.add('show');
+  } else {
+    try{
+      var blob=dataURLtoBlob(r.value);
+      var url=URL.createObjectURL(blob);
+      var w=window.open(url,'_blank');
+      if(!w){
+        var a=document.createElement('a');
+        a.href=url;a.target='_blank';a.rel='noopener';
+        document.body.appendChild(a);a.click();document.body.removeChild(a);
+      }
+      showNotif(lang==='zh'?'✓ PDF 已在新标签页打开':'✓ PDF opened in new tab');
+      setTimeout(function(){URL.revokeObjectURL(url);},120000);
+    }catch(e){
+      showNotif('PDF 打开失败: '+(e.message||''),true);
+    }
+  }
+}
+
+// ===== Pre-trip strip =====
+function daysUntilTrip(){var start=new Date('2026-06-09T00:00:00');return Math.ceil((start-new Date())/86400000);}
+function parisHour(){try{return new Date().toLocaleTimeString(lang==='zh'?'zh-CN':'en-GB',{timeZone:'Europe/Paris',hour:'2-digit',minute:'2-digit',hour12:false});}catch(e){return '';}}
+
+function dayProgress(d){var elig=d.locations.filter(function(l){return !l.special;});var v=elig.filter(function(l){return checkins[l.id];}).length;return {v:v,tot:elig.length,pct:elig.length?Math.round(v/elig.length*100):0};}
+function tripProgress(){var v=0,tot=0;days.forEach(function(d){var p=dayProgress(d);v+=p.v;tot+=p.tot;});return {v:v,tot:tot,pct:tot?Math.round(v/tot*100):0};}
+
+// ===== Render: day tabs =====
+function renderDayTabs(){
+  var el=document.getElementById('dayTabs');
+  var html='';
+  days.forEach(function(d,i){
+    var date=d.date.substring(5).replace('-','/');
+    var p=dayProgress(d);
+    var dot=p.v>0?'<span style="display:inline-block;width:4px;height:4px;border-radius:50%;background:'+(currentDay===i?'white':'var(--check)')+';margin-left:3px"></span>':'';
+    html+='<button class="day-tab '+(currentDay===i?'active':'')+'" style="--day-color:'+d.color+'" data-day="'+i+'"><span class="day-label">'+date+'</span><span class="day-num">D'+(i+1)+dot+'</span></button>';
+  });
+  html+='<button class="day-tab '+(currentDay===-1?'active':'')+'" style="--day-color:var(--accent)" data-day="-1"><span class="day-label">'+t[lang].allDays+'</span><span class="day-num">★</span></button>';
+  el.innerHTML=html;
+  el.querySelectorAll('.day-tab').forEach(function(b){b.addEventListener('click',function(){switchDay(parseInt(b.dataset.day));});});
+}
+
+function renderStrip(){
+  var tx=t[lang];
+  return '<div class="strip"><span class="chip">📅 <strong>'+tx.daysUntil(daysUntilTrip())+'</strong></span>'+
+    '<span class="chip">🕐 '+tx.timeNow(parisHour())+'</span>'+
+    '<a class="chip" href="'+links[lang][0].url+'" target="_blank">☁️ '+tx.weather+'</a>'+
+    '<a class="chip" href="'+links[lang][1].url+'" target="_blank">🚇 '+tx.ratp+'</a></div>';
+}
+
+// ===== Render: timeline =====
+function renderTimeline(){
+  var el=document.getElementById('timeline');
+  var tx=t[lang];
+  if(currentDay===-1){
+    var tp=tripProgress();
+    var html='<div class="day-header" style="--day-color:var(--accent)"><div class="date">'+tx.sub+'</div><div class="day-title">'+tx.allDaysLabel+'</div>'+
+      '<div class="day-meta"><span><strong>5</strong> '+(lang==='zh'?'天':'days')+'</span><span><strong>'+days.reduce(function(s,d){return s+d.locations.length;},0)+'</strong> '+(lang==='zh'?'点位':'stops')+'</span></div>'+
+      '<div class="progress-row"><div class="progress-track"><div class="progress-fill" style="width:'+tp.pct+'%"></div></div><span class="progress-text">'+tx.progress(tp.v,tp.tot)+'</span></div></div>';
+    html+=renderStrip();
+    days.forEach(function(d,i){
+      var p=dayProgress(d);
+      html+='<div class="day-header" style="--day-color:'+d.color+';cursor:pointer;margin-bottom:8px" data-jump="'+i+'"><div class="date">'+d.date+'</div><div class="day-title">D'+(i+1)+' · '+L_(d.dayName)+'</div>'+
+        '<div class="day-meta"><span>'+L_(d.area)+'</span><span><strong>'+d.locations.length+'</strong> '+(lang==='zh'?'点位':'stops')+'</span></div>'+
+        '<div class="progress-row"><div class="progress-track"><div class="progress-fill" style="width:'+p.pct+'%"></div></div><span class="progress-text">'+tx.progress(p.v,p.tot)+'</span></div></div>';
+    });
+    el.innerHTML=html;
+    el.querySelectorAll('[data-jump]').forEach(function(n){n.addEventListener('click',function(){switchDay(parseInt(n.dataset.jump));});});
+    return;
+  }
+  var d=days[currentDay];
+  var p=dayProgress(d);
+  var html='<div class="day-header" style="--day-color:'+d.color+'"><div class="date">'+d.date+'</div><div class="day-title">'+L_(d.dayName)+'</div>'+
+    '<div class="day-meta"><span><strong>'+L_(d.area)+'</strong></span><span>'+(lang==='zh'?'强度':'Intensity')+': '+tx.intensity[d.intensity]+'</span></div>'+
+    '<div class="progress-row"><div class="progress-track"><div class="progress-fill" style="width:'+p.pct+'%"></div></div><span class="progress-text">'+tx.progress(p.v,p.tot)+'</span></div></div>';
+  html+=renderStrip();
+  html+='<div class="ctl-bar"><span class="ctl-label">'+(lang==='zh'?'当日行程':'Day timeline')+'</span><label class="toggle-opt"><input type="checkbox" id="toggleOpt" '+(showOptional?'checked':'')+'/> '+tx.showOptional+'</label></div>';
+  var locs=d.locations, trans=d.transit;
+  locs.forEach(function(loc,idx){
+    if(loc.optional && !showOptional) return;
+    html+=renderLocationCard(loc,idx,d.color);
+    if(idx<locs.length-1){
+      var next=locs[idx+1];
+      if(next.optional && !showOptional){
+        var ni=idx+2;
+        while(ni<locs.length && locs[ni].optional && !showOptional) ni++;
+        if(ni<locs.length && trans[idx]) html+=renderTransit(trans[idx]);
+      } else if(trans[idx]) html+=renderTransit(trans[idx]);
+    }
+  });
+  el.innerHTML=html;
+  attachCardHandlers();
+  var tg=document.getElementById('toggleOpt');
+  if(tg) tg.addEventListener('change',function(e){showOptional=e.target.checked;renderTimeline();renderMap();});
+}
+
+function renderLocationCard(loc,idx,color){
+  var tx=t[lang];
+  var isHotel=loc.special==='hotel', isStation=loc.special==='station', isAirport=loc.special==='airport';
+  var dotClass=(isHotel?'hotel':isStation?'station':isAirport?'airport':'')+(checkins[loc.id]?' checked':'');
+  var dotContent=isHotel?'🏨':isAirport?'✈':isStation?'🚉':(idx+1);
+  var visited=!!checkins[loc.id];
+  var linked=bookings.filter(function(b){return b.linkedLocId===loc.id;});
+  var badges=[];
+  if(loc.reservation==='must') badges.push('<span class="badge must">'+tx.badges.must+'</span>');
+  else if(loc.reservation==='rec') badges.push('<span class="badge rec">'+tx.badges.rec+'</span>');
+  else if(loc.reservation==='opt') badges.push('<span class="badge opt">'+tx.badges.opt+'</span>');
+  else if(loc.reservation==='free') badges.push('<span class="badge free">'+tx.badges.free+'</span>');
+  else if(loc.reservation==='fixed') badges.push('<span class="badge fixed">'+tx.badges.fixed+'</span>');
+  if(visited) badges.push('<span class="badge visited">✓ '+tx.badges.visited+'</span>');
+  if(linked.length) badges.push('<span class="badge linked">📎 '+linked.length+'</span>');
+  var cls='card '+(loc.optional?'optional ':'')+(loc.reservation==='fixed'?'fixed ':'')+(visited?'visited':'');
+  var linkedHtml='';
+  if(linked.length){
+    linkedHtml='<div class="lk-block"><div class="lk-h">📎 '+tx.linkedHead+'</div>';
+    linked.forEach(function(b){
+      var isImg=(b.mime||'').indexOf('image/')===0;
+      linkedHtml+='<div class="lk-item" data-bk-view="'+b.id+'">'+
+        '<div class="lk-thumb">'+(isImg?'<img data-bk-thumb="'+b.id+'" alt=""/>':'<div class="pdf-ph">📄</div>')+'</div>'+
+        '<div class="lk-info"><div class="lk-title">'+esc(b.title)+'</div>'+
+        '<div class="lk-meta">'+(b.date?'📅 '+esc(b.date):'')+(b.reference?(b.date?' · ':'')+'#'+esc(b.reference):'')+'</div></div>'+
+        '<div class="lk-eye">👁</div></div>';
+    });
+    linkedHtml+='</div>';
+  }
+  return '<div class="'+cls+'" data-loc="'+loc.id+'" style="--day-color:'+color+'">'+
+    '<div class="body"><div class="head"><div class="dot '+dotClass+'">'+dotContent+'</div>'+
+    '<div class="info"><div class="time">'+L_(loc.time)+'</div><div class="name">'+L_(loc.name)+'</div>'+
+    '<div class="name-fr">'+(loc.name.fr||'')+'</div>'+
+    (badges.length?'<div class="badges">'+badges.join('')+'</div>':'')+
+    '</div></div></div>'+
+    '<div class="details"><div class="details-inner">'+
+    '<div class="desc">'+L_(loc.desc)+'</div>'+
+    (L_(loc.notes)?'<div class="notes"><strong>'+tx.notesLabel+':</strong> '+L_(loc.notes)+'</div>':'')+
+    (loc.cost?'<div class="meta-row"><strong>'+tx.cost+':</strong> '+L_(loc.cost)+'</div>':'')+
+    '<div class="actions">'+
+    '<button class="btn check '+(visited?'on':'')+'" data-checkin="'+loc.id+'">'+(visited?tx.checkInDone:tx.checkInDo)+'</button>'+
+    '<a class="btn primary" href="'+loc.mapsLink+'" target="_blank">📍 '+tx.openMaps+'</a>'+
+    (loc.bookingUrl?'<a class="btn" href="'+loc.bookingUrl+'" target="_blank">🎫 '+tx.bookOfficial+'</a>':'')+
+    '</div>'+linkedHtml+
+    '</div></div></div>';
+}
+
+function renderTransit(tr){
+  var tx=t[lang];
+  var mc=modeColor(tr.mode);
+  return '<div class="transit '+(tr.mode==='walk'?'walk':'')+'" style="--mc:'+mc+'">'+
+    '<div class="rail"><div class="mi">'+modeIcon(tr.mode)+'</div></div>'+
+    '<div class="tinfo"><div class="tmode">'+(tx.transitMode[tr.mode]||tr.mode)+'</div>'+
+    '<div class="tdetails">'+L_(tr.duration)+' · '+tr.cost+'</div>'+
+    '<div class="troute">'+L_(tr.route)+'</div>'+
+    (L_(tr.notes)?'<div class="troute" style="margin-top:3px">⚠ '+L_(tr.notes)+'</div>':'')+
+    '</div></div>';
+}
+
+function attachCardHandlers(){
+  document.querySelectorAll('.card').forEach(function(card){
+    var body=card.querySelector('.body');
+    body.addEventListener('click',function(){
+      card.classList.toggle('open');
+      var lid=card.dataset.loc;
+      var m=markersById[lid];
+      if(m && map){map.flyTo(m.getLatLng(),Math.max(map.getZoom(),14),{duration:0.7});m.openPopup();}
+    });
+    var cb=card.querySelector('[data-checkin]');
+    if(cb) cb.addEventListener('click',function(e){e.stopPropagation();toggleCheckin(cb.dataset.checkin);});
+    // Linked booking views
+    card.querySelectorAll('[data-bk-view]').forEach(function(el){
+      el.addEventListener('click',function(e){e.stopPropagation();openBookingView(el.dataset.bkView);});
+    });
+    // Linked thumbnails
+    card.querySelectorAll('img[data-bk-thumb]').forEach(async function(img){
+      var r=await sGet('booking_'+img.dataset.bkThumb);
+      if(r && r.value) img.src=r.value;
+    });
+  });
+}
+
+// ===== Map =====
+function initMap(){
+  map=L.map('map',{zoomControl:true}).setView([48.8566,2.3522],12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+  markersLayer=L.layerGroup().addTo(map);
+  linesLayer=L.layerGroup().addTo(map);
+}
+
+function renderMap(){
+  markersLayer.clearLayers();linesLayer.clearLayers();
+  for(var k in markersById)delete markersById[k];
+  var tx=t[lang];
+  function addLoc(loc,color,num,dayLabel){
+    if(loc.optional && !showOptional) return null;
+    var sp=loc.special, visited=!!checkins[loc.id];
+    var cls='mm '+(sp==='hotel'?'hotel':sp==='airport'?'airport':sp==='station'?'station':'')+(visited?' visited':'');
+    var content=sp==='hotel'?'🏨':sp==='airport'?'✈':sp==='station'?'🚉':num;
+    var bg=sp?'':'style="background:'+color+'"';
+    var icon=L.divIcon({className:'custom-marker',html:'<div class="'+cls+'" '+bg+'>'+content+'</div>',iconSize:[28,28],iconAnchor:[14,14],popupAnchor:[0,-14]});
+    var m=L.marker(loc.coords,{icon:icon}).addTo(markersLayer);
+    m.bindPopup('<div class="popup"><div class="pn">'+L_(loc.name)+(visited?' ✓':'')+'</div>'+
+      (loc.name.fr?'<div class="pfr">'+loc.name.fr+'</div>':'')+
+      '<div class="pt">'+(dayLabel?dayLabel+' · ':'')+L_(loc.time)+'</div>'+
+      '<a class="pl" href="'+loc.mapsLink+'" target="_blank">📍 '+tx.openMaps+' →</a></div>');
+    markersById[loc.id]=m;
+    return m;
+  }
+  if(currentDay===-1){
+    var bounds=[];
+    days.forEach(function(d,di){
+      var lookup={};
+      d.locations.forEach(function(loc,idx){
+        if(loc.optional && !showOptional) return;
+        addLoc(loc,d.color,idx+1,'D'+(di+1));
+        bounds.push(loc.coords);
+        lookup[loc.id]=loc;
+      });
+      d.transit.forEach(function(tr){
+        var a=lookup[tr.from], b=lookup[tr.to];
+        if(a && b) L.polyline([a.coords,b.coords],{color:d.color,weight:2.5,opacity:0.5,dashArray:tr.mode==='walk'?'4,5':null}).addTo(linesLayer);
+      });
+    });
+    if(bounds.length) map.fitBounds(bounds,{padding:[40,40]});
+    showLegend(true);
+  } else {
+    var d=days[currentDay], bounds=[], lookup={};
+    d.locations.forEach(function(loc,idx){
+      if(loc.optional && !showOptional) return;
+      addLoc(loc,d.color,idx+1);
+      bounds.push(loc.coords);
+      lookup[loc.id]=loc;
+    });
+    d.transit.forEach(function(tr){
+      var a=lookup[tr.from], b=lookup[tr.to];
+      if(a && b){
+        var line=L.polyline([a.coords,b.coords],{color:modeColor(tr.mode),weight:3.5,opacity:0.85,dashArray:tr.mode==='walk'?'6,6':null}).addTo(linesLayer);
+        line.bindPopup('<div class="popup"><div class="pn">'+(t[lang].transitMode[tr.mode]||tr.mode)+'</div>'+
+          '<div class="pt">'+L_(tr.duration)+' · '+tr.cost+'</div>'+
+          '<div style="font-size:11px;color:var(--text-soft);margin-top:4px">'+L_(tr.route)+'</div></div>');
+      }
+    });
+    if(bounds.length){if(bounds.length===1)map.setView(bounds[0],14);else map.fitBounds(bounds,{padding:[50,50]});}
+    showLegend(false);
+  }
+}
+
+function showLegend(show){
+  var el=document.getElementById('allLegend');
+  if(!show){el.classList.remove('show');return;}
+  var html='<div style="font-weight:600;margin-bottom:4px">'+t[lang].legend+'</div>';
+  days.forEach(function(d,i){html+='<div class="li"><span class="ld" style="background:'+d.color+'"></span>D'+(i+1)+' · '+L_(d.dayName).split('·')[0].trim()+'</div>';});
+  el.innerHTML=html;el.classList.add('show');
+}
+
+function switchDay(idx){currentDay=idx;renderDayTabs();renderTimeline();renderMap();}
+
+// ===== Modal =====
+function openModal(){document.getElementById('infoModal').classList.add('show');renderModal();}
+function closeModal(){document.getElementById('infoModal').classList.remove('show');}
+function renderModal(){
+  var tx=t[lang];
+  document.getElementById('modalTitle').textContent=tx.modalTitle;
+  var tabs=document.getElementById('modalTabs');
+  var keys=['rsv','bk','bd','tips','links'];
+  tabs.innerHTML=keys.map(function(k){return '<button class="modal-tab '+(modalTab===k?'active':'')+'" data-tab="'+k+'">'+tx.tabs[k]+'</button>';}).join('');
+  tabs.querySelectorAll('.modal-tab').forEach(function(b){b.addEventListener('click',function(){modalTab=b.dataset.tab;renderModal();});});
+  var body=document.getElementById('modalBody');
+  if(modalTab==='rsv') body.innerHTML=renderRsv();
+  else if(modalTab==='bk'){body.innerHTML=renderBookingsTab();attachBookingHandlers();}
+  else if(modalTab==='bd') body.innerHTML=renderBudget();
+  else if(modalTab==='tips') body.innerHTML=renderTips();
+  else body.innerHTML=renderLinks();
+}
+
+function renderRsv(){
+  var tx=t[lang];
+  var html='<div class="modal-section"><h3>'+tx.rsvHead+'</h3><p style="font-size:12px;color:var(--text-soft);margin:0 0 10px">'+tx.rsvSub+'</p>';
+  ['must','rec','opt'].forEach(function(p){
+    var items=reservations.filter(function(r){return r.priority===p;});
+    if(!items.length) return;
+    html+='<div style="font-size:11px;font-weight:600;color:var(--text-faint);margin:12px 0 6px;text-transform:uppercase">'+tx.rsvLabel[p]+'</div>';
+    items.forEach(function(r){
+      html+='<div class="rsv-item '+p+'"><div class="b"></div><div class="body2">'+
+        '<div class="n">'+L_(r.name)+'</div><div class="w">'+L_(r.when)+'</div>'+
+        '<div class="note">'+L_(r.note)+'</div>'+
+        '<a class="url" href="'+r.url+'" target="_blank">'+r.url+'</a></div></div>';
+    });
+  });
+  html+='</div>';
+  return html;
+}
+
+function renderBudget(){
+  var tx=t[lang];
+  var html='<div class="modal-section"><h3>'+tx.bdHead+'</h3>';
+  budget.forEach(function(b){
+    html+='<div class="bd-row"><div><div class="c">'+L_(b.cat)+'</div>'+(L_(b.note)?'<div class="nt">'+L_(b.note)+'</div>':'')+'</div><div class="a">$'+b.sel+'</div></div>';
+  });
+  html+='<div class="bd-row total"><div class="c" style="font-weight:600">'+tx.bdTotal+'</div><div class="a">$'+budgetTotal.sel+'</div></div>';
+  html+='<div style="font-size:11px;color:var(--text-faint);margin-top:8px">'+(lang==='zh'?'范围：$'+budgetTotal.low+' - $'+budgetTotal.high:'Range: $'+budgetTotal.low+' - $'+budgetTotal.high)+'</div></div>';
+  return html;
+}
+
+function renderTips(){
+  var tx=t[lang];
+  var html='<div class="modal-section"><h3>'+tx.tipsHead+'</h3>';
+  tips[lang].forEach(function(p){html+='<div class="tip"><h4>'+p.icon+' '+p.title+'</h4><p>'+p.body+'</p></div>';});
+  html+='</div>';
+  return html;
+}
+
+function renderLinks(){
+  var tx=t[lang];
+  var html='<div class="modal-section"><h3>'+tx.linksHead+'</h3>';
+  links[lang].forEach(function(l){html+='<div class="tip"><a href="'+l.url+'" target="_blank" style="font-weight:500;font-size:13px">'+l.name+'</a><div style="font-size:11px;color:var(--text-faint);margin-top:3px;word-break:break-all">'+l.url+'</div></div>';});
+  html+='<div style="font-size:11px;color:var(--text-faint);margin-top:14px;text-align:center">'+tx.storageHint+'</div></div>';
+  return html;
+}
+
+function locOptionsHtml(){
+  var html='<option value="">'+t[lang].bkNone+'</option>';
+  days.forEach(function(d,di){
+    html+='<optgroup label="D'+(di+1)+' · '+L_(d.dayName)+'">';
+    d.locations.forEach(function(l){html+='<option value="'+l.id+'">'+L_(l.name)+'</option>';});
+    html+='</optgroup>';
+  });
+  return html;
+}
+
+function renderBookingsTab(){
+  var tx=t[lang];
+  var html='<div class="modal-section">';
+  html+='<label class="bk-drop" for="bkFile" id="bkDropZone">'+
+    '<input type="file" id="bkFile" accept="image/*,application/pdf" style="display:none"/>'+
+    '<div style="font-size:30px">📤</div>'+
+    '<div style="font-weight:600;font-size:14px;margin:8px 0 3px">'+tx.bkAdd+'</div>'+
+    '<div style="font-size:11px;color:var(--text-soft)">JPG / PNG / PDF</div></label>';
+  if(bookings.length>0) html+='<div style="font-size:11px;color:var(--text-faint);margin-bottom:10px;text-align:right">'+(lang==='zh'?'已保存 '+bookings.length+' 份':bookings.length+' saved')+'</div>';
+  if(stagedFile && stagedData){
+    var isImg=stagedFile.type.indexOf('image/')===0;
+    html+='<div class="bk-stage"><div class="bk-prev">'+
+      (isImg?'<img src="'+stagedData+'"/>':'<div class="pdf-ph">📄 '+esc(stagedFile.name)+'</div>')+
+      '</div><div class="bk-fields">'+
+      '<div><label>'+tx.bkCat+'</label><select id="bkCategory">'+
+        Object.keys(tx.cats).map(function(k){return '<option value="'+k+'" '+(k==='hotel'?'selected':'')+'>'+tx.cats[k]+'</option>';}).join('')+
+      '</select></div>'+
+      '<div><label>'+tx.bkTitle+'</label><input id="bkTitle" type="text"/></div>'+
+      '<div class="row2"><div><label>'+tx.bkDate+'</label><input id="bkDate" type="text" placeholder="2026-06-09"/></div>'+
+      '<div><label>'+tx.bkRef+'</label><input id="bkRef" type="text"/></div></div>'+
+      '<div><label>'+tx.bkLoc+'</label><input id="bkLocation" type="text"/></div>'+
+      '<div><label>'+tx.bkLink+'</label><select id="bkLinkLoc">'+locOptionsHtml()+'</select></div>'+
+      '</div>'+
+      '<div class="bk-ai-status" id="bkAIStatus"></div>'+
+      '<div class="bk-actions">'+
+      '<button class="btn" id="bkAIBtn">'+tx.bkAI+'</button>'+
+      '<button class="btn primary" id="bkSaveBtn">'+tx.bkSave+'</button>'+
+      '<button class="btn" id="bkCancelBtn">'+tx.bkCancel+'</button>'+
+      '</div></div>';
+  }
+  if(!bookings.length){
+    html+='<div class="bk-empty"><div class="e">📂</div><div style="font-weight:600;margin-bottom:4px">'+tx.bkEmpty+'</div><div style="font-size:12px;max-width:300px;margin:0 auto">'+tx.bkHint+'</div></div>';
+  } else {
+    ['hotel','transport','attraction','other'].forEach(function(cat){
+      var items=bookings.filter(function(b){return b.category===cat;});
+      if(!items.length) return;
+      html+='<div class="bk-group"><h4>'+tx.cats[cat]+'</h4>';
+      items.forEach(function(b){
+        var isImg=(b.mime||'').indexOf('image/')===0;
+        var linkedName='';
+        if(b.linkedLocId){for(var di=0;di<days.length;di++){for(var li=0;li<days[di].locations.length;li++){if(days[di].locations[li].id===b.linkedLocId){linkedName=L_(days[di].locations[li].name);break;}}if(linkedName)break;}}
+        html+='<div class="bk-card"><div class="bk-thumb" data-view="'+b.id+'">'+
+          (isImg?'<img data-thumb="'+b.id+'" alt=""/>':'<div class="pdf-ph">📄</div>')+'</div>'+
+          '<div class="bk-info"><div class="bk-title">'+esc(b.title||'')+'</div>'+
+          '<div class="bk-meta">'+
+          (b.date?'📅 '+esc(b.date):'')+
+          (b.location?(b.date?' · ':'')+'📍 '+esc(b.location):'')+
+          (b.reference?(b.date||b.location?' · ':'')+'#'+esc(b.reference):'')+
+          (linkedName?'<br>🔗 '+esc(linkedName):'')+
+          '<br>'+tx.bkAdded+': '+new Date(b.addedAt).toLocaleDateString()+
+          '</div>'+
+          '<div class="bk-mini"><button data-view="'+b.id+'">👁 '+tx.bkView+'</button>'+
+          '<button class="danger" data-del="'+b.id+'">🗑 '+tx.bkDelete+'</button></div>'+
+          '</div></div>';
+      });
+      html+='</div>';
+    });
+  }
+  html+='</div>';
+  return html;
+}
+
+function attachBookingHandlers(){
+  var fileInput=document.getElementById('bkFile');
+  var dropZone=document.getElementById('bkDropZone');
+  async function processFile(f){
+    if(!f) return;
+    stagedFile=f;
+    try{
+      if(f.type.indexOf('image/')===0) stagedData=await compressImage(f);
+      else if(f.type==='application/pdf') stagedData=await fileToBase64(f);
+      else{alert(lang==='zh'?'仅支持图片或 PDF':'Only images or PDF supported');stagedFile=null;stagedData=null;return;}
+      renderModal();
+    }catch(e){alert(lang==='zh'?'读取文件失败':'Failed to read file');stagedFile=null;stagedData=null;}
+  }
+  if(fileInput) fileInput.addEventListener('change',function(e){processFile(e.target.files[0]);});
+  if(dropZone){
+    dropZone.addEventListener('dragover',function(e){e.preventDefault();dropZone.style.borderColor='var(--accent)';dropZone.style.background='var(--accent-soft)';});
+    dropZone.addEventListener('dragleave',function(){dropZone.style.borderColor='var(--border)';dropZone.style.background='var(--surface)';});
+    dropZone.addEventListener('drop',function(e){e.preventDefault();dropZone.style.borderColor='var(--border)';dropZone.style.background='var(--surface)';processFile(e.dataTransfer.files[0]);});
+  }
+  var saveBtn=document.getElementById('bkSaveBtn');
+  if(saveBtn) saveBtn.addEventListener('click',async function(){
+    function get(id){var el=document.getElementById(id);return el?(el.value||'').trim():'';}
+    var category=get('bkCategory');
+    var title=get('bkTitle')||stagedFile.name;
+    var date=get('bkDate');
+    var ref=get('bkRef');
+    var location=get('bkLocation');
+    var linkedLocId=get('bkLinkLoc');
+    var id=String(Date.now())+Math.random().toString(36).slice(2,7);
+    saveBtn.disabled=true;
+    saveBtn.innerHTML='<span class="sp"></span> '+t[lang].saving;
+    var ok=await sSet('booking_'+id,stagedData);
+    if(!ok){alert(lang==='zh'?'保存失败（文件可能太大）':'Save failed (file may be too large)');saveBtn.disabled=false;saveBtn.textContent=t[lang].bkSave;return;}
+    bookings.push({id:id,category:category,title:title,date:date,reference:ref,location:location,linkedLocId:linkedLocId,mime:stagedFile.type,addedAt:new Date().toISOString()});
+    await saveBookings();
+    stagedFile=null;stagedData=null;
+    renderModal();renderTimeline();renderMap();
+  });
+  var cancelBtn=document.getElementById('bkCancelBtn');
+  if(cancelBtn) cancelBtn.addEventListener('click',function(){stagedFile=null;stagedData=null;renderModal();});
+  var aiBtn=document.getElementById('bkAIBtn');
+  if(aiBtn) aiBtn.addEventListener('click',async function(){
+    aiBtn.disabled=true;
+    var status=document.getElementById('bkAIStatus');
+    status.innerHTML='<span class="sp"></span> '+t[lang].aiRunning;
+    try{
+      var r=await aiExtractBooking(stagedData,stagedFile.type);
+      if(r){
+        function setV(id,v){var el=document.getElementById(id);if(el && v!=null && v!=='') el.value=v;}
+        setV('bkCategory',r.category);
+        setV('bkTitle',r.title);
+        setV('bkDate',r.date);
+        setV('bkRef',r.reference);
+        setV('bkLocation',r.location);
+        setV('bkLinkLoc',r.linkedLocId);
+        var linkedName='';
+        if(r.linkedLocId){for(var di=0;di<days.length;di++){for(var li=0;li<days[di].locations.length;li++){if(days[di].locations[li].id===r.linkedLocId){linkedName=L_(days[di].locations[li].name);break;}}if(linkedName)break;}}
+        status.innerHTML='✓ '+t[lang].aiDone+(linkedName?' <span style="color:var(--accent);font-weight:600">→ '+esc(linkedName)+'</span>':'');
+      } else { status.textContent='⚠ '+t[lang].aiFail; }
+    }catch(e){status.textContent='⚠ '+t[lang].aiFail+' ('+(e.message||'unknown')+')';}
+    aiBtn.disabled=false;
+  });
+  document.querySelectorAll('[data-view]').forEach(function(el){
+    el.addEventListener('click',function(e){e.stopPropagation();openBookingView(el.dataset.view);});
+  });
+  document.querySelectorAll('[data-del]').forEach(function(el){
+    el.addEventListener('click',async function(e){
+      e.stopPropagation();
+      var bid=el.dataset.del;
+      await sDel('booking_'+bid);
+      bookings=bookings.filter(function(b){return b.id!==bid;});
+      await saveBookings();
+      renderModal();renderTimeline();renderMap();
+    });
+  });
+  document.querySelectorAll('img[data-thumb]').forEach(async function(img){
+    var r=await sGet('booking_'+img.dataset.thumb);
+    if(r && r.value) img.src=r.value;
+  });
+}
+
+// ===== Language =====
+function setLang(l){
+  lang=l;
+  document.documentElement.lang=l==='zh'?'zh':'en';
+  document.getElementById('topTitle').textContent=t[lang].title;
+  document.getElementById('topSub').textContent=t[lang].sub;
+  document.getElementById('langZh').classList.toggle('active',l==='zh');
+  document.getElementById('langEn').classList.toggle('active',l==='en');
+  renderDayTabs();renderTimeline();renderMap();
+  if(document.getElementById('infoModal').classList.contains('show')) renderModal();
+}
+
+var weatherData={emoji:'',temp:''};
+function wCodeToEmoji(c){
+  return c===0?'☀️':c<=2?'🌤️':c===3?'⛅':c<=48?'🌫️':c<=55?'🌦️':c<=67?'🌧️':c<=77?'🌨️':c<=82?'🌦️':c<=99?'⛈️':'🌡️';
+}
+async function fetchWeather(){
+  var condEmoji={clear:'☀️',sunny:'☀️','partly cloudy':'🌤️','mostly cloudy':'⛅',cloudy:'⛅',overcast:'☁️',fog:'🌫️',mist:'🌫️',drizzle:'🌦️','light rain':'🌦️',rain:'🌧️','heavy rain':'🌧️',snow:'🌨️',sleet:'🌨️',thunder:'⛈️',storm:'⛈️',wind:'💨'};
+  var toEmoji=function(c){c=(c||'').toLowerCase();for(var k in condEmoji){if(c.indexOf(k)>=0)return condEmoji[k];}return '🌡️';};
+  try{
+    var msgs=[{role:'user',content:'What is the current temperature and weather condition in Paris France right now? Reply with ONLY a JSON object, no markdown: {"temp_c":<integer celsius>,"condition":"<brief condition in English>"}'}];
+    var apiCall=async function(m,tools){
+      return (await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:200,tools:tools||[],messages:m})})).json();
+    };
+    var d=await apiCall(msgs,[{type:'web_search_20250305',name:'web_search'}]);
+    // Handle multi-turn if model used web_search tool
+    if(d.stop_reason==='tool_use'&&d.content){
+      msgs.push({role:'assistant',content:d.content});
+      var tr=d.content.filter(function(c){return c.type==='tool_use';}).map(function(c){return{type:'tool_result',tool_use_id:c.id,content:'Search completed'};});
+      msgs.push({role:'user',content:tr});
+      d=await apiCall(msgs,[{type:'web_search_20250305',name:'web_search'}]);
+    }
+    var text=(d.content||[]).filter(function(c){return c.type==='text';}).map(function(c){return c.text;}).join('');
+    var m=text.replace(/```[a-z]*/g,'').match(/\{[^}]+\}/);
+    if(m){
+      var w=JSON.parse(m[0]);
+      if(w.temp_c!=null){
+        // temp might be F if Claude misunderstood — sanity check: Paris unlikely >50°C or <-30°C
+        var t=Math.round(w.temp_c);
+        if(t>50)t=Math.round((t-32)*5/9); // convert F->C if model returned F
+        weatherData.temp=t;
+        weatherData.emoji=toEmoji(w.condition);
+        updateTabInfo();
+      }
+    }
+  }catch(e){console.warn('Weather:',e);}
+}
+function updateTabInfo(){
+  var cl=document.getElementById('tabClock');
+  var wt=document.getElementById('tabWeather');
+  if(cl)cl.textContent='🕐 '+parisHour();
+  if(wt)wt.textContent=weatherData.emoji?(weatherData.emoji+' '+weatherData.temp+'°C'):'⛅ --';
+}
+
+// ===== Init =====
+async function init(){
+  initMap();
+  await loadCheckins();
+  await loadBookings();
+  setLang('zh');
+  document.getElementById('langBtn').addEventListener('click',function(){setLang(lang==='zh'?'en':'zh');});
+  document.getElementById('infoBtn').addEventListener('click',openModal);
+  document.getElementById('closeModal').addEventListener('click',closeModal);
+  document.getElementById('infoModal').addEventListener('click',function(e){if(e.target.id==='infoModal')closeModal();});
+  document.getElementById('lbClose').addEventListener('click',function(){document.getElementById('lightbox').classList.remove('show');});
+  document.getElementById('lightbox').addEventListener('click',function(e){if(e.target.id==='lightbox')document.getElementById('lightbox').classList.remove('show');});
+  window.addEventListener('resize',function(){if(map)map.invalidateSize();});
+  setTimeout(function(){if(map)map.invalidateSize();},200);
+  updateTabInfo();
+  fetchWeather();
+  setInterval(function(){
+    updateTabInfo();
+    var strip=document.querySelector('.strip');
+    if(strip){var chips=strip.querySelectorAll('.chip');if(chips[1])chips[1].innerHTML='🕐 '+t[lang].timeNow(parisHour());}
+  },60000);
+  setInterval(fetchWeather,600000);
+}
+init();
+</script>
+</body>
+</html>
