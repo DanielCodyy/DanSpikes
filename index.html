@@ -562,6 +562,9 @@ var bookings = [];
 var modalTab = 'rsv';
 var stagedFile = null;
 var stagedData = null;
+var apiKey = (function(){try{return localStorage.getItem('anthropic_api_key')||'';}catch(e){return '';}})();
+function getApiKey(){return apiKey;}
+function saveApiKey(k){apiKey=k;try{localStorage.setItem('anthropic_api_key',k);}catch(e){}}
 
 function L_(o){if(o==null)return '';if(typeof o==='string')return o;return o[lang]||o.en||o.zh||'';}
 function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -569,9 +572,9 @@ function modeColor(m){return {metro:'#1e3a8a',rer:'#7c3aed','rer-metro':'#5b3a9c
 function modeIcon(m){return m==='walk'?'🚶':m==='tgv'?'🚄':(m==='rer'||m==='rer-metro'||m==='metro-rer')?'🚆':'Ⓜ';}
 
 // ===== Storage =====
-async function sGet(k){try{return await window.storage.get(k);}catch(e){return null;}}
-async function sSet(k,v){try{return await window.storage.set(k,v);}catch(e){return null;}}
-async function sDel(k){try{return await window.storage.delete(k);}catch(e){return null;}}
+async function sGet(k){try{if(window.storage)return await window.storage.get(k);}catch(e){}try{var v=localStorage.getItem(k);return v!=null?{value:v}:null;}catch(e){return null;}}
+async function sSet(k,v){try{if(window.storage)return await window.storage.set(k,v);}catch(e){}try{localStorage.setItem(k,v);return true;}catch(e){return null;}}
+async function sDel(k){try{if(window.storage)return await window.storage.delete(k);}catch(e){}try{localStorage.removeItem(k);return true;}catch(e){return null;}}
 
 async function loadCheckins(){var r=await sGet('checkins');if(r){try{checkins=JSON.parse(r.value);}catch(e){}}}
 async function saveCheckins(){await sSet('checkins',JSON.stringify(checkins));}
@@ -632,9 +635,9 @@ async function aiExtractBooking(dataUrl, mime){
     : {type:'image', source:{type:'base64', media_type:mime, data:base64}};
   var res = await fetch('https://api.anthropic.com/v1/messages', {
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
     body: JSON.stringify({
-      model:'claude-sonnet-4-20250514',
+      model:'claude-sonnet-4-6',
       max_tokens:800,
       messages:[{role:'user', content:[sourceBlock, {type:'text', text:promptText}]}]
     })
@@ -1015,6 +1018,15 @@ function locOptionsHtml(){
 function renderBookingsTab(){
   var tx=t[lang];
   var html='<div class="modal-section">';
+  var savedKey=getApiKey();
+  html+='<div style="margin-bottom:12px;padding:10px 12px;background:var(--surface-2);border-radius:8px">'+
+    '<label style="font-size:11px;color:var(--text-faint);font-weight:600;text-transform:uppercase;display:block;margin-bottom:6px">🔑 Anthropic API Key</label>'+
+    '<div style="display:flex;gap:6px">'+
+    '<input id="bkApiKey" type="password" placeholder="sk-ant-api03-..." value="'+esc(savedKey)+'" style="flex:1;padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:12px;font-family:monospace"/>'+
+    '<button class="btn" id="bkApiSave">✓ '+(lang==='zh'?'保存':'Save')+'</button>'+
+    '</div>'+
+    '<div style="font-size:11px;color:var(--text-faint);margin-top:4px">'+(savedKey?'✓ '+(lang==='zh'?'已设置':'Set'):'⚠ '+(lang==='zh'?'AI 识别需要此密钥':'AI feature requires this key'))+' · '+(lang==='zh'?'仅存于本地浏览器':'Stored locally only')+' · <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--accent)">'+(lang==='zh'?'获取密钥 →':'Get key →')+'</a></div>'+
+    '</div>';
   html+='<label class="bk-drop" for="bkFile" id="bkDropZone">'+
     '<input type="file" id="bkFile" accept="image/*,application/pdf" style="display:none"/>'+
     '<div style="font-size:30px">📤</div>'+
@@ -1114,8 +1126,19 @@ function attachBookingHandlers(){
   });
   var cancelBtn=document.getElementById('bkCancelBtn');
   if(cancelBtn) cancelBtn.addEventListener('click',function(){stagedFile=null;stagedData=null;renderModal();});
+  var apiSaveBtn=document.getElementById('bkApiSave');
+  if(apiSaveBtn) apiSaveBtn.addEventListener('click',function(){
+    var k=(document.getElementById('bkApiKey').value||'').trim();
+    saveApiKey(k);
+    showNotif(lang==='zh'?'✓ API Key 已保存，可以使用 AI 识别功能了':'✓ API Key saved');
+    renderModal();
+  });
   var aiBtn=document.getElementById('bkAIBtn');
   if(aiBtn) aiBtn.addEventListener('click',async function(){
+    if(!getApiKey()){
+      showNotif(lang==='zh'?'⚠ 请先在上方输入并保存 Anthropic API Key':'⚠ Please enter and save your Anthropic API Key first',true);
+      return;
+    }
     aiBtn.disabled=true;
     var status=document.getElementById('bkAIStatus');
     status.innerHTML='<span class="sp"></span> '+t[lang].aiRunning;
@@ -1177,8 +1200,8 @@ async function fetchWeather(){
   try{
     var msgs=[{role:'user',content:'What is the current temperature and weather condition in Paris France right now? Reply with ONLY a JSON object, no markdown: {"temp_c":<integer celsius>,"condition":"<brief condition in English>"}'}];
     var apiCall=async function(m,tools){
-      return (await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:200,tools:tools||[],messages:m})})).json();
+      return (await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:200,tools:tools||[],messages:m})})).json();
     };
     var d=await apiCall(msgs,[{type:'web_search_20250305',name:'web_search'}]);
     // Handle multi-turn if model used web_search tool
