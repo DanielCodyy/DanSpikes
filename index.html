@@ -565,6 +565,9 @@ var stagedData = null;
 var apiKey = (function(){try{return localStorage.getItem('anthropic_api_key')||'';}catch(e){return '';}})();
 function getApiKey(){return apiKey;}
 function saveApiKey(k){apiKey=k;try{localStorage.setItem('anthropic_api_key',k);}catch(e){}}
+var geminiKey = (function(){try{return localStorage.getItem('gemini_api_key')||'';}catch(e){return '';}})();
+function getGeminiKey(){return geminiKey;}
+function saveGeminiKey(k){geminiKey=k;try{localStorage.setItem('gemini_api_key',k);}catch(e){}}
 
 function L_(o){if(o==null)return '';if(typeof o==='string')return o;return o[lang]||o.en||o.zh||'';}
 function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -610,49 +613,65 @@ function fileToBase64(f){
 }
 
 // ===== AI extract =====
-async function aiExtractBooking(dataUrl, mime){
-  var base64 = dataUrl.split(',')[1];
-  var isPdf = mime === 'application/pdf';
+function buildExtractionPrompt(isPdf){
   var stopsList = [];
   days.forEach(function(d, di){
     d.locations.forEach(function(l){
       stopsList.push(l.id + '=' + (l.name && l.name.en ? l.name.en : '') + ' [D' + (di+1) + ']');
     });
   });
-  var stops = stopsList.join(', ');
-  var promptText = 'You are looking at a travel booking ' + (isPdf ? 'PDF' : 'image') +
+  return 'You are looking at a travel booking ' + (isPdf ? 'PDF' : 'image') +
     '. Read it carefully and return ONLY a JSON object (no markdown fences, no other text) with these fields: ' +
     '{"category":"hotel" or "transport" or "attraction" or "other", "title":"short descriptive title", ' +
     '"date":"YYYY-MM-DD or date range", "location":"place name", "reference":"booking/confirmation # if visible", ' +
     '"linkedLocId":"one of the trip stop IDs below, or empty string if no clear match"}. ' +
-    'Available trip stop IDs: ' + stops + '. ' +
+    'Available trip stop IDs: ' + stopsList.join(', ') + '. ' +
     'Match hints: Hotel Piapia -> hotel; TGV to Barcelona -> tgv; Louvre -> louvre; ' +
     'Versailles palace -> versailles; Sainte-Chapelle -> sainte-chapelle; CDG airport -> cdg; ' +
     'Notre-Dame -> notredame; Orsay -> orsay; Arc de Triomphe -> arc; Eiffel Tower -> eiffel. ' +
     'For multi-night hotel reservations, use the arrival-day id. Return ONLY the JSON object.';
-  var sourceBlock = isPdf
-    ? {type:'document', source:{type:'base64', media_type:'application/pdf', data:base64}}
-    : {type:'image', source:{type:'base64', media_type:mime, data:base64}};
-  var res = await fetch('https://api.anthropic.com/v1/messages', {
-    method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body: JSON.stringify({
-      model:'claude-sonnet-4-6',
-      max_tokens:800,
-      messages:[{role:'user', content:[sourceBlock, {type:'text', text:promptText}]}]
-    })
-  });
-  if (!res.ok) throw new Error('API ' + res.status);
-  var data = await res.json();
-  var textBlock = null;
-  if (data.content && data.content.length) {
-    for (var i=0; i<data.content.length; i++) {
-      if (data.content[i].type === 'text') { textBlock = data.content[i]; break; }
-    }
+}
+function parseAIJson(txt){
+  var clean = txt.replace(/```json/g,'').replace(/```/g,'').trim();
+  try{return JSON.parse(clean);}catch(e){return null;}
+}
+
+async function aiExtractBooking(dataUrl, mime){
+  var base64 = dataUrl.split(',')[1];
+  var isPdf = mime === 'application/pdf';
+  var prompt = buildExtractionPrompt(isPdf);
+
+  // --- Gemini (free, preferred) ---
+  if(getGeminiKey()){
+    var part = {inline_data:{mime_type:mime, data:base64}};
+    var res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+getGeminiKey(),{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({contents:[{parts:[part,{text:prompt}]}]})
+    });
+    if(!res.ok) throw new Error('Gemini '+res.status);
+    var d = await res.json();
+    var txt = (d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts&&d.candidates[0].content.parts[0]&&d.candidates[0].content.parts[0].text)||'';
+    return parseAIJson(txt);
   }
-  var txt = (textBlock && textBlock.text) || '';
-  var clean = txt.replace(/```json/g, '').replace(/```/g, '').trim();
-  try { return JSON.parse(clean); } catch (e) { return null; }
+
+  // --- Anthropic (fallback, requires paid key) ---
+  if(getApiKey()){
+    var sourceBlock = isPdf
+      ? {type:'document', source:{type:'base64', media_type:'application/pdf', data:base64}}
+      : {type:'image', source:{type:'base64', media_type:mime, data:base64}};
+    var res2 = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:800,messages:[{role:'user',content:[sourceBlock,{type:'text',text:prompt}]}]})
+    });
+    if(!res2.ok) throw new Error('Anthropic '+res2.status);
+    var d2 = await res2.json();
+    var txt2 = ((d2.content||[]).find(function(c){return c.type==='text';})||{}).text||'';
+    return parseAIJson(txt2);
+  }
+
+  throw new Error('no_key');
 }
 
 function showNotif(msg, isError){
@@ -1018,14 +1037,25 @@ function locOptionsHtml(){
 function renderBookingsTab(){
   var tx=t[lang];
   var html='<div class="modal-section">';
-  var savedKey=getApiKey();
+  var gKey=getGeminiKey(), aKey=getApiKey();
+  var hasKey=gKey||aKey;
   html+='<div style="margin-bottom:12px;padding:10px 12px;background:var(--surface-2);border-radius:8px">'+
-    '<label style="font-size:11px;color:var(--text-faint);font-weight:600;text-transform:uppercase;display:block;margin-bottom:6px">🔑 Anthropic API Key</label>'+
+    '<div style="font-size:11px;font-weight:600;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px">🔑 '+(lang==='zh'?'AI 识别密钥':'AI Key')+'</div>'+
+    // Gemini (free, primary)
+    '<div style="margin-bottom:8px">'+
+    '<label style="font-size:11px;color:var(--check);font-weight:600;display:block;margin-bottom:4px">✦ Gemini '+(lang==='zh'?'(免费 · 推荐)':'(Free · Recommended)')+'</label>'+
     '<div style="display:flex;gap:6px">'+
-    '<input id="bkApiKey" type="password" placeholder="sk-ant-api03-..." value="'+esc(savedKey)+'" style="flex:1;padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:12px;font-family:monospace"/>'+
-    '<button class="btn" id="bkApiSave">✓ '+(lang==='zh'?'保存':'Save')+'</button>'+
+    '<input id="bkGeminiKey" type="password" placeholder="AIza..." value="'+esc(gKey)+'" style="flex:1;padding:7px 10px;border-radius:8px;border:1px solid '+(gKey?'var(--check)':'var(--border)')+';background:#fff;font-size:12px;font-family:monospace"/>'+
+    '<button class="btn" id="bkGeminiSave" style="white-space:nowrap">✓ '+(lang==='zh'?'保存':'Save')+'</button>'+
     '</div>'+
-    '<div style="font-size:11px;color:var(--text-faint);margin-top:4px">'+(savedKey?'✓ '+(lang==='zh'?'已设置':'Set'):'⚠ '+(lang==='zh'?'AI 识别需要此密钥':'AI feature requires this key'))+' · '+(lang==='zh'?'仅存于本地浏览器':'Stored locally only')+' · <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--accent)">'+(lang==='zh'?'获取密钥 →':'Get key →')+'</a></div>'+
+    '<div style="font-size:11px;color:var(--text-faint);margin-top:3px">'+(gKey?'<span style="color:var(--check)">✓ '+(lang==='zh'?'已设置，AI 识别将使用 Gemini':'Set – AI will use Gemini')+'</span>':'<a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">'+(lang==='zh'?'免费获取 →':'Get free key →')+'</a> · '+(lang==='zh'?'每天 1500 次免费':'1500 req/day free'))+'</div>'+
+    '</div>'+
+    // Anthropic (paid, fallback)
+    '<details style="margin-top:4px"><summary style="font-size:11px;color:var(--text-faint);cursor:pointer">Anthropic '+(lang==='zh'?'（付费备用，已有密钥时可填）':'(paid fallback)')+'</summary>'+
+    '<div style="display:flex;gap:6px;margin-top:6px">'+
+    '<input id="bkApiKey" type="password" placeholder="sk-ant-..." value="'+esc(aKey)+'" style="flex:1;padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:12px;font-family:monospace"/>'+
+    '<button class="btn" id="bkApiSave" style="white-space:nowrap">✓ '+(lang==='zh'?'保存':'Save')+'</button>'+
+    '</div></details>'+
     '</div>';
   html+='<label class="bk-drop" for="bkFile" id="bkDropZone">'+
     '<input type="file" id="bkFile" accept="image/*,application/pdf" style="display:none"/>'+
@@ -1126,17 +1156,24 @@ function attachBookingHandlers(){
   });
   var cancelBtn=document.getElementById('bkCancelBtn');
   if(cancelBtn) cancelBtn.addEventListener('click',function(){stagedFile=null;stagedData=null;renderModal();});
+  var geminiSaveBtn=document.getElementById('bkGeminiSave');
+  if(geminiSaveBtn) geminiSaveBtn.addEventListener('click',function(){
+    var k=(document.getElementById('bkGeminiKey').value||'').trim();
+    saveGeminiKey(k);
+    showNotif(lang==='zh'?'✓ Gemini Key 已保存，可以使用 AI 识别了':'✓ Gemini Key saved');
+    renderModal();
+  });
   var apiSaveBtn=document.getElementById('bkApiSave');
   if(apiSaveBtn) apiSaveBtn.addEventListener('click',function(){
     var k=(document.getElementById('bkApiKey').value||'').trim();
     saveApiKey(k);
-    showNotif(lang==='zh'?'✓ API Key 已保存，可以使用 AI 识别功能了':'✓ API Key saved');
+    showNotif(lang==='zh'?'✓ Anthropic Key 已保存':'✓ Anthropic Key saved');
     renderModal();
   });
   var aiBtn=document.getElementById('bkAIBtn');
   if(aiBtn) aiBtn.addEventListener('click',async function(){
-    if(!getApiKey()){
-      showNotif(lang==='zh'?'⚠ 请先在上方输入并保存 Anthropic API Key':'⚠ Please enter and save your Anthropic API Key first',true);
+    if(!getGeminiKey()&&!getApiKey()){
+      showNotif(lang==='zh'?'⚠ 请先填入 Gemini API Key（免费）':'⚠ Please enter a Gemini API Key (free)',true);
       return;
     }
     aiBtn.disabled=true;
@@ -1156,7 +1193,11 @@ function attachBookingHandlers(){
         if(r.linkedLocId){for(var di=0;di<days.length;di++){for(var li=0;li<days[di].locations.length;li++){if(days[di].locations[li].id===r.linkedLocId){linkedName=L_(days[di].locations[li].name);break;}}if(linkedName)break;}}
         status.innerHTML='✓ '+t[lang].aiDone+(linkedName?' <span style="color:var(--accent);font-weight:600">→ '+esc(linkedName)+'</span>':'');
       } else { status.textContent='⚠ '+t[lang].aiFail; }
-    }catch(e){status.textContent='⚠ '+t[lang].aiFail+' ('+(e.message||'unknown')+')';}
+    }catch(e){
+      var msg=e.message||'unknown';
+      if(msg==='no_key') msg=lang==='zh'?'请先填入 Gemini Key（免费）':'Please enter a Gemini API Key (free)';
+      status.textContent='⚠ '+t[lang].aiFail+' ('+msg+')';
+    }
     aiBtn.disabled=false;
   });
   document.querySelectorAll('[data-view]').forEach(function(el){
