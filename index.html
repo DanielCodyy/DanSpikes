@@ -110,10 +110,14 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;o
 .photo-grid--masonry{display:block;columns:3;column-gap:2px}
 @media(max-width:900px){.photo-grid--masonry{columns:2}}
 @media(max-width:480px){.photo-grid--masonry{columns:1}}
+.photo-grid--justified{display:flex;flex-wrap:wrap;gap:2px;align-items:flex-start}
 .photo-card{position:relative;aspect-ratio:4/3;overflow:hidden;cursor:pointer;background:var(--surface-2)}
 .photo-card img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .55s ease}
 .photo-card--natural{aspect-ratio:unset;break-inside:avoid;margin-bottom:2px}
 .photo-card--natural img{height:auto;object-fit:unset}
+.photo-card--justified{flex:none;position:relative;overflow:hidden;cursor:pointer;background:var(--surface-2)}
+.photo-card--justified img{display:block;transition:transform .55s ease}
+.photo-card--justified:hover img{transform:scale(1.03)}
 .photo-card:hover img{transform:scale(1.05)}
 .photo-card-meta{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;
   padding:32px 12px 12px;background:linear-gradient(transparent 30%,rgba(14,13,11,.88));
@@ -2161,12 +2165,15 @@ function renderPhotoGrid(){
     return(activeCat==='all'||p.cat===activeCat)&&(activeMed==='all'||p.med===activeMed);
   });
   if(!filtered.length){grid.innerHTML='<div class="photo-empty">'+ts('photo_empty')+'</div>';return;}
-  var isMasonry=activeCat==='time';
-  grid.className='photo-grid'+(isMasonry?' photo-grid--masonry':'');
+  var isJustified=activeCat==='time';
+  grid.className='photo-grid'+(isJustified?' photo-grid--justified':'');
   grid.innerHTML=filtered.map(function(p){
-    var cardClass='photo-card'+(isMasonry?' photo-card--natural':'');
-    return '<div class="'+cardClass+'" onclick="openPhotoLb(\''+p.id+'\')">'+
-      '<img src="'+(p.url||('https://picsum.photos/seed/photo'+p.seed+'/600/450'))+'" alt="'+ptitle(p)+'" loading="lazy"/>'+
+    var cardClass='photo-card'+(isJustified?' photo-card--justified':'');
+    var imgSrc=p.url||('https://picsum.photos/seed/photo'+p.seed+'/600/450');
+    var imgTag=isJustified
+      ?'<img src="'+imgSrc+'" alt="'+ptitle(p)+'" loading="lazy" onload="runJustify()"/>'
+      :'<img src="'+imgSrc+'" alt="'+ptitle(p)+'" loading="lazy"/>';
+    return '<div class="'+cardClass+'" onclick="openPhotoLb(\''+p.id+'\')">'+imgTag+
       '<div class="photo-card-meta">'+
         '<div class="photo-card-title">'+ptitle(p)+'</div>'+
         '<div class="photo-card-info">'+ploc(p)+' · '+p.exif.split(' · ')[0]+'</div>'+
@@ -2174,6 +2181,42 @@ function renderPhotoGrid(){
       '<div class="photo-badge'+(p.med==='film'?' film':'')+'">'+p.med.toUpperCase()+'</div>'+
     '</div>';
   }).join('');
+  if(isJustified)setTimeout(runJustify,50);
+}
+
+function runJustify(){
+  var grid=document.getElementById('photoGrid');
+  if(!grid||!grid.classList.contains('photo-grid--justified'))return;
+  var cards=Array.from(grid.querySelectorAll('.photo-card--justified'));
+  if(!cards.length)return;
+  var W=grid.clientWidth;
+  if(!W)return;
+  var TARGET=200,GAP=2;
+  var items=cards.map(function(c){
+    var img=c.querySelector('img');
+    var ratio=(img&&img.naturalWidth&&img.naturalHeight)?img.naturalWidth/img.naturalHeight:4/3;
+    return{card:c,img:img,ratio:ratio};
+  });
+  var rows=[],row=[],rowW=0;
+  items.forEach(function(item){
+    var w=item.ratio*TARGET;
+    var needed=row.length?rowW+GAP+w:w;
+    if(row.length&&needed>W+0.5){rows.push(row);row=[item];rowW=w;}
+    else{row.push(item);rowW=needed;}
+  });
+  if(row.length)rows.push(row);
+  rows.forEach(function(row,ri){
+    var isLast=ri===rows.length-1;
+    var totalRatio=row.reduce(function(s,i){return s+i.ratio;},0);
+    var gaps=(row.length-1)*GAP;
+    var rowH=isLast&&row.length===1?TARGET:Math.round((W-gaps)/totalRatio);
+    row.forEach(function(item){
+      var w=Math.round(item.ratio*rowH);
+      item.card.style.width=w+'px';
+      item.card.style.height=rowH+'px';
+      if(item.img){item.img.style.width=w+'px';item.img.style.height=rowH+'px';}
+    });
+  });
 }
 
 function openPhotoLb(id){
@@ -2349,6 +2392,7 @@ async function init(){
   window.addEventListener('resize',function(){
     if(tripMap)tripMap.invalidateSize();
     if(photoMap)photoMap.invalidateSize();
+    runJustify();
   });
   setInterval(function(){
     if(activeTripId){
