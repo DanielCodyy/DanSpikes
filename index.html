@@ -630,7 +630,7 @@ var PHOTOS=[
   {id:'ti1',cat:'time',med:'digital',title_zh:'晨曦',title_en:'First Light',loc_zh:'巴黎',loc_en:'Paris',exif:'Sony A7R2 · 50mm f/1.8 · ISO 800',seed:401},
   {id:'ti2',cat:'time',med:'film',title_zh:'老照相馆',title_en:'Old Studio',loc_zh:'上海',loc_en:'Shanghai',exif:'Nikon F3 · 50mm · HP5 400 (pushed)',seed:402},
   {id:'ti3',cat:'time',med:'digital',title_zh:'候鸟',title_en:'Migration',loc_zh:'密歇根',loc_en:'Michigan',exif:'Sony A7R2 · 400mm f/5.6 · ISO 400',seed:403},
-  {id:'ti4',cat:'time',med:'film',title_zh:'胶片档案',title_en:'Film Archive',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Various · Various · Various',seed:404},
+  {id:'ti4',cat:'time',med:'film',title_zh:'午后',title_en:'The Afternoon',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022680001.jpg'},
 ];
 
 /* ===== PHOTO MAP LOCATIONS ===== */
@@ -2155,7 +2155,7 @@ function renderPhotoGrid(){
   if(!filtered.length){grid.innerHTML='<div class="photo-empty">'+ts('photo_empty')+'</div>';return;}
   grid.innerHTML=filtered.map(function(p){
     return '<div class="photo-card" onclick="openPhotoLb(\''+p.id+'\')">'+
-      '<img src="https://picsum.photos/seed/photo'+p.seed+'/600/450" alt="'+ptitle(p)+'" loading="lazy"/>'+
+      '<img src="'+(p.url||('https://picsum.photos/seed/photo'+p.seed+'/600/450'))+'" alt="'+ptitle(p)+'" loading="lazy"/>'+
       '<div class="photo-card-meta">'+
         '<div class="photo-card-title">'+ptitle(p)+'</div>'+
         '<div class="photo-card-info">'+ploc(p)+' · '+p.exif.split(' · ')[0]+'</div>'+
@@ -2168,7 +2168,7 @@ function renderPhotoGrid(){
 function openPhotoLb(id){
   var p=PHOTOS.find(function(x){return x.id===id;});
   if(!p)return;
-  document.getElementById('photoLbImg').src='https://picsum.photos/seed/photo'+p.seed+'/1600/1200';
+  document.getElementById('photoLbImg').src=p.url||('https://picsum.photos/seed/photo'+p.seed+'/1600/1200');
   document.getElementById('photoLbTitle').textContent=ptitle(p);
   document.getElementById('photoLbExif').textContent=ploc(p)+' · '+p.exif;
   document.getElementById('photoLb').classList.add('show');
