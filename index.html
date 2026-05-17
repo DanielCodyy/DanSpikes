@@ -2191,7 +2191,7 @@ function runJustify(){
   if(!cards.length)return;
   var W=grid.clientWidth;
   if(!W)return;
-  var TARGET=200,GAP=2;
+  var TARGET=400,GAP=2;
   var items=cards.map(function(c){
     var img=c.querySelector('img');
     var ratio=(img&&img.naturalWidth&&img.naturalHeight)?img.naturalWidth/img.naturalHeight:4/3;
