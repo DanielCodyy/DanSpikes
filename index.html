@@ -161,6 +161,22 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;o
 .leaflet-photo-pin:hover+.leaflet-photo-label,.leaflet-photo-pin-wrap:hover .leaflet-photo-label{opacity:1}
 .leaflet-photo-pin-wrap{position:relative;display:inline-block}
 
+/* Location menu */
+.pmap-loc-menu{position:absolute;top:12px;left:12px;z-index:1000;background:rgba(14,13,11,.92);border:1px solid var(--border);border-radius:10px;overflow:hidden;min-width:210px;box-shadow:0 6px 24px rgba(0,0,0,.55);backdrop-filter:blur(8px)}
+.pmap-loc-toggle{width:100%;display:flex;align-items:center;gap:8px;padding:10px 14px;font-family:var(--font-mono);font-size:11px;font-weight:500;letter-spacing:.10em;color:var(--text-soft);text-align:left;transition:color .15s}
+.pmap-loc-toggle:hover{color:var(--text)}
+.pmap-loc-arrow{margin-left:auto;transition:transform .2s ease;flex-shrink:0}
+.pmap-loc-menu.open .pmap-loc-arrow{transform:rotate(180deg)}
+.pmap-loc-list{display:none;border-top:1px solid var(--border);max-height:260px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.pmap-loc-list::-webkit-scrollbar{width:4px}
+.pmap-loc-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.pmap-loc-menu.open .pmap-loc-list{display:block}
+.pmap-loc-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 14px;font-size:12px;font-weight:500;color:var(--text-soft);cursor:pointer;border-bottom:1px solid var(--border);transition:background .12s,color .12s}
+.pmap-loc-item:last-child{border-bottom:none}
+.pmap-loc-item:hover{background:var(--surface-2);color:var(--text)}
+.pmap-loc-item.active{color:var(--gold)}
+.pmap-loc-country{font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;color:var(--text-faint);flex-shrink:0}
+
 /* ===== TRAVEL SECTION ===== */
 #sec-travel{overflow:hidden}
 .trip-selector{flex:1;overflow-y:auto;padding:36px 24px}
@@ -526,6 +542,14 @@ a.chip:hover{color:var(--accent)}
       </div>
       <div class="pmap-wrap">
         <div id="photo-map"></div>
+        <div class="pmap-loc-menu" id="pmapLocMenu">
+          <button class="pmap-loc-toggle" id="pmapLocToggle">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            <span id="pmapLocLabel">LOCATIONS</span>
+            <svg class="pmap-loc-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="pmap-loc-list" id="pmapLocList"></div>
+        </div>
       </div>
     </section>
 
@@ -616,7 +640,7 @@ var T={
     photo_empty:'此分类暂无照片',
     nav_home:'主页',nav_photo:'摄影',nav_map:'地图',nav_travel:'旅行',
     filter_all:'全部',med_digital:'数码',med_film:'胶片',
-    works:'张',pmap_all:'全部',pmap_people:'人像',pmap_city:'城市',pmap_nature:'自然',pmap_time:'时间',
+    works:'张',pmap_all:'全部',pmap_people:'人像',pmap_city:'城市',pmap_nature:'自然',pmap_time:'时间',pmap_locations:'地点',
     btn_view_work:'查看作品',btn_travel:'旅行记录'
   },
   en:{
@@ -628,7 +652,7 @@ var T={
     photo_empty:'No photos in this category',
     nav_home:'HOME',nav_photo:'PHOTOGRAPHY',nav_map:'MAP',nav_travel:'TRAVEL',
     filter_all:'ALL',med_digital:'DIGITAL',med_film:'FILM',
-    works:'works',pmap_all:'ALL',pmap_people:'PEOPLE',pmap_city:'CITY',pmap_nature:'NATURE',pmap_time:'TIME',
+    works:'works',pmap_all:'ALL',pmap_people:'PEOPLE',pmap_city:'CITY',pmap_nature:'NATURE',pmap_time:'TIME',pmap_locations:'LOCATIONS',
     btn_view_work:'VIEW WORK',btn_travel:'TRAVEL'
   }
 };
@@ -657,15 +681,15 @@ var PHOTOS=[
 
 /* ===== PHOTO MAP LOCATIONS (grouped by place; pin shows random photo per load) ===== */
 var MAP_LOCS=[
-  {lat:40.7128, lng:-74.0060,  photoIds:['c1']},
-  {lat:41.8781, lng:-87.6298,  photoIds:['p1','c2','c3']},
-  {lat:42.2808, lng:-83.7430,  photoIds:['c4','ti4','ti5','ti8','ti9']},
-  {lat:42.3314, lng:-83.0458,  photoIds:['ti6']},
-  {lat:41.1000, lng:-112.5000, photoIds:['n1']},
-  {lat:36.8619, lng:-111.3743, photoIds:['n2','n5','n6']},
-  {lat:45.8492, lng:-84.6196,  photoIds:['n3']},
-  {lat:45.8174, lng:-84.7279,  photoIds:['n4']},
-  {lat:22.3193, lng:114.1694,  photoIds:['ti7']},
+  {name_en:'New York City',    name_zh:'纽约',    country:'US', zoom:11, lat:40.7128, lng:-74.0060,  photoIds:['c1']},
+  {name_en:'Chicago',          name_zh:'芝加哥',  country:'US', zoom:11, lat:41.8781, lng:-87.6298,  photoIds:['p1','c2','c3']},
+  {name_en:'Ann Arbor',        name_zh:'安娜堡',  country:'US', zoom:12, lat:42.2808, lng:-83.7430,  photoIds:['c4','ti4','ti5','ti8','ti9']},
+  {name_en:'Detroit',          name_zh:'底特律',  country:'US', zoom:11, lat:42.3314, lng:-83.0458,  photoIds:['ti6']},
+  {name_en:'Great Salt Lake',  name_zh:'大盐湖',  country:'US', zoom:9,  lat:41.1000, lng:-112.5000, photoIds:['n1']},
+  {name_en:'Antelope Canyon',  name_zh:'羚羊峡谷',country:'US', zoom:11, lat:36.8619, lng:-111.3743, photoIds:['n2','n5','n6']},
+  {name_en:'Mackinac Island',  name_zh:'麦基诺岛',country:'US', zoom:12, lat:45.8492, lng:-84.6196,  photoIds:['n3']},
+  {name_en:'Mackinac Bridge',  name_zh:'麦基诺大桥',country:'US',zoom:11,lat:45.8174, lng:-84.7279,  photoIds:['n4']},
+  {name_en:'Hong Kong',        name_zh:'香港',    country:'HK', zoom:12, lat:22.3193, lng:114.1694,  photoIds:['ti7']},
 ];
 
 /* ===== TRIPS REGISTRY ===== */
@@ -2314,6 +2338,7 @@ function initPhotoMap(){
       updatePmapFilter();
     });
   });
+  initPmapLocMenu();
 }
 
 function buildPinHtml(photo,locName){
@@ -2339,6 +2364,43 @@ function updatePmapFilter(){
       if(photoMap.hasLayer(m.marker)) photoMap.removeLayer(m.marker);
     }
   });
+}
+
+function initPmapLocMenu(){
+  var toggle=document.getElementById('pmapLocToggle');
+  var menu=document.getElementById('pmapLocMenu');
+  if(!toggle||!menu)return;
+  updatePmapLocList();
+  toggle.addEventListener('click',function(e){
+    e.stopPropagation();
+    menu.classList.toggle('open');
+  });
+  document.addEventListener('click',function(e){
+    if(!menu.contains(e.target)) menu.classList.remove('open');
+  });
+}
+
+function updatePmapLocList(){
+  var list=document.getElementById('pmapLocList');
+  if(!list)return;
+  var sorted=MAP_LOCS.slice().sort(function(a,b){return a.name_en.localeCompare(b.name_en);});
+  list.innerHTML=sorted.map(function(loc){
+    var name=lang==='zh'?loc.name_zh:loc.name_en;
+    var idx=MAP_LOCS.indexOf(loc);
+    return '<div class="pmap-loc-item" data-loc-idx="'+idx+'" onclick="pmapFlyTo('+idx+',this)">'+
+      '<span>'+name+'</span>'+
+      '<span class="pmap-loc-country">'+loc.country+'</span>'+
+    '</div>';
+  }).join('');
+}
+
+function pmapFlyTo(idx,el){
+  if(!photoMap)return;
+  var loc=MAP_LOCS[idx];
+  photoMap.flyTo([loc.lat,loc.lng],loc.zoom,{duration:1.4,easeLinearity:0.25});
+  document.querySelectorAll('.pmap-loc-item').forEach(function(i){i.classList.remove('active');});
+  if(el)el.classList.add('active');
+  document.getElementById('pmapLocMenu').classList.remove('open');
 }
 
 function renderTripSelector(){
@@ -2429,6 +2491,9 @@ function setLang(l){
   [['pmapAll','pmap_all'],['pmapPeople','pmap_people'],['pmapCity','pmap_city'],['pmapNature','pmap_nature'],['pmapTime','pmap_time']].forEach(function(p){
     var el=document.getElementById(p[0]);if(el)el.textContent=ts(p[1]);
   });
+  // Photo map location menu label + list
+  var ll=document.getElementById('pmapLocLabel');if(ll)ll.textContent=ts('pmap_locations');
+  updatePmapLocList();
   // Home category counts
   ['people','city','nature','time'].forEach(function(cat){
     var n=PHOTOS.filter(function(p){return p.cat===cat;}).length;
