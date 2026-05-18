@@ -2200,12 +2200,21 @@ function runJustify(){
   if(row.length)rows.push(row);
   rows.forEach(function(row,ri){
     var isLast=ri===rows.length-1;
+    var orphan=isLast&&row.length===1;
     var totalRatio=row.reduce(function(s,i){return s+i.ratio;},0);
     var gaps=(row.length-1)*GAP;
-    var rowH=isLast&&row.length===1?TARGET:Math.round((W-gaps)/totalRatio);
-    rowH=Math.min(rowH,MAX_H);
-    row.forEach(function(item){
-      var w=Math.round(item.ratio*rowH);
+    var rowH=orphan?TARGET:Math.min(Math.round((W-gaps)/totalRatio),MAX_H);
+    var usedW=0;
+    row.forEach(function(item,idx){
+      var w;
+      if(orphan){
+        w=Math.round(item.ratio*rowH);
+      } else if(idx===row.length-1){
+        w=W-gaps-usedW;
+      } else {
+        w=Math.round(item.ratio/totalRatio*(W-gaps));
+        usedW+=w;
+      }
       item.card.style.width=w+'px';
       item.card.style.height=rowH+'px';
       if(item.img){item.img.style.width=w+'px';item.img.style.height=rowH+'px';}
