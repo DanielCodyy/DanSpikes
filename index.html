@@ -2566,7 +2566,7 @@ async function openTrip(id){
   else renderMap();
   updateTabInfo();
   fetchWeather();
-  setTimeout(function(){if(tripMap)tripMap.invalidateSize();},200);
+  setTimeout(function(){if(tripMap){tripMap.invalidateSize();renderMap();}},200);
 }
 
 function closeTripView(){
