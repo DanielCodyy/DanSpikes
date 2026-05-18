@@ -448,7 +448,7 @@ a.chip:hover{color:var(--accent)}
       <button class="nav-link" data-nav="travel" id="navTravel">TRAVEL</button>
     </div>
     <div class="nav-right">
-      <button class="lang-btn" id="globalLangBtn"><span class="a" id="glZh">中</span> / <span id="glEn">EN</span></button>
+      <button class="lang-btn" id="globalLangBtn"><span id="glZh">中</span> / <span id="glEn">EN</span></button>
     </div>
   </nav>
 
@@ -2328,8 +2328,8 @@ function setLang(l){
   lang=l;
   document.documentElement.lang=l==='zh'?'zh':'en';
   var gz=document.getElementById('glZh'),ge=document.getElementById('glEn');
-  if(gz) gz.style.color=l==='zh'?'var(--gold)':'';
-  if(ge) ge.style.color=l==='en'?'var(--gold)':'';
+  if(gz) gz.style.color=l==='zh'?'var(--gold)':'var(--text-faint)';
+  if(ge) ge.style.color=l==='en'?'var(--gold)':'var(--text-faint)';
   var he=document.getElementById('heroEyebrow'),hd=document.getElementById('heroDesc');
   if(he) he.textContent=ts('eyebrow');
   if(hd) hd.textContent=ts('desc');
@@ -2365,6 +2365,7 @@ function setLang(l){
 
 /* ===== INIT ===== */
 async function init(){
+  setLang('en');
   renderPhotoGrid();
   renderTripSelector();
   document.querySelectorAll('.nav-link').forEach(function(btn){
