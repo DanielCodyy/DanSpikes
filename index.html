@@ -2253,15 +2253,23 @@ function openPhotoLb(id){
 }
 
 function initPhotoMap(){
-  photoMap=L.map('photo-map',{zoomControl:true,attributionControl:false}).setView([39,-96],4);
+  photoMap=L.map('photo-map',{
+    zoomControl:true,
+    attributionControl:false,
+    maxBounds:[[-90,-180],[90,180]],
+    maxBoundsViscosity:1.0,
+    worldCopyJump:false
+  }).setView([39,-96],4);
   // ESRI World Imagery (satellite) — free, no API key required
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
     maxZoom:19,
+    noWrap:true,
     attribution:'Tiles &copy; Esri · Source: Esri, Maxar, GeoEye, Earthstar Geographics'
   }).addTo(photoMap);
   // Labels overlay on top of satellite
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{
     maxZoom:19,
+    noWrap:true,
     opacity:0.7
   }).addTo(photoMap);
 
