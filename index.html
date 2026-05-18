@@ -476,22 +476,22 @@ a.chip:hover{color:var(--accent)}
           <div class="home-cat-item" onclick="switchSection('photography','people')">
             <div class="home-cat-icon">人</div>
             <div class="home-cat-name" id="hcPeople">People</div>
-            <div class="home-cat-count">5 works</div>
+            <div class="home-cat-count" id="hcPeopleCount"></div>
           </div>
           <div class="home-cat-item" onclick="switchSection('photography','city')">
             <div class="home-cat-icon">城</div>
             <div class="home-cat-name" id="hcCity">City</div>
-            <div class="home-cat-count">6 works</div>
+            <div class="home-cat-count" id="hcCityCount"></div>
           </div>
           <div class="home-cat-item" onclick="switchSection('photography','nature')">
             <div class="home-cat-icon">野</div>
             <div class="home-cat-name" id="hcNature">Nature</div>
-            <div class="home-cat-count">5 works</div>
+            <div class="home-cat-count" id="hcNatureCount"></div>
           </div>
           <div class="home-cat-item" onclick="switchSection('photography','time')">
             <div class="home-cat-icon">时</div>
             <div class="home-cat-name" id="hcTime">Time</div>
-            <div class="home-cat-count">4 works</div>
+            <div class="home-cat-count" id="hcTimeCount"></div>
           </div>
         </div>
       </div>
@@ -2366,6 +2366,11 @@ function setLang(l){
 /* ===== INIT ===== */
 async function init(){
   setLang('en');
+  ['people','city','nature','time'].forEach(function(cat){
+    var n=PHOTOS.filter(function(p){return p.cat===cat;}).length;
+    var el=document.getElementById('hc'+cat.charAt(0).toUpperCase()+cat.slice(1)+'Count');
+    if(el)el.textContent=n+' works';
+  });
   renderPhotoGrid();
   renderTripSelector();
   document.querySelectorAll('.nav-link').forEach(function(btn){
