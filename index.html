@@ -107,7 +107,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;o
 .photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
 @media(max-width:900px){.photo-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:480px){.photo-grid{grid-template-columns:1fr}}
-.photo-grid--masonry{display:block;columns:3;column-gap:2px}
+.photo-grid--masonry{display:block;columns:3;column-gap:2px;transition:opacity .18s ease}
 @media(max-width:900px){.photo-grid--masonry{columns:2}}
 @media(max-width:480px){.photo-grid--masonry{columns:1}}
 .photo-grid--justified{display:flex;flex-wrap:wrap;gap:2px;align-items:flex-start;transition:opacity .18s ease}
@@ -2158,14 +2158,13 @@ function renderPhotoGrid(){
     return(activeCat==='all'||p.cat===activeCat)&&(activeMed==='all'||p.med===activeMed);
   });
   if(!filtered.length){grid.innerHTML='<div class="photo-empty">'+ts('photo_empty')+'</div>';return;}
-  var isJustified=true;
-  grid.className='photo-grid'+(isJustified?' photo-grid--justified':'');
+  grid.className='photo-grid photo-grid--masonry';
   grid.style.opacity='0';
   grid.innerHTML=filtered.map(function(p){
-    var cardClass='photo-card'+(isJustified?' photo-card--justified':'');
     var imgSrc=p.url||('https://picsum.photos/seed/photo'+p.seed+'/600/450');
-    var imgTag='<img src="'+imgSrc+'" alt="'+ptitle(p)+'" loading="lazy"/>';
-    return '<div class="'+cardClass+'" data-photo-id="'+p.id+'" onclick="openPhotoLb(\''+p.id+'\')">'+imgTag+
+    var arStyle=p.ratio?(' style="aspect-ratio:'+p.ratio+'"'):'';
+    return '<div class="photo-card photo-card--natural" data-photo-id="'+p.id+'" onclick="openPhotoLb(\''+p.id+'\')">'+
+      '<img src="'+imgSrc+'" alt="'+ptitle(p)+'"'+arStyle+' loading="lazy"/>'+
       '<div class="photo-card-meta">'+
         '<div class="photo-card-title">'+ptitle(p)+'</div>'+
         '<div class="photo-card-info">'+ploc(p)+' · '+p.exif.split(' · ')[0]+'</div>'+
@@ -2173,7 +2172,11 @@ function renderPhotoGrid(){
       '<div class="photo-badge'+(p.med==='film'?' film':'')+'">'+p.med.toUpperCase()+'</div>'+
     '</div>';
   }).join('');
-  if(isJustified)runJustify();
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      grid.style.opacity='';
+    });
+  });
 }
 
 function runJustify(){
