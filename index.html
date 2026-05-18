@@ -2276,24 +2276,30 @@ function openPhotoLb(id){
   document.getElementById('photoLb').classList.add('show');
 }
 
+function pmapMinZoom(){
+  var el=document.getElementById('photo-map');
+  if(!el||!el.offsetWidth)return 2;
+  // smallest zoom where one world tile-strip (256*2^z px) >= container width
+  return Math.ceil(Math.log2(el.offsetWidth/256));
+}
+
 function initPhotoMap(){
   photoMap=L.map('photo-map',{
     zoomControl:true,
     attributionControl:false,
-    maxBounds:[[-90,-180],[90,180]],
-    maxBoundsViscosity:1.0,
-    worldCopyJump:false
+    worldCopyJump:true,             // seamless east-west wrap like Google Maps
+    maxBounds:[[-85.06,-Infinity],[85.06,Infinity]], // latitude-only hard limit
+    maxBoundsViscosity:1.0
   }).setView([39,-96],4);
+  photoMap.setMinZoom(pmapMinZoom());  // prevent zooming out to see multiple copies
   // ESRI World Imagery (satellite) — free, no API key required
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
     maxZoom:19,
-    noWrap:true,
     attribution:'Tiles &copy; Esri · Source: Esri, Maxar, GeoEye, Earthstar Geographics'
   }).addTo(photoMap);
   // Labels overlay on top of satellite
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{
     maxZoom:19,
-    noWrap:true,
     opacity:0.7
   }).addTo(photoMap);
 
@@ -2575,7 +2581,7 @@ async function init(){
   });
   window.addEventListener('resize',function(){
     if(tripMap)tripMap.invalidateSize();
-    if(photoMap)photoMap.invalidateSize();
+    if(photoMap){photoMap.invalidateSize();photoMap.setMinZoom(pmapMinZoom());}
     runJustify();
   });
   setInterval(function(){
