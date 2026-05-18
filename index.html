@@ -328,7 +328,7 @@ a.chip:hover{color:var(--accent)}
 @media(min-width:600px){.modal{border-radius:16px;max-height:82vh}}
 .modal-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
 .modal-head h2{font-size:16px;font-weight:600;margin:0}
-.modal-tabs{display:flex;padding:0 8px;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.modal-tabs{display:flex;padding:0 8px;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;min-width:0;-webkit-overflow-scrolling:touch}
 .modal-tabs::-webkit-scrollbar{display:none}
 .modal-tab{padding:12px 14px;font-size:13px;color:var(--text-soft);font-weight:500;border-bottom:2px solid transparent;white-space:nowrap}
 .modal-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
@@ -448,7 +448,7 @@ a.chip:hover{color:var(--accent)}
   input,select,textarea{font-size:16px}
   .icon-btn{min-width:44px;min-height:44px}
   .btn{padding:10px 14px;min-height:44px}
-  .modal-tab{padding:14px 12px;min-height:44px}
+  .modal-tab{padding:12px 10px;min-height:44px;font-size:12px}
   .day-tab .day-label{display:none}
   .day-tab{min-width:44px;padding:8px 8px}
   .day-tab .day-num{font-size:13px}
