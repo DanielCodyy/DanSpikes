@@ -147,20 +147,19 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;o
 
 /* ===== PHOTO MAP ===== */
 #sec-map{overflow:hidden}
+.pmap-filter-bar{flex-shrink:0;display:flex;align-items:center;background:var(--bg);border-bottom:1px solid var(--border);padding:0 4px;overflow-x:auto;scrollbar-width:none}
+.pmap-filter-bar::-webkit-scrollbar{display:none}
+.pmap-cat-btn{flex-shrink:0;padding:10px 16px;font-size:12px;font-weight:600;letter-spacing:.10em;text-transform:uppercase;color:var(--text-faint);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s}
+.pmap-cat-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.pmap-cat-btn:hover{color:var(--text-soft)}
 .pmap-wrap{flex:1;position:relative;min-height:0}
-#photo-map{width:100%;height:100%;background:#0d1117;z-index:1}
-.pmap-legend{position:absolute;top:12px;right:12px;z-index:999;background:rgba(14,13,11,.88);
-  border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--text-soft)}
-.pmap-li{display:flex;align-items:center;gap:8px;margin:4px 0}
-.pmap-dot{width:10px;height:10px;border-radius:50%}
-.pmap-tri{width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:10px solid var(--silver)}
-.leaflet-popup-content-wrapper{border-radius:10px;padding:0;overflow:hidden;box-shadow:var(--shadow-lg)}
-.leaflet-popup-content{margin:0;min-width:180px;max-width:220px;font-family:var(--font-ui)}
-.ppop-img{width:100%;height:110px;object-fit:cover;display:block}
-.ppop-body{padding:10px 12px}
-.ppop-loc{font-size:14px;font-weight:600;color:#1c1c1a;margin-bottom:2px}
-.ppop-cat{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#8a8679;margin-bottom:8px}
-.ppop-link{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#1e3a8a;letter-spacing:.05em;text-transform:uppercase;text-decoration:none}
+#photo-map{width:100%;height:100%;z-index:1}
+.leaflet-photo-pin{width:52px;height:52px;border-radius:50%;overflow:hidden;border:2.5px solid rgba(255,255,255,.9);box-shadow:0 3px 14px rgba(0,0,0,.32);cursor:pointer;transition:transform .22s ease,box-shadow .22s ease;background:#e8e4df}
+.leaflet-photo-pin:hover{transform:scale(1.22);box-shadow:0 6px 24px rgba(0,0,0,.45)}
+.leaflet-photo-pin img{width:100%;height:100%;object-fit:cover;display:block}
+.leaflet-photo-label{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);white-space:nowrap;font-family:var(--font-ui);font-size:10px;font-weight:600;letter-spacing:.06em;color:rgba(30,26,20,.8);background:rgba(255,255,255,.82);padding:1px 6px;border-radius:3px;pointer-events:none;opacity:0;transition:opacity .18s ease}
+.leaflet-photo-pin:hover+.leaflet-photo-label,.leaflet-photo-pin-wrap:hover .leaflet-photo-label{opacity:1}
+.leaflet-photo-pin-wrap{position:relative;display:inline-block}
 
 /* ===== TRAVEL SECTION ===== */
 #sec-travel{overflow:hidden}
@@ -518,12 +517,15 @@ a.chip:hover{color:var(--accent)}
 
     <!-- ===== PHOTO MAP ===== -->
     <section class="section" id="sec-map">
+      <div class="pmap-filter-bar" id="pmapFilterBar">
+        <button class="pmap-cat-btn active" data-cat="all" id="pmapAll">ALL</button>
+        <button class="pmap-cat-btn" data-cat="people" id="pmapPeople">PEOPLE</button>
+        <button class="pmap-cat-btn" data-cat="city" id="pmapCity">CITY</button>
+        <button class="pmap-cat-btn" data-cat="nature" id="pmapNature">NATURE</button>
+        <button class="pmap-cat-btn" data-cat="time" id="pmapTime">TIME</button>
+      </div>
       <div class="pmap-wrap">
         <div id="photo-map"></div>
-        <div class="pmap-legend">
-          <div class="pmap-li"><div class="pmap-dot" style="background:var(--gold)"></div><span id="legendCity">CITY</span></div>
-          <div class="pmap-li"><div class="pmap-tri"></div><span id="legendNature">NATURE</span></div>
-        </div>
       </div>
     </section>
 
@@ -599,6 +601,7 @@ a.chip:hover{color:var(--accent)}
 /* ===== SITE GLOBALS ===== */
 var lang='zh',activeCat='all',activeMed='all';
 var photoMapInited=false,tripMapInited=false,photoMap=null,tripMap=null;
+var pmapMarkers=[],pmapActiveCat='all';
 var activeTripId=null;
 var NL=String.fromCharCode(10);
 
@@ -613,7 +616,7 @@ var T={
     photo_empty:'此分类暂无照片',
     nav_home:'主页',nav_photo:'摄影',nav_map:'地图',nav_travel:'旅行',
     filter_all:'全部',med_digital:'数码',med_film:'胶片',
-    map_city:'城市',map_nature:'自然',works:'张',
+    works:'张',pmap_all:'全部',pmap_people:'人像',pmap_city:'城市',pmap_nature:'自然',pmap_time:'时间',
     btn_view_work:'查看作品',btn_travel:'旅行记录'
   },
   en:{
@@ -625,7 +628,7 @@ var T={
     photo_empty:'No photos in this category',
     nav_home:'HOME',nav_photo:'PHOTOGRAPHY',nav_map:'MAP',nav_travel:'TRAVEL',
     filter_all:'ALL',med_digital:'DIGITAL',med_film:'FILM',
-    map_city:'CITY',map_nature:'NATURE',works:'works',
+    works:'works',pmap_all:'ALL',pmap_people:'PEOPLE',pmap_city:'CITY',pmap_nature:'NATURE',pmap_time:'TIME',
     btn_view_work:'VIEW WORK',btn_travel:'TRAVEL'
   }
 };
@@ -652,16 +655,25 @@ var PHOTOS=[
   {id:'ti9',cat:'time',med:'film',ratio:1.5082,title_zh:'目的地',title_en:'Where to Go?',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022710028.jpg'},
 ];
 
-/* ===== PHOTO MAP LOCATIONS ===== */
+/* ===== PHOTO MAP LOCATIONS (all 17 photos; small offsets for same-location clusters) ===== */
 var MAP_LOCS=[
-  {cat:'city',lat:40.7128,lng:-74.0060,name_zh:'纽约',name_en:'New York City',photoId:'c1'},
-  {cat:'city',lat:41.8781,lng:-87.6298,name_zh:'芝加哥',name_en:'Chicago',photoId:'c2'},
-  {cat:'city',lat:42.2808,lng:-83.7430,name_zh:'安娜堡',name_en:'Ann Arbor',photoId:'c4'},
-  {cat:'nature',lat:41.1,lng:-112.5,name_zh:'大盐湖',name_en:'Great Salt Lake',photoId:'n1'},
-  {cat:'nature',lat:36.8619,lng:-111.3743,name_zh:'羚羊峡谷',name_en:'Antelope Canyon',photoId:'n2'},
-  {cat:'nature',lat:45.8492,lng:-84.6196,name_zh:'麦基诺岛',name_en:'Mackinac Island',photoId:'n3'},
-  {cat:'nature',lat:45.8174,lng:-84.7279,name_zh:'麦基诺大桥',name_en:'Mackinac Bridge',photoId:'n4'},
-  {cat:'city',lat:42.3314,lng:-83.0458,name_zh:'底特律',name_en:'Detroit',photoId:'ti6'},
+  {id:'p1', lat:41.8781+0.010,lng:-87.6298-0.010},                // Chicago (people)
+  {id:'c1', lat:40.7128,      lng:-74.0060},                       // New York
+  {id:'c2', lat:41.8781,      lng:-87.6298},                       // Chicago
+  {id:'c3', lat:41.8781-0.008,lng:-87.6298+0.008},                 // Chicago offset
+  {id:'c4', lat:42.2808,      lng:-83.7430},                       // Ann Arbor
+  {id:'n1', lat:41.1000,      lng:-112.5000},                      // Great Salt Lake
+  {id:'n2', lat:36.8619,      lng:-111.3743},                      // Antelope Canyon
+  {id:'n3', lat:45.8492,      lng:-84.6196},                       // Mackinac Island
+  {id:'n4', lat:45.8174,      lng:-84.7279},                       // Mackinac Bridge
+  {id:'n5', lat:36.8619-0.005,lng:-111.3743+0.005},                // Antelope Canyon offset
+  {id:'n6', lat:36.8619+0.005,lng:-111.3743-0.005},                // Antelope Canyon offset
+  {id:'ti4',lat:42.2808+0.008,lng:-83.7430+0.008},                 // Ann Arbor offset
+  {id:'ti5',lat:42.2808-0.008,lng:-83.7430+0.008},                 // Ann Arbor offset
+  {id:'ti6',lat:42.3314,      lng:-83.0458},                       // Detroit
+  {id:'ti7',lat:22.3193,      lng:114.1694},                       // Hong Kong
+  {id:'ti8',lat:42.3314+0.006,lng:-83.0458+0.006},                 // Detroit offset
+  {id:'ti9',lat:42.2808+0.003,lng:-83.7430-0.008},                 // Ann Arbor offset
 ];
 
 /* ===== TRIPS REGISTRY ===== */
@@ -2249,30 +2261,44 @@ function openPhotoLb(id){
 }
 
 function initPhotoMap(){
-  photoMap=L.map('photo-map',{zoomControl:true,attributionControl:false}).setView([30,15],2);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd'}).addTo(photoMap);
+  photoMap=L.map('photo-map',{zoomControl:true,attributionControl:false}).setView([39,-96],4);
+  // Stamen Watercolor via Stadia Maps (free tier, no key required for personal/low-traffic use)
+  L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_watercolor/{z}/{x}/{y}.jpg',{
+    maxZoom:16,
+    attribution:'Map tiles by <a href="http://stamen.com">Stamen Design</a> · Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(photoMap);
+
+  pmapMarkers=[];
   MAP_LOCS.forEach(function(loc){
-    var photo=PHOTOS.find(function(p){return p.id===loc.photoId;});
+    var photo=PHOTOS.find(function(p){return p.id===loc.id;});
     if(!photo)return;
-    var name=lang==='zh'?loc.name_zh:loc.name_en;
-    var title=lang==='zh'?photo.title_zh:photo.title_en;
-    var iconHtml=loc.cat==='city'
-      ?'<div style="width:14px;height:14px;border-radius:50%;background:#c9a85c;border:2px solid rgba(201,168,92,.5);box-shadow:0 0 10px rgba(201,168,92,.5)"></div>'
-      :'<div style="width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:14px solid #9da0a7;filter:drop-shadow(0 0 5px rgba(157,160,167,.7))"></div>';
-    var iconSz=loc.cat==='city'?[14,14]:[16,14];
-    var iconAn=loc.cat==='city'?[7,7]:[8,14];
-    var icon=L.divIcon({className:'',html:iconHtml,iconSize:iconSz,iconAnchor:iconAn});
-    var marker=L.marker([loc.lat,loc.lng],{icon:icon});
-    var popupHtml='<img class="ppop-img" src="https://picsum.photos/seed/photo'+photo.seed+'/400/220" alt="'+title+'"/>'+
-      '<div class="ppop-body">'+
-        '<div class="ppop-loc">'+name+'</div>'+
-        '<div class="ppop-cat">'+loc.cat.toUpperCase()+'</div>'+
-        '<a class="ppop-link" href="#" onclick="switchSection(\'photography\',\''+loc.cat+'\');this.closest(\'.leaflet-popup\').style.display=\'none\';return false;">'+
-          (lang==='zh'?'查看照片 →':'VIEW PHOTOS →')+
-        '</a>'+
-      '</div>';
-    marker.bindPopup(popupHtml,{maxWidth:220});
+    var locName=lang==='zh'?photo.loc_zh:photo.loc_en;
+    var pinHtml='<div class="leaflet-photo-pin-wrap">'+
+      '<div class="leaflet-photo-pin"><img src="'+photo.url+'" loading="lazy" alt=""/></div>'+
+      '<div class="leaflet-photo-label">'+locName+'</div>'+
+    '</div>';
+    var icon=L.divIcon({className:'',html:pinHtml,iconSize:[52,52],iconAnchor:[26,26]});
+    var marker=L.marker([loc.lat,loc.lng],{icon:icon,riseOnHover:true});
+    marker.on('click',function(){openPhotoLb(photo.id);});
     marker.addTo(photoMap);
+    pmapMarkers.push({marker:marker,cat:photo.cat});
+  });
+
+  document.querySelectorAll('.pmap-cat-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.pmap-cat-btn').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+      pmapActiveCat=btn.dataset.cat;
+      updatePmapFilter();
+    });
+  });
+}
+
+function updatePmapFilter(){
+  pmapMarkers.forEach(function(m){
+    var show=pmapActiveCat==='all'||m.cat===pmapActiveCat;
+    if(show&&!photoMap.hasLayer(m.marker)) m.marker.addTo(photoMap);
+    else if(!show&&photoMap.hasLayer(m.marker)) photoMap.removeLayer(m.marker);
   });
 }
 
@@ -2360,10 +2386,10 @@ function setLang(l){
   [['all','filter_all'],['digital','med_digital'],['film','med_film']].forEach(function(p){
     var el=document.querySelector('.pmed-btn[data-med="'+p[0]+'"]');if(el)el.textContent=ts(p[1]);
   });
-  // Map legend
-  var lc=document.getElementById('legendCity'),ln=document.getElementById('legendNature');
-  if(lc)lc.textContent=ts('map_city');
-  if(ln)ln.textContent=ts('map_nature');
+  // Photo map filter buttons
+  [['pmapAll','pmap_all'],['pmapPeople','pmap_people'],['pmapCity','pmap_city'],['pmapNature','pmap_nature'],['pmapTime','pmap_time']].forEach(function(p){
+    var el=document.getElementById(p[0]);if(el)el.textContent=ts(p[1]);
+  });
   // Home category counts
   ['people','city','nature','time'].forEach(function(cat){
     var n=PHOTOS.filter(function(p){return p.cat===cat;}).length;
