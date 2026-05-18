@@ -621,21 +621,17 @@ function ts(k){return(T[lang]&&T[lang][k])||T.en[k]||k;}
 
 /* ===== PHOTO DATA ===== */
 var PHOTOS=[
-  {id:'p1',cat:'people',med:'digital',title_zh:'街头人像',title_en:'Street Portrait',loc_zh:'巴黎',loc_en:'Paris',exif:'Sony A7R2 · 85mm f/1.4 · ISO 400',seed:101},
-  {id:'p2',cat:'people',med:'film',title_zh:'咖啡馆',title_en:'Café Moment',loc_zh:'巴黎',loc_en:'Paris',exif:'Nikon F3 · 50mm f/1.8 · Portra 400',seed:102},
-  {id:'p3',cat:'people',med:'digital',title_zh:'晨光',title_en:'Morning Light',loc_zh:'东京',loc_en:'Tokyo',exif:'Sony A7R2 · 35mm f/2 · ISO 200',seed:103},
-  {id:'p4',cat:'people',med:'film',title_zh:'集市',title_en:'Market Day',loc_zh:'香港',loc_en:'Hong Kong',exif:'Contax T2 · 38mm · Kodak Gold 200',seed:104},
-  {id:'p5',cat:'people',med:'digital',title_zh:'等待',title_en:'Waiting',loc_zh:'纽约',loc_en:'New York',exif:'Sony A7R2 · 85mm f/1.4 · ISO 800',seed:105},
-  {id:'c1',cat:'city',med:'digital',title_zh:'铁塔之夜',title_en:'Tour Eiffel Night',loc_zh:'巴黎',loc_en:'Paris',exif:'Sony A7R2 · 24mm f/2.8 · ISO 1600',seed:201},
-  {id:'c2',cat:'city',med:'film',title_zh:'马莱区',title_en:'Le Marais',loc_zh:'巴黎',loc_en:'Paris',exif:'Nikon F3 · 28mm · HP5 400',seed:202},
-  {id:'c3',cat:'city',med:'digital',title_zh:'晨雾新宿',title_en:'Shinjuku Mist',loc_zh:'东京',loc_en:'Tokyo',exif:'Sony A7R2 · 16mm f/2.8 · ISO 800',seed:203},
-  {id:'c4',cat:'city',med:'digital',title_zh:'维多利亚港',title_en:'Victoria Harbour',loc_zh:'香港',loc_en:'Hong Kong',exif:'Sony A7R2 · 35mm f/2 · ISO 400',seed:204},
-  {id:'c5',cat:'city',med:'film',title_zh:'中城',title_en:'Midtown',loc_zh:'纽约',loc_en:'New York',exif:'Nikon F3 · 50mm · Tri-X 400',seed:205},
-  {id:'c6',cat:'city',med:'digital',title_zh:'安娜堡深秋',title_en:'Ann Arbor Fall',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Sony A7R2 · 50mm f/1.8 · ISO 200',seed:206},
+  {id:'p1',cat:'people',med:'digital',title_zh:'等待',title_en:'To Where?',loc_zh:'芝加哥',loc_en:'Chicago',exif:'Sony A7R2 · Sigma 24-70mm f/2.8 · 41mm f/2.8 · ISO 400',url:'assets/photos/people/DSC06175.jpg'},
+  {id:'c1',cat:'city',med:'digital',title_zh:'派对开始',title_en:'Good "Moring" New York!',loc_zh:'纽约',loc_en:'New York City',exif:'Sony A7R2 · Sigma 24-70mm f/2.8 · 67mm f/2.8 · ISO 200',url:'assets/photos/city/DSC05040.jpg'},
+  {id:'c2',cat:'city',med:'digital',title_zh:'几楼?',title_en:'Geometry?',loc_zh:'芝加哥',loc_en:'Chicago',exif:'Sony A7R2 · Sigma 24-70mm f/2.8 · 70mm f/2.8 · ISO 250',url:'assets/photos/city/DSC06227.jpg'},
+  {id:'c3',cat:'city',med:'digital',title_zh:'穿梭',title_en:'Below the Iron Trees',loc_zh:'芝加哥',loc_en:'Chicago',exif:'Sony A7R2 · Sigma 24-70mm f/2.8 · 24mm f/2.8 · ISO 250',url:'assets/photos/city/DSC06268.jpg'},
+  {id:'c4',cat:'city',med:'digital',title_zh:'电影',title_en:'Light from the Scene',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Sony A7R2 · Sigma 24-70mm f/2.8 · 60mm f/2.8 · ISO 6400',url:'assets/photos/city/DSC04927.jpg'},
   {id:'n1',cat:'nature',med:'digital',title_zh:'落樱',title_en:'Cherry Sunset',loc_zh:'大盐湖',loc_en:'Great Salt Lake',exif:'Sony A7R2 · Sigma 24-70mm f/2.8 · 70mm f/3.5 · ISO 400',url:'assets/photos/nature/DSC03791.jpg'},
   {id:'n2',cat:'nature',med:'digital',title_zh:'美人',title_en:'Beauty of the Wind',loc_zh:'羚羊峡谷',loc_en:'Antelope Canyon',exif:'Sony A7R2 · ISO 400',url:'assets/photos/nature/DSC04389-HDR.jpg'},
   {id:'n3',cat:'nature',med:'digital',title_zh:'生命',title_en:'Light Always Find its Way',loc_zh:'麦基诺岛',loc_en:'Mackinac Island',exif:'Sony A7R2 · Sigma 24-70mm f/2.8 · 24mm f/3.2 · ISO 320',url:'assets/photos/nature/DSC07950.jpg'},
   {id:'n4',cat:'nature',med:'digital',title_zh:'落日飞车',title_en:'Bridge to the Dawn',loc_zh:'麦基诺大桥',loc_en:'Mackinac Bridge',exif:'Sony A7R2 · Sigma 100-400mm · 169mm f/5.6 · ISO 160',url:'assets/photos/nature/DSC08184-HDR.jpg'},
+  {id:'n5',cat:'nature',med:'digital',title_zh:'你好',title_en:'Greetings',loc_zh:'羚羊峡谷',loc_en:'Antelope Canyon',exif:'Sony A7R2 · ISO 400',url:'assets/photos/nature/DSC04474.jpg'},
+  {id:'n6',cat:'nature',med:'digital',title_zh:'粉笔画',title_en:'Sunset Canvas',loc_zh:'羚羊峡谷',loc_en:'Antelope Canyon',exif:'Sony A7R2 · Sigma 24-70mm f/2.8 · 70mm f/8.0 · ISO 320',url:'assets/photos/nature/DSC04716.jpg'},
   {id:'ti4',cat:'time',med:'film',title_zh:'午后',title_en:'The Afternoon',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022680001.jpg'},
   {id:'ti5',cat:'time',med:'film',title_zh:'有余',title_en:'Lake Creature',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022680007.jpg'},
   {id:'ti6',cat:'time',med:'film',title_zh:'乘上夕阳',title_en:'Flight on Sunset',loc_zh:'底特律',loc_en:'Detroit',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022680021.jpg'},
@@ -646,11 +642,9 @@ var PHOTOS=[
 
 /* ===== PHOTO MAP LOCATIONS ===== */
 var MAP_LOCS=[
-  {cat:'city',lat:48.8566,lng:2.3522,name_zh:'巴黎',name_en:'Paris',photoId:'c1'},
-  {cat:'city',lat:35.6762,lng:139.6503,name_zh:'东京',name_en:'Tokyo',photoId:'c3'},
-  {cat:'city',lat:22.3193,lng:114.1694,name_zh:'香港',name_en:'Hong Kong',photoId:'c4'},
-  {cat:'city',lat:40.7128,lng:-74.0060,name_zh:'纽约',name_en:'New York',photoId:'c5'},
-  {cat:'city',lat:42.2808,lng:-83.7430,name_zh:'安娜堡',name_en:'Ann Arbor',photoId:'c6'},
+  {cat:'city',lat:40.7128,lng:-74.0060,name_zh:'纽约',name_en:'New York City',photoId:'c1'},
+  {cat:'city',lat:41.8781,lng:-87.6298,name_zh:'芝加哥',name_en:'Chicago',photoId:'c2'},
+  {cat:'city',lat:42.2808,lng:-83.7430,name_zh:'安娜堡',name_en:'Ann Arbor',photoId:'c4'},
   {cat:'nature',lat:41.1,lng:-112.5,name_zh:'大盐湖',name_en:'Great Salt Lake',photoId:'n1'},
   {cat:'nature',lat:36.8619,lng:-111.3743,name_zh:'羚羊峡谷',name_en:'Antelope Canyon',photoId:'n2'},
   {cat:'nature',lat:45.8492,lng:-84.6196,name_zh:'麦基诺岛',name_en:'Mackinac Island',photoId:'n3'},
@@ -2164,7 +2158,7 @@ function renderPhotoGrid(){
     return(activeCat==='all'||p.cat===activeCat)&&(activeMed==='all'||p.med===activeMed);
   });
   if(!filtered.length){grid.innerHTML='<div class="photo-empty">'+ts('photo_empty')+'</div>';return;}
-  var isJustified=activeCat==='time'||activeCat==='nature';
+  var isJustified=activeCat==='time'||activeCat==='nature'||activeCat==='city'||activeCat==='people';
   grid.className='photo-grid'+(isJustified?' photo-grid--justified':'');
   grid.innerHTML=filtered.map(function(p){
     var cardClass='photo-card'+(isJustified?' photo-card--justified':'');
