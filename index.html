@@ -2314,7 +2314,6 @@ function renderPhotoGrid(){
         '<div class="photo-card-title">'+ptitle(p)+'</div>'+
         '<div class="photo-card-info">'+ploc(p)+' · '+p.exif.split(' · ')[0]+'</div>'+
       '</div>'+
-      '<div class="photo-badge'+(p.med==='film'?' film':'')+'">'+p.med.toUpperCase()+'</div>'+
     '</div>';
   }).join('');
   requestAnimationFrame(function(){
