@@ -2158,7 +2158,7 @@ function renderPhotoGrid(){
     return(activeCat==='all'||p.cat===activeCat)&&(activeMed==='all'||p.med===activeMed);
   });
   if(!filtered.length){grid.innerHTML='<div class="photo-empty">'+ts('photo_empty')+'</div>';return;}
-  var isJustified=activeCat==='time'||activeCat==='nature'||activeCat==='city'||activeCat==='people';
+  var isJustified=true;
   grid.className='photo-grid'+(isJustified?' photo-grid--justified':'');
   grid.innerHTML=filtered.map(function(p){
     var cardClass='photo-card'+(isJustified?' photo-card--justified':'');
