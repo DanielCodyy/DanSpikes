@@ -521,8 +521,8 @@ a.chip:hover{color:var(--accent)}
       <div class="pmap-wrap">
         <div id="photo-map"></div>
         <div class="pmap-legend">
-          <div class="pmap-li"><div class="pmap-dot" style="background:var(--gold)"></div><span>CITY</span></div>
-          <div class="pmap-li"><div class="pmap-tri"></div><span>NATURE</span></div>
+          <div class="pmap-li"><div class="pmap-dot" style="background:var(--gold)"></div><span id="legendCity">CITY</span></div>
+          <div class="pmap-li"><div class="pmap-tri"></div><span id="legendNature">NATURE</span></div>
         </div>
       </div>
     </section>
@@ -610,7 +610,10 @@ var T={
     cat_people:'人像',cat_city:'城市',cat_nature:'自然',cat_time:'时间',
     trip_title:'旅行',trip_sub:'行程记录 & 野外笔记',
     back:'← 所有行程',upcoming:'即将出行',done:'已完成',
-    photo_empty:'此分类暂无照片'
+    photo_empty:'此分类暂无照片',
+    nav_home:'主页',nav_photo:'摄影',nav_map:'地图',nav_travel:'旅行',
+    filter_all:'全部',med_digital:'数码',med_film:'胶片',
+    map_city:'城市',map_nature:'自然',works:'张'
   },
   en:{
     eyebrow:'PHOTOGRAPHER · RESEARCHER · TRAVELER',
@@ -618,7 +621,10 @@ var T={
     cat_people:'People',cat_city:'City',cat_nature:'Nature',cat_time:'Time',
     trip_title:'Travel',trip_sub:'ITINERARIES & FIELD NOTES',
     back:'← ALL TRIPS',upcoming:'UPCOMING',done:'DONE',
-    photo_empty:'No photos in this category'
+    photo_empty:'No photos in this category',
+    nav_home:'HOME',nav_photo:'PHOTOGRAPHY',nav_map:'MAP',nav_travel:'TRAVEL',
+    filter_all:'ALL',med_digital:'DIGITAL',med_film:'FILM',
+    map_city:'CITY',map_nature:'NATURE',works:'works'
   }
 };
 function ts(k){return(T[lang]&&T[lang][k])||T.en[k]||k;}
@@ -2336,6 +2342,28 @@ function setLang(l){
   [['hcPeople','cat_people'],['hcCity','cat_city'],['hcNature','cat_nature'],['hcTime','cat_time']].forEach(function(p){
     var el=document.getElementById(p[0]);if(el)el.textContent=ts(p[1]);
   });
+  // Nav links
+  [['navHome','nav_home'],['navPhoto','nav_photo'],['navMap','nav_map'],['navTravel','nav_travel']].forEach(function(p){
+    var el=document.getElementById(p[0]);if(el)el.textContent=ts(p[1]);
+  });
+  // Photo category filter buttons
+  [['all','filter_all'],['people','cat_people'],['city','cat_city'],['nature','cat_nature'],['time','cat_time']].forEach(function(p){
+    var el=document.querySelector('.pcat-btn[data-cat="'+p[0]+'"]');if(el)el.textContent=ts(p[1]);
+  });
+  // Medium filter buttons
+  [['all','filter_all'],['digital','med_digital'],['film','med_film']].forEach(function(p){
+    var el=document.querySelector('.pmed-btn[data-med="'+p[0]+'"]');if(el)el.textContent=ts(p[1]);
+  });
+  // Map legend
+  var lc=document.getElementById('legendCity'),ln=document.getElementById('legendNature');
+  if(lc)lc.textContent=ts('map_city');
+  if(ln)ln.textContent=ts('map_nature');
+  // Home category counts
+  ['people','city','nature','time'].forEach(function(cat){
+    var n=PHOTOS.filter(function(p){return p.cat===cat;}).length;
+    var el=document.getElementById('hc'+cat.charAt(0).toUpperCase()+cat.slice(1)+'Count');
+    if(el)el.textContent=n+' '+ts('works');
+  });
   var tst=document.getElementById('tripSelTitle'),tsb=document.getElementById('tripSelSub'),bb=document.getElementById('tripBackBtn');
   if(tst)tst.textContent=ts('trip_title');
   if(tsb)tsb.textContent=ts('trip_sub');
@@ -2366,11 +2394,6 @@ function setLang(l){
 /* ===== INIT ===== */
 async function init(){
   setLang('en');
-  ['people','city','nature','time'].forEach(function(cat){
-    var n=PHOTOS.filter(function(p){return p.cat===cat;}).length;
-    var el=document.getElementById('hc'+cat.charAt(0).toUpperCase()+cat.slice(1)+'Count');
-    if(el)el.textContent=n+' works';
-  });
   renderPhotoGrid();
   renderTripSelector();
   document.querySelectorAll('.nav-link').forEach(function(btn){
