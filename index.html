@@ -631,11 +631,10 @@ var PHOTOS=[
   {id:'c4',cat:'city',med:'digital',title_zh:'维多利亚港',title_en:'Victoria Harbour',loc_zh:'香港',loc_en:'Hong Kong',exif:'Sony A7R2 · 35mm f/2 · ISO 400',seed:204},
   {id:'c5',cat:'city',med:'film',title_zh:'中城',title_en:'Midtown',loc_zh:'纽约',loc_en:'New York',exif:'Nikon F3 · 50mm · Tri-X 400',seed:205},
   {id:'c6',cat:'city',med:'digital',title_zh:'安娜堡深秋',title_en:'Ann Arbor Fall',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Sony A7R2 · 50mm f/1.8 · ISO 200',seed:206},
-  {id:'n1',cat:'nature',med:'digital',title_zh:'间歇泉',title_en:'Old Faithful',loc_zh:'黄石公园',loc_en:'Yellowstone',exif:'Sony A7R2 · 24mm f/8 · ISO 100',seed:301},
-  {id:'n2',cat:'nature',med:'film',title_zh:'冰岛极光',title_en:'Iceland Aurora',loc_zh:'冰岛',loc_en:'Iceland',exif:'Nikon F3 · 20mm · Portra 800',seed:302},
-  {id:'n3',cat:'nature',med:'digital',title_zh:'密歇根湖',title_en:'Lake Michigan',loc_zh:'密歇根',loc_en:'Michigan',exif:'Sony A7R2 · 16mm f/8 · ISO 100',seed:303},
-  {id:'n4',cat:'nature',med:'digital',title_zh:'白云石山',title_en:'Dolomites Ridge',loc_zh:'意大利',loc_en:'Italy',exif:'Sony A7R2 · 24mm f/11 · ISO 100',seed:304},
-  {id:'n5',cat:'nature',med:'film',title_zh:'俄勒冈海岸',title_en:'Oregon Coast',loc_zh:'俄勒冈',loc_en:'Oregon',exif:'Contax T2 · 38mm · Velvia 50',seed:305},
+  {id:'n1',cat:'nature',med:'digital',title_zh:'落樱',title_en:'Cherry Sunset',loc_zh:'大盐湖',loc_en:'Great Salt Lake',exif:'Sony A7R2 · Sigma 24-70mm f/2.8 · 70mm f/3.5 · ISO 400',url:'assets/photos/nature/DSC03791.jpg'},
+  {id:'n2',cat:'nature',med:'digital',title_zh:'美人',title_en:'Beauty of the Wind',loc_zh:'羚羊峡谷',loc_en:'Antelope Canyon',exif:'Sony A7R2 · ISO 400',url:'assets/photos/nature/DSC04389-HDR.jpg'},
+  {id:'n3',cat:'nature',med:'digital',title_zh:'生命',title_en:'Light Always Find its Way',loc_zh:'麦基诺岛',loc_en:'Mackinac Island',exif:'Sony A7R2 · Sigma 24-70mm f/2.8 · 24mm f/3.2 · ISO 320',url:'assets/photos/nature/DSC07950.jpg'},
+  {id:'n4',cat:'nature',med:'digital',title_zh:'落日飞车',title_en:'Bridge to the Dawn',loc_zh:'麦基诺大桥',loc_en:'Mackinac Bridge',exif:'Sony A7R2 · Sigma 100-400mm · 169mm f/5.6 · ISO 160',url:'assets/photos/nature/DSC08184-HDR.jpg'},
   {id:'ti4',cat:'time',med:'film',title_zh:'午后',title_en:'The Afternoon',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022680001.jpg'},
   {id:'ti5',cat:'time',med:'film',title_zh:'有余',title_en:'Lake Creature',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022680007.jpg'},
   {id:'ti6',cat:'time',med:'film',title_zh:'乘上夕阳',title_en:'Flight on Sunset',loc_zh:'底特律',loc_en:'Detroit',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022680021.jpg'},
@@ -651,11 +650,10 @@ var MAP_LOCS=[
   {cat:'city',lat:22.3193,lng:114.1694,name_zh:'香港',name_en:'Hong Kong',photoId:'c4'},
   {cat:'city',lat:40.7128,lng:-74.0060,name_zh:'纽约',name_en:'New York',photoId:'c5'},
   {cat:'city',lat:42.2808,lng:-83.7430,name_zh:'安娜堡',name_en:'Ann Arbor',photoId:'c6'},
-  {cat:'nature',lat:44.4605,lng:-110.8281,name_zh:'黄石公园',name_en:'Yellowstone',photoId:'n1'},
-  {cat:'nature',lat:64.9631,lng:-19.0208,name_zh:'冰岛',name_en:'Iceland',photoId:'n2'},
-  {cat:'nature',lat:43.0389,lng:-86.2289,name_zh:'密歇根湖',name_en:'Lake Michigan',photoId:'n3'},
-  {cat:'nature',lat:46.4102,lng:11.8440,name_zh:'白云石山',name_en:'Dolomites',photoId:'n4'},
-  {cat:'nature',lat:44.0582,lng:-124.1558,name_zh:'俄勒冈海岸',name_en:'Oregon Coast',photoId:'n5'},
+  {cat:'nature',lat:41.1,lng:-112.5,name_zh:'大盐湖',name_en:'Great Salt Lake',photoId:'n1'},
+  {cat:'nature',lat:36.8619,lng:-111.3743,name_zh:'羚羊峡谷',name_en:'Antelope Canyon',photoId:'n2'},
+  {cat:'nature',lat:45.8492,lng:-84.6196,name_zh:'麦基诺岛',name_en:'Mackinac Island',photoId:'n3'},
+  {cat:'nature',lat:45.8174,lng:-84.7279,name_zh:'麦基诺大桥',name_en:'Mackinac Bridge',photoId:'n4'},
   {cat:'city',lat:42.3314,lng:-83.0458,name_zh:'底特律',name_en:'Detroit',photoId:'ti6'},
 ];
 
@@ -2165,7 +2163,7 @@ function renderPhotoGrid(){
     return(activeCat==='all'||p.cat===activeCat)&&(activeMed==='all'||p.med===activeMed);
   });
   if(!filtered.length){grid.innerHTML='<div class="photo-empty">'+ts('photo_empty')+'</div>';return;}
-  var isJustified=activeCat==='time';
+  var isJustified=activeCat==='time'||activeCat==='nature';
   grid.className='photo-grid'+(isJustified?' photo-grid--justified':'');
   grid.innerHTML=filtered.map(function(p){
     var cardClass='photo-card'+(isJustified?' photo-card--justified':'');
