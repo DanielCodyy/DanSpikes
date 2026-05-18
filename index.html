@@ -111,15 +111,19 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;o
 @media(max-width:900px){.photo-grid--masonry{columns:2}}
 @media(max-width:480px){.photo-grid--masonry{columns:1}}
 .photo-grid--justified{display:flex;flex-wrap:wrap;gap:2px;align-items:flex-start}
-.photo-card{cursor:pointer;display:flex;flex-direction:column;background:none}
-.photo-img-wrap{position:relative;overflow:hidden;flex-shrink:0}
-.photo-card:not(.photo-card--justified) .photo-img-wrap{aspect-ratio:4/3}
-.photo-card img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease}
-.photo-card:hover img{transform:scale(1.04)}
-.photo-card--justified{flex:none}
-.photo-card--justified img{display:block}
-.photo-card-meta{padding:10px 2px 14px;display:flex;flex-direction:column;gap:4px}
-.photo-card-title{font-size:15px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.photo-card{position:relative;aspect-ratio:4/3;overflow:hidden;cursor:pointer;background:var(--surface-2)}
+.photo-card img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .55s ease}
+.photo-card--natural{aspect-ratio:unset;break-inside:avoid;margin-bottom:2px}
+.photo-card--natural img{height:auto;object-fit:unset}
+.photo-card--justified{flex:none;position:relative;overflow:hidden;cursor:pointer;background:var(--surface-2)}
+.photo-card--justified img{display:block;transition:transform .55s ease}
+.photo-card--justified:hover img{transform:scale(1.03)}
+.photo-card:hover img{transform:scale(1.05)}
+.photo-card-meta{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;
+  padding:32px 12px 12px;background:linear-gradient(transparent 30%,rgba(14,13,11,.88));
+  transform:translateY(100%);transition:transform .32s ease}
+.photo-card:hover .photo-card-meta{transform:none}
+.photo-card-title{font-size:15px;font-weight:500;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .photo-card-info{font-family:var(--font-mono);font-size:11px;color:var(--text-soft);letter-spacing:.04em}
 .photo-badge{position:absolute;top:8px;right:8px;font-family:var(--font-mono);font-size:12px;font-weight:500;
   letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:3px;
@@ -2167,14 +2171,12 @@ function renderPhotoGrid(){
     var imgTag=isJustified
       ?'<img src="'+imgSrc+'" alt="'+ptitle(p)+'" loading="lazy" onload="runJustify()"/>'
       :'<img src="'+imgSrc+'" alt="'+ptitle(p)+'" loading="lazy"/>';
-    return '<div class="'+cardClass+'" onclick="openPhotoLb(\''+p.id+'\')">'+
-      '<div class="photo-img-wrap">'+imgTag+
-        '<div class="photo-badge'+(p.med==='film'?' film':'')+'">'+p.med.toUpperCase()+'</div>'+
-      '</div>'+
+    return '<div class="'+cardClass+'" onclick="openPhotoLb(\''+p.id+'\')">'+imgTag+
       '<div class="photo-card-meta">'+
         '<div class="photo-card-title">'+ptitle(p)+'</div>'+
         '<div class="photo-card-info">'+ploc(p)+' · '+p.exif.split(' · ')[0]+'</div>'+
       '</div>'+
+      '<div class="photo-badge'+(p.med==='film'?' film':'')+'">'+p.med.toUpperCase()+'</div>'+
     '</div>';
   }).join('');
   if(isJustified)setTimeout(runJustify,50);
@@ -2190,9 +2192,8 @@ function runJustify(){
   var TARGET=350,GAP=2;
   var items=cards.map(function(c){
     var img=c.querySelector('img');
-    var wrap=c.querySelector('.photo-img-wrap');
     var ratio=(img&&img.naturalWidth&&img.naturalHeight)?img.naturalWidth/img.naturalHeight:4/3;
-    return{card:c,wrap:wrap,img:img,ratio:ratio};
+    return{card:c,img:img,ratio:ratio};
   });
   var rows=[],row=[],rowW=0;
   items.forEach(function(item){
@@ -2210,7 +2211,7 @@ function runJustify(){
     row.forEach(function(item){
       var w=Math.round(item.ratio*rowH);
       item.card.style.width=w+'px';
-      if(item.wrap){item.wrap.style.width=w+'px';item.wrap.style.height=rowH+'px';}
+      item.card.style.height=rowH+'px';
       if(item.img){item.img.style.width=w+'px';item.img.style.height=rowH+'px';}
     });
   });
