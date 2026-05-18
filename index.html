@@ -639,8 +639,8 @@ var PHOTOS=[
   {id:'ti4',cat:'time',med:'film',ratio:1.5082,title_zh:'午后',title_en:'The Afternoon',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022680001.jpg'},
   {id:'ti5',cat:'time',med:'film',ratio:1.5082,title_zh:'有余',title_en:'Lake Creature',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022680007.jpg'},
   {id:'ti6',cat:'time',med:'film',ratio:1.5082,title_zh:'乘上夕阳',title_en:'Flight on Sunset',loc_zh:'底特律',loc_en:'Detroit',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022680021.jpg'},
-  {id:'ti7',cat:'time',med:'film',ratio:1.5082,title_zh:'我是007',title_en:'007 is Here',loc_zh:'香港',loc_en:'Hong Kong',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022690011.jpg'},
-  {id:'ti8',cat:'time',med:'film',ratio:1.5082,title_zh:'火枫',title_en:'Inside Fire',loc_zh:'底特律',loc_en:'Detroit',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022710038.jpg'},
+  {id:'ti7',cat:'time',med:'film',ratio:0.663,title_zh:'我是007',title_en:'007 is Here',loc_zh:'香港',loc_en:'Hong Kong',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022690011.jpg'},
+  {id:'ti8',cat:'time',med:'film',ratio:0.663,title_zh:'火枫',title_en:'Inside Fire',loc_zh:'底特律',loc_en:'Detroit',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022710038.jpg'},
   {id:'ti9',cat:'time',med:'film',ratio:1.5082,title_zh:'目的地',title_en:'Where to Go?',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022710028.jpg'},
 ];
 
@@ -2166,9 +2166,9 @@ function renderPhotoGrid(){
   grid.style.opacity='0';
   grid.innerHTML=filtered.map(function(p){
     var imgSrc=p.url||('https://picsum.photos/seed/photo'+p.seed+'/600/450');
-    var arStyle=p.ratio?(' style="aspect-ratio:'+p.ratio+'"'):'';
+    var dims=p.ratio?' width="'+Math.round(p.ratio*1000)+'" height="1000"':'';
     return '<div class="photo-card--masonry" data-photo-id="'+p.id+'" onclick="openPhotoLb(\''+p.id+'\')">'+
-      '<img src="'+imgSrc+'" alt="'+ptitle(p)+'"'+arStyle+' loading="lazy"/>'+
+      '<img src="'+imgSrc+'" alt="'+ptitle(p)+'"'+dims+' loading="lazy"/>'+
       '<div class="photo-card-meta">'+
         '<div class="photo-card-title">'+ptitle(p)+'</div>'+
         '<div class="photo-card-info">'+ploc(p)+' · '+p.exif.split(' · ')[0]+'</div>'+
