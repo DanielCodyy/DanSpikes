@@ -2184,7 +2184,7 @@ function runJustify(){
   if(!cards.length)return;
   var W=grid.clientWidth;
   if(!W)return;
-  var TARGET=350,GAP=2;
+  var TARGET=420,GAP=2,MAX_H=500;
   var items=cards.map(function(c){
     var img=c.querySelector('img');
     var ratio=(img&&img.naturalWidth&&img.naturalHeight)?img.naturalWidth/img.naturalHeight:4/3;
@@ -2203,6 +2203,7 @@ function runJustify(){
     var totalRatio=row.reduce(function(s,i){return s+i.ratio;},0);
     var gaps=(row.length-1)*GAP;
     var rowH=isLast&&row.length===1?TARGET:Math.round((W-gaps)/totalRatio);
+    rowH=Math.min(rowH,MAX_H);
     row.forEach(function(item){
       var w=Math.round(item.ratio*rowH);
       item.card.style.width=w+'px';
