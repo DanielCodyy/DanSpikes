@@ -466,8 +466,8 @@ a.chip:hover{color:var(--accent)}
           <div class="hero-rule"></div>
           <p class="hero-desc" id="heroDesc">Documenting cities, landscapes, and people through both digital and analogue lenses. Based in Ann Arbor, traveling further.</p>
           <div class="hero-ctas">
-            <button class="h-btn p" onclick="switchSection('photography')">VIEW WORK</button>
-            <button class="h-btn s" onclick="switchSection('travel')">TRAVEL</button>
+            <button class="h-btn p" id="heroViewWork" onclick="switchSection('photography')">VIEW WORK</button>
+            <button class="h-btn s" id="heroTravel" onclick="switchSection('travel')">TRAVEL</button>
           </div>
         </div>
       </div>
@@ -613,7 +613,8 @@ var T={
     photo_empty:'此分类暂无照片',
     nav_home:'主页',nav_photo:'摄影',nav_map:'地图',nav_travel:'旅行',
     filter_all:'全部',med_digital:'数码',med_film:'胶片',
-    map_city:'城市',map_nature:'自然',works:'张'
+    map_city:'城市',map_nature:'自然',works:'张',
+    btn_view_work:'查看作品',btn_travel:'旅行记录'
   },
   en:{
     eyebrow:'PHOTOGRAPHER · RESEARCHER · TRAVELER',
@@ -624,7 +625,8 @@ var T={
     photo_empty:'No photos in this category',
     nav_home:'HOME',nav_photo:'PHOTOGRAPHY',nav_map:'MAP',nav_travel:'TRAVEL',
     filter_all:'ALL',med_digital:'DIGITAL',med_film:'FILM',
-    map_city:'CITY',map_nature:'NATURE',works:'works'
+    map_city:'CITY',map_nature:'NATURE',works:'works',
+    btn_view_work:'VIEW WORK',btn_travel:'TRAVEL'
   }
 };
 function ts(k){return(T[lang]&&T[lang][k])||T.en[k]||k;}
@@ -2346,6 +2348,10 @@ function setLang(l){
   [['navHome','nav_home'],['navPhoto','nav_photo'],['navMap','nav_map'],['navTravel','nav_travel']].forEach(function(p){
     var el=document.getElementById(p[0]);if(el)el.textContent=ts(p[1]);
   });
+  // Hero CTA buttons
+  var vw=document.getElementById('heroViewWork'),ht=document.getElementById('heroTravel');
+  if(vw)vw.textContent=ts('btn_view_work');
+  if(ht)ht.textContent=ts('btn_travel');
   // Photo category filter buttons
   [['all','filter_all'],['people','cat_people'],['city','cat_city'],['nature','cat_nature'],['time','cat_time']].forEach(function(p){
     var el=document.querySelector('.pcat-btn[data-cat="'+p[0]+'"]');if(el)el.textContent=ts(p[1]);
