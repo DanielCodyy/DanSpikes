@@ -156,7 +156,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;o
 #photo-map{width:100%;height:100%;z-index:1}
 .leaflet-photo-pin{width:52px;height:52px;border-radius:50%;overflow:hidden;border:2.5px solid rgba(255,255,255,.9);box-shadow:0 3px 14px rgba(0,0,0,.32);cursor:pointer;transition:transform .22s ease,box-shadow .22s ease;background:#e8e4df}
 .leaflet-photo-pin:hover{transform:scale(1.22);box-shadow:0 6px 24px rgba(0,0,0,.45)}
-.leaflet-photo-pin img{width:100%;height:100%;object-fit:cover;display:block}
+.leaflet-photo-pin img{width:52px;height:52px;object-fit:cover;object-position:center;display:block}
 .leaflet-photo-label{position:absolute;bottom:-24px;left:50%;transform:translateX(-50%);white-space:nowrap;font-family:var(--font-ui);font-size:10px;font-weight:600;letter-spacing:.06em;color:#fff;background:rgba(0,0,0,.62);padding:2px 7px;border-radius:3px;pointer-events:none;opacity:0;transition:opacity .18s ease}
 .leaflet-photo-pin:hover+.leaflet-photo-label,.leaflet-photo-pin-wrap:hover .leaflet-photo-label{opacity:1}
 .leaflet-photo-pin-wrap{position:relative;display:inline-block}
@@ -655,25 +655,17 @@ var PHOTOS=[
   {id:'ti9',cat:'time',med:'film',ratio:1.5082,title_zh:'目的地',title_en:'Where to Go?',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022710028.jpg'},
 ];
 
-/* ===== PHOTO MAP LOCATIONS (all 17 photos; small offsets for same-location clusters) ===== */
+/* ===== PHOTO MAP LOCATIONS (grouped by place; pin shows random photo per load) ===== */
 var MAP_LOCS=[
-  {id:'p1', lat:41.8781+0.010,lng:-87.6298-0.010},                // Chicago (people)
-  {id:'c1', lat:40.7128,      lng:-74.0060},                       // New York
-  {id:'c2', lat:41.8781,      lng:-87.6298},                       // Chicago
-  {id:'c3', lat:41.8781-0.008,lng:-87.6298+0.008},                 // Chicago offset
-  {id:'c4', lat:42.2808,      lng:-83.7430},                       // Ann Arbor
-  {id:'n1', lat:41.1000,      lng:-112.5000},                      // Great Salt Lake
-  {id:'n2', lat:36.8619,      lng:-111.3743},                      // Antelope Canyon
-  {id:'n3', lat:45.8492,      lng:-84.6196},                       // Mackinac Island
-  {id:'n4', lat:45.8174,      lng:-84.7279},                       // Mackinac Bridge
-  {id:'n5', lat:36.8619-0.005,lng:-111.3743+0.005},                // Antelope Canyon offset
-  {id:'n6', lat:36.8619+0.005,lng:-111.3743-0.005},                // Antelope Canyon offset
-  {id:'ti4',lat:42.2808+0.008,lng:-83.7430+0.008},                 // Ann Arbor offset
-  {id:'ti5',lat:42.2808-0.008,lng:-83.7430+0.008},                 // Ann Arbor offset
-  {id:'ti6',lat:42.3314,      lng:-83.0458},                       // Detroit
-  {id:'ti7',lat:22.3193,      lng:114.1694},                       // Hong Kong
-  {id:'ti8',lat:42.3314+0.006,lng:-83.0458+0.006},                 // Detroit offset
-  {id:'ti9',lat:42.2808+0.003,lng:-83.7430-0.008},                 // Ann Arbor offset
+  {lat:40.7128, lng:-74.0060,  photoIds:['c1']},
+  {lat:41.8781, lng:-87.6298,  photoIds:['p1','c2','c3']},
+  {lat:42.2808, lng:-83.7430,  photoIds:['c4','ti4','ti5','ti9']},
+  {lat:42.3314, lng:-83.0458,  photoIds:['ti6','ti8']},
+  {lat:41.1000, lng:-112.5000, photoIds:['n1']},
+  {lat:36.8619, lng:-111.3743, photoIds:['n2','n5','n6']},
+  {lat:45.8492, lng:-84.6196,  photoIds:['n3']},
+  {lat:45.8174, lng:-84.7279,  photoIds:['n4']},
+  {lat:22.3193, lng:114.1694,  photoIds:['ti7']},
 ];
 
 /* ===== TRIPS REGISTRY ===== */
@@ -2275,18 +2267,35 @@ function initPhotoMap(){
 
   pmapMarkers=[];
   MAP_LOCS.forEach(function(loc){
-    var photo=PHOTOS.find(function(p){return p.id===loc.id;});
-    if(!photo)return;
+    var locPhotos=loc.photoIds.map(function(id){return PHOTOS.find(function(p){return p.id===id;});}).filter(Boolean);
+    if(!locPhotos.length)return;
+    // Pick one photo randomly for this load
+    var photo=locPhotos[Math.floor(Math.random()*locPhotos.length)];
     var locName=lang==='zh'?photo.loc_zh:photo.loc_en;
-    var pinHtml='<div class="leaflet-photo-pin-wrap">'+
-      '<div class="leaflet-photo-pin"><img src="'+photo.url+'" loading="lazy" alt=""/></div>'+
-      '<div class="leaflet-photo-label">'+locName+'</div>'+
-    '</div>';
+    var pinHtml=buildPinHtml(photo,locName);
     var icon=L.divIcon({className:'',html:pinHtml,iconSize:[52,52],iconAnchor:[26,26]});
     var marker=L.marker([loc.lat,loc.lng],{icon:icon,riseOnHover:true});
-    marker.on('click',function(){openPhotoLb(photo.id);});
+    var activePhoto=photo;
+    marker.on('click',function(){openPhotoLb(activePhoto.id);});
     marker.addTo(photoMap);
-    pmapMarkers.push({marker:marker,cat:photo.cat});
+    pmapMarkers.push({
+      marker:marker,
+      locPhotos:locPhotos,
+      cats:locPhotos.map(function(p){return p.cat;}),
+      activePhoto:function(){return activePhoto;},
+      setPhoto:function(p){
+        activePhoto=p;
+        var el=marker.getElement();
+        if(el){
+          var img=el.querySelector('img');
+          var lbl=el.querySelector('.leaflet-photo-label');
+          if(img)img.src=p.url;
+          if(lbl)lbl.textContent=lang==='zh'?p.loc_zh:p.loc_en;
+        }
+        marker.off('click');
+        marker.on('click',function(){openPhotoLb(p.id);});
+      }
+    });
   });
 
   document.querySelectorAll('.pmap-cat-btn').forEach(function(btn){
@@ -2299,11 +2308,27 @@ function initPhotoMap(){
   });
 }
 
+function buildPinHtml(photo,locName){
+  return '<div class="leaflet-photo-pin-wrap">'+
+    '<div class="leaflet-photo-pin"><img src="'+photo.url+'" loading="lazy" alt=""/></div>'+
+    '<div class="leaflet-photo-label">'+(locName||'')+'</div>'+
+  '</div>';
+}
+
 function updatePmapFilter(){
   pmapMarkers.forEach(function(m){
-    var show=pmapActiveCat==='all'||m.cat===pmapActiveCat;
-    if(show&&!photoMap.hasLayer(m.marker)) m.marker.addTo(photoMap);
-    else if(!show&&photoMap.hasLayer(m.marker)) photoMap.removeLayer(m.marker);
+    var matchPhotos=pmapActiveCat==='all'
+      ? m.locPhotos
+      : m.locPhotos.filter(function(p){return p.cat===pmapActiveCat;});
+    var show=matchPhotos.length>0;
+    if(show){
+      // Pick random from matching subset and update the displayed photo
+      var pick=matchPhotos[Math.floor(Math.random()*matchPhotos.length)];
+      m.setPhoto(pick);
+      if(!photoMap.hasLayer(m.marker)) m.marker.addTo(photoMap);
+    } else {
+      if(photoMap.hasLayer(m.marker)) photoMap.removeLayer(m.marker);
+    }
   });
 }
 
