@@ -448,6 +448,26 @@ a.chip:hover{color:var(--accent)}
   .main{grid-template-rows:unset;grid-template-columns:minmax(0,1fr) minmax(260px,360px)}
   .timeline{border-left:1px solid var(--border);border-top:none;padding-bottom:max(16px,env(safe-area-inset-bottom,0px))}
 }
+/* ===== TRIP UPLOAD MODAL ===== */
+.tupload-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:9000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.tupload-modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px 32px 28px;width:min(480px,92vw);position:relative;box-shadow:var(--shadow-lg)}
+.tupload-close{position:absolute;top:14px;right:16px;color:var(--text-faint);font-size:18px;line-height:1;transition:color .15s}
+.tupload-close:hover{color:var(--text)}
+.tupload-title{font-family:var(--font-d);font-size:22px;font-weight:400;color:var(--text);margin-bottom:6px}
+.tupload-sub{font-size:12px;color:var(--text-faint);font-family:var(--font-mono);margin-bottom:24px}
+.tupload-dropzone{border:1.5px dashed var(--border);border-radius:12px;padding:36px 24px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s}
+.tupload-dropzone:hover,.tupload-dropzone.drag-over{border-color:var(--gold);background:var(--gold-soft)}
+.tupload-dz-icon{font-size:36px;margin-bottom:10px}
+.tupload-dz-text{font-family:var(--font-d);font-size:18px;color:var(--text-soft);margin-bottom:4px}
+.tupload-dz-sub{font-size:11px;color:var(--text-faint);font-family:var(--font-mono)}
+.tupload-status{margin-top:16px;padding:12px 16px;border-radius:8px;font-size:13px;font-family:var(--font-mono)}
+.tupload-status.ok{background:rgba(5,150,105,.12);color:#34d399;border:1px solid rgba(5,150,105,.25)}
+.tupload-status.err{background:rgba(220,38,38,.12);color:#f87171;border:1px solid rgba(220,38,38,.25)}
+.tupload-status.loading{background:var(--surface-2);color:var(--text-soft);border:1px solid var(--border)}
+.tupload-footer{display:flex;align-items:center;justify-content:space-between;margin-top:20px;gap:12px}
+.tupload-dl{font-family:var(--font-mono);font-size:11px;color:var(--text-faint);text-decoration:underline;cursor:pointer;transition:color .15s}
+.tupload-dl:hover{color:var(--gold)}
+.tupload-fmt{font-family:var(--font-mono);font-size:10px;color:var(--text-faint);line-height:1.6}
 </style>
 </head>
 <body>
@@ -620,7 +640,28 @@ a.chip:hover{color:var(--accent)}
   </div>
 </div>
 
+<!-- Trip Upload Modal -->
+<div id="tripUploadModal" class="tupload-overlay" style="display:none">
+  <div class="tupload-modal">
+    <button class="tupload-close" onclick="closeTripUploadModal()">✕</button>
+    <div class="tupload-title">Add New Trip</div>
+    <div class="tupload-sub">UPLOAD EXCEL (.XLSX) · TRIP DATA</div>
+    <div class="tupload-dropzone" id="tuploadDropzone">
+      <div class="tupload-dz-icon">📊</div>
+      <div class="tupload-dz-text">Drop your Excel file here</div>
+      <div class="tupload-dz-sub">or click to browse</div>
+      <input type="file" id="tuploadFileInput" accept=".xlsx,.xls" style="display:none"/>
+    </div>
+    <div id="tuploadStatus" class="tupload-status" style="display:none"></div>
+    <div class="tupload-footer">
+      <button class="tupload-dl" onclick="downloadTripTemplate()">⬇ Download blank template</button>
+      <div class="tupload-fmt">8 sheets · Info / Days / Locations<br>Transit / Reservations / Budget / Tips / Links</div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
 /* ===== SITE GLOBALS ===== */
 var lang='zh',activeCat='all',activeMed='all';
@@ -1011,6 +1052,70 @@ var links = {
   ]
 };
 
+// ===== Trip Registry =====
+// Keyed by trip id; openTrip() swaps these globals before rendering
+var TRIP_DATA = {
+  paris2026: {
+    t_obj: t, days_arr: days, reservations_arr: reservations,
+    budget_arr: budget, budgetTotal_obj: budgetTotal,
+    tips_obj: tips, links_obj: links
+  }
+};
+
+function makeGenericT(name_zh, name_en, sub_zh, sub_en, numDays) {
+  function mk(zh) {
+    return {
+      title: zh ? name_zh : name_en,
+      sub: zh ? sub_zh : sub_en,
+      intensity: zh ? {light:'轻',moderate:'中',high:'高'} : {light:'Light',moderate:'Moderate',high:'High'},
+      badges: zh ? {must:'必预约',rec:'推荐预约',opt:'可选',free:'免费',fixed:'固定',visited:'已打卡'} : {must:'MUST',rec:'Recommended',opt:'Optional',free:'Free',fixed:'Fixed',visited:'Visited'},
+      rsvLabel: zh ? {must:'必须预约',rec:'推荐预约',opt:'可选预约'} : {must:'Booking required',rec:'Recommended',opt:'Optional'},
+      openMaps: zh ? '在 Google Maps 打开' : 'Open in Google Maps',
+      bookOfficial: zh ? '官方订票' : 'Official booking',
+      checkInDo: zh ? '○ 打卡' : '○ Check in',
+      checkInDone: zh ? '✓ 已打卡' : '✓ Visited',
+      modalTitle: zh ? '行程助手' : 'Trip Assistant',
+      tabs: zh ? {rsv:'🎫 订票',bk:'📂 我的预订',bd:'💰 花销',tips:'💡 小贴士',links:'🔗 链接',sync:'☁️ 同步'} : {rsv:'🎫 Bookings',bk:'📂 My Reservations',bd:'💰 Expenses',tips:'💡 Tips',links:'🔗 Links',sync:'☁️ Sync'},
+      rsvHead: zh ? '订票清单' : 'Reservation checklist',
+      rsvSub: zh ? '建议出发前完成所有「必预约」项' : 'Complete all "must" items before departure',
+      bdHead: zh ? '预算估算 (USD)' : 'Budget estimate (USD)',
+      bdTotal: zh ? '预计总支出' : 'Estimated total',
+      tipsHead: zh ? '出门前 & 当地小贴士' : 'Pre-trip and on-the-ground tips',
+      linksHead: zh ? '实用链接' : 'Useful links',
+      daysUntil: zh ? function(d){return d>0?'距出发还有 '+d+' 天':d===0?'今天出发 🛫':'行程已开始 第 '+(Math.abs(d)+1)+' 天'} : function(d){return d>0?d+' day'+(d>1?'s':'')+' until departure':d===0?'Departing today 🛫':'Day '+(Math.abs(d)+1)+' of trip'},
+      allDays: zh ? '全程' : 'All',
+      allDaysLabel: numDays+(zh?' 天总览':'-day overview'),
+      showOptional: zh ? '显示可选' : 'Show optional',
+      transitMode: {metro:zh?'地铁':'Metro',rer:'RER',walk:zh?'步行':'Walk','rer-metro':'RER + '+(zh?'地铁':'Metro'),'metro-rer':(zh?'地铁':'Metro')+' + RER',tgv:'TGV',train:zh?'火车':'Train',bus:zh?'巴士':'Bus',ferry:zh?'轮渡':'Ferry',taxi:zh?'出租车':'Taxi'},
+      cost: zh ? '费用' : 'Cost',
+      notesLabel: zh ? '备注' : 'Notes',
+      weather: zh ? '天气' : 'Weather',
+      ratp: zh ? '实时' : 'Live',
+      timeNow: function(h){return h;},
+      legend: zh ? '日期图例' : 'Day legend',
+      progress: zh ? function(v,tot){return v+'/'+tot+' 已打卡';} : function(v,tot){return v+'/'+tot+' visited';},
+      bkEmpty: zh ? '还没有预订信息' : 'No reservations yet',
+      bkHint: zh ? '上传订单，AI 会自动归档' : 'Upload tickets, AI will auto-file.',
+      bkAdd: zh ? '+ 上传订单' : '+ Upload',
+      bkSave: zh ? '保存' : 'Save', bkCancel: zh ? '取消' : 'Cancel', bkAI: '✨ AI',
+      bkCat: zh ? '类别' : 'Category', bkTitle: zh ? '标题' : 'Title',
+      bkDate: zh ? '日期' : 'Date', bkLoc: zh ? '地点' : 'Location', bkRef: zh ? '参考号' : 'Reference',
+      bkLink: zh ? '🔗 绑定到行程点' : '🔗 Link to itinerary stop',
+      bkNone: zh ? '（暂不绑定）' : '(none)',
+      cats:{hotel:'🏨 '+(zh?'住宿':'Lodging'),transport:'🚆 '+(zh?'交通':'Transport'),attraction:'🎫 '+(zh?'景点门票':'Attraction tickets'),other:'📄 '+(zh?'其他':'Other')},
+      bkAdded: zh ? '添加于' : 'Added', bkView: zh ? '查看' : 'View', bkDelete: zh ? '删除' : 'Delete',
+      aiRunning: zh ? 'AI 正在识别…' : 'AI is reading…',
+      aiDone: zh ? 'AI 识别完成（可编辑后保存）' : 'AI done (review and save)',
+      aiFail: zh ? 'AI 识别失败，请手动填写' : 'AI failed - please fill manually',
+      confirmDel: zh ? '确定删除这个预订？' : 'Delete this reservation?',
+      storageHint: zh ? '💾 数据会自动保存' : '💾 Data saved automatically',
+      linkedHead: zh ? '关联的预订' : 'Linked reservations',
+      saving: zh ? '保存中…' : 'Saving…'
+    };
+  }
+  return {zh: mk(true), en: mk(false)};
+}
+
 // ===== Paris State =====
 var currentDay = 0;
 var showOptional = true;
@@ -1046,8 +1151,8 @@ function saveGistId(id){gistId=id;try{localStorage.setItem('gist_id',id);}catch(
 
 function L_(o){if(o==null)return '';if(typeof o==='string')return o;return o[lang]||o.en||o.zh||'';}
 function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-function modeColor(m){return {metro:'#1e3a8a',rer:'#7c3aed','rer-metro':'#5b3a9c','metro-rer':'#5b3a9c',walk:'#059669',tgv:'#dc2626'}[m]||'#525252';}
-function modeIcon(m){return m==='walk'?'🚶':m==='tgv'?'🚄':(m==='rer'||m==='rer-metro'||m==='metro-rer')?'🚆':'Ⓜ';}
+function modeColor(m){return {metro:'#1e3a8a',rer:'#7c3aed','rer-metro':'#5b3a9c','metro-rer':'#5b3a9c',walk:'#059669',tgv:'#dc2626',train:'#b45309',bus:'#065f46',ferry:'#0369a1',taxi:'#713f12'}[m]||'#525252';}
+function modeIcon(m){return m==='walk'?'🚶':m==='tgv'?'🚄':(m==='rer'||m==='rer-metro'||m==='metro-rer')?'🚆':m==='train'?'🚃':m==='bus'?'🚌':m==='ferry'?'⛴':m==='taxi'?'🚕':'Ⓜ';}
 
 // ===== Storage =====
 async function sGet(k){try{if(window.storage)return await window.storage.get(k);}catch(e){}try{var v=localStorage.getItem(k);return v!=null?{value:v}:null;}catch(e){return null;}}
@@ -2426,7 +2531,7 @@ function renderTripSelector(){
       '</div>'+
     '</div>';
   }).join('')+
-  '<div class="trip-add-card">'+
+  '<div class="trip-add-card" onclick="openTripUploadModal()">'+
     '<div class="trip-add-icon">+</div>'+
     '<div class="trip-add-lbl">'+(lang==='zh'?'添加行程':'Add Trip')+'</div>'+
   '</div>';
@@ -2434,6 +2539,12 @@ function renderTripSelector(){
 
 async function openTrip(id){
   activeTripId=id;
+  var td=TRIP_DATA[id];
+  if(td){
+    t=td.t_obj; days=td.days_arr; reservations=td.reservations_arr;
+    budget=td.budget_arr; budgetTotal=td.budgetTotal_obj;
+    tips=td.tips_obj; links=td.links_obj;
+  }
   document.getElementById('tripSelector').style.display='none';
   var tv=document.getElementById('tripView');
   tv.style.display='flex';
@@ -2533,6 +2644,285 @@ function setLang(l){
   }
 }
 
+/* ===== EXCEL TRIP UPLOAD ===== */
+
+function parseExcelTrip(wb){
+  var DC=['#c9a85c','#5b8dd9','#7dd9a0','#e67e5a','#9b7dd9'];
+  function rows(name){
+    var ws=wb.Sheets[name];
+    if(!ws)return [];
+    return XLSX.utils.sheet_to_json(ws,{defval:'',raw:false});
+  }
+  function str(v){
+    if(v==null)return '';
+    // Handle Excel date serial numbers (SheetJS may return these for date-formatted cells)
+    if(typeof v==='number'&&v>40000&&v<60000){
+      var d=XLSX.SSF.parse_date_code(v);
+      if(d)return d.y+'-'+String(d.m).padStart(2,'0')+'-'+String(d.d).padStart(2,'0');
+    }
+    return String(v).trim();
+  }
+  function num(v){return parseFloat(v)||0;}
+  function bool(v){return v===true||v===1||str(v).toLowerCase()==='true'||str(v)==='1';}
+
+  // Info sheet (Key / Value rows)
+  var info={};
+  rows('Info').forEach(function(r){
+    var k=str(r['Key']||r['key']);
+    var v=r['Value']!==undefined?r['Value']:r['value'];
+    if(k)info[k]=str(v);
+  });
+
+  // Days
+  var daysRows=rows('Days');
+  var locRows=rows('Locations');
+  var trRows=rows('Transit');
+
+  var days_arr=daysRows.map(function(dr,i){
+    var date=str(dr['date']);
+    var locs=locRows.filter(function(r){return str(r['day_date'])===date;}).map(function(lr){
+      var loc={
+        id:str(lr['id'])||('loc'+Math.random().toString(36).slice(2,6)),
+        time:str(lr['time']),
+        name:{zh:str(lr['name_zh'])||str(lr['name_en']),en:str(lr['name_en'])},
+        coords:[num(lr['lat']),num(lr['lng'])],
+        mapsLink:str(lr['maps_link'])||('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(str(lr['name_en']))),
+        desc:{zh:str(lr['desc_zh'])||str(lr['desc_en']),en:str(lr['desc_en'])},
+        reservation:str(lr['reservation'])||'free',
+        notes:{zh:str(lr['notes_zh']),en:str(lr['notes_en'])}
+      };
+      if(str(lr['special']))loc.special=str(lr['special']);
+      if(bool(lr['optional']))loc.optional=true;
+      var ce=str(lr['cost_en']),cz=str(lr['cost_zh']);
+      if(ce||cz)loc.cost={zh:cz||ce,en:ce||cz};
+      if(str(lr['booking_url']))loc.bookingUrl=str(lr['booking_url']);
+      return loc;
+    });
+    var transit=trRows.filter(function(r){return str(r['day_date'])===date;}).map(function(tr){
+      return {
+        from:str(tr['from_id']),to:str(tr['to_id']),
+        mode:str(tr['mode'])||'walk',cost:str(tr['cost'])||'-',
+        duration:{zh:str(tr['duration_zh'])||str(tr['duration_en']),en:str(tr['duration_en'])},
+        route:{zh:str(tr['route_zh'])||str(tr['route_en']),en:str(tr['route_en'])},
+        notes:{zh:str(tr['notes_zh']),en:str(tr['notes_en'])}
+      };
+    });
+    return {
+      date:date,color:DC[i%DC.length],
+      dayName:{zh:str(dr['dayName_zh'])||str(dr['dayName_en']),en:str(dr['dayName_en'])},
+      area:{zh:str(dr['area_zh'])||str(dr['area_en']),en:str(dr['area_en'])},
+      intensity:str(dr['intensity'])||'moderate',
+      locations:locs,transit:transit
+    };
+  });
+
+  // Reservations
+  var reservations_arr=rows('Reservations').map(function(r){
+    return {
+      priority:str(r['priority'])||'opt',
+      name:{zh:str(r['name_zh'])||str(r['name_en']),en:str(r['name_en'])},
+      when:{zh:str(r['when_zh'])||str(r['when_en']),en:str(r['when_en'])},
+      url:str(r['url']),
+      note:{zh:str(r['note_zh'])||str(r['note_en']),en:str(r['note_en'])}
+    };
+  });
+
+  // Budget
+  var budget_arr=[],totalRow=null;
+  rows('Budget').forEach(function(r){
+    var ce=str(r['cat_en']).toUpperCase();
+    if(ce==='TOTAL'){totalRow=r;return;}
+    budget_arr.push({
+      cat:{zh:str(r['cat_zh'])||str(r['cat_en']),en:str(r['cat_en'])},
+      sel:num(r['sel']),low:num(r['low']),high:num(r['high']),
+      note:{zh:str(r['note_zh'])||str(r['note_en']),en:str(r['note_en'])}
+    });
+  });
+  var budgetTotal_obj=totalRow
+    ?{low:num(totalRow['low']),high:num(totalRow['high']),sel:num(totalRow['sel'])}
+    :{
+      low:budget_arr.reduce(function(s,b){return s+b.low;},0),
+      high:budget_arr.reduce(function(s,b){return s+b.high;},0),
+      sel:budget_arr.reduce(function(s,b){return s+b.sel;},0)
+    };
+
+  // Tips
+  var tipsData=rows('Tips');
+  var tips_obj={
+    zh:tipsData.map(function(r){return {icon:str(r['icon'])||'💡',title:str(r['title_zh'])||str(r['title_en']),body:str(r['body_zh'])||str(r['body_en'])};}),
+    en:tipsData.map(function(r){return {icon:str(r['icon'])||'💡',title:str(r['title_en']),body:str(r['body_en'])};})
+  };
+
+  // Links
+  var linkData=rows('Links');
+  var links_obj={
+    zh:linkData.map(function(r){return {name:str(r['name_zh'])||str(r['name_en']),url:str(r['url'])};}),
+    en:linkData.map(function(r){return {name:str(r['name_en']),url:str(r['url'])};})
+  };
+
+  var t_obj=makeGenericT(
+    info['name_zh']||info['name_en']||'Trip',
+    info['name_en']||'Trip',
+    info['sub_zh']||info['dates_zh']||'',
+    info['sub_en']||info['dates_en']||'',
+    days_arr.length
+  );
+
+  return {
+    tripMeta:{
+      id:'trip_'+Date.now(),
+      name_zh:info['name_zh']||info['name_en']||'Trip',
+      name_en:info['name_en']||'Trip',
+      dates_zh:info['dates_zh']||'',dates_en:info['dates_en']||'',
+      status:info['status']||'upcoming',
+      cover:info['cover_url']||('https://picsum.photos/seed/trip'+Date.now()+'/600/400')
+    },
+    t_obj:t_obj,days_arr:days_arr,reservations_arr:reservations_arr,
+    budget_arr:budget_arr,budgetTotal_obj:budgetTotal_obj,
+    tips_obj:tips_obj,links_obj:links_obj
+  };
+}
+
+function addParsedTrip(parsed){
+  TRIP_DATA[parsed.tripMeta.id]=parsed;
+  TRIPS.push(parsed.tripMeta);
+  renderTripSelector();
+}
+
+function openTripUploadModal(){
+  var modal=document.getElementById('tripUploadModal');
+  if(!modal){console.error('tripUploadModal element not found');return;}
+  modal.style.display='flex';
+  var st=document.getElementById('tuploadStatus');
+  if(st)st.style.display='none';
+  try{document.getElementById('tuploadFileInput').value='';}catch(e){}
+}
+function closeTripUploadModal(){
+  document.getElementById('tripUploadModal').style.display='none';
+}
+
+function handleTripFile(file){
+  if(!file)return;
+  var st=document.getElementById('tuploadStatus');
+  st.className='tupload-status loading';st.textContent='Reading file…';st.style.display='block';
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var wb=XLSX.read(e.target.result,{type:'array'});
+      var parsed=parseExcelTrip(wb);
+      if(!parsed.days_arr.length)throw new Error('No days found. Check the Days sheet.');
+      addParsedTrip(parsed);
+      st.className='tupload-status ok';
+      st.textContent='✓ '+parsed.tripMeta.name_en+' added — '+parsed.days_arr.length+' days, '+parsed.reservations_arr.length+' reservations.';
+      setTimeout(function(){closeTripUploadModal();},1800);
+    }catch(err){
+      st.className='tupload-status err';
+      st.textContent='✗ '+err.message;
+    }
+  };
+  reader.onerror=function(){
+    st.className='tupload-status err';st.textContent='✗ Failed to read file.';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function downloadTripTemplate(){
+  if(!window.XLSX){alert('SheetJS not loaded yet. Try again in a moment.');return;}
+  var wb=XLSX.utils.book_new();
+
+  function addSheet(name,headers,dataRows){
+    var ws=XLSX.utils.aoa_to_sheet([headers].concat(dataRows));
+    XLSX.utils.book_append_sheet(wb,ws,name);
+  }
+
+  addSheet('Info',['Key','Value'],[
+    ['name_en','Tokyo 2025'],['name_zh','东京 2025'],
+    ['dates_en','May 15-16, 2025'],['dates_zh','2025年5月15-16日'],
+    ['sub_en','May 15-16, 2025'],['sub_zh','2025年5月15-16日'],
+    ['status','done'],
+    ['cover_url','https://picsum.photos/seed/tokyo2025/600/400']
+  ]);
+
+  addSheet('Days',
+    ['date','dayName_en','dayName_zh','area_en','area_zh','intensity'],[
+    ['2025-05-15','Thu · Arrival','周四 · 抵达','Shinjuku / Harajuku','新宿 / 原宿','moderate'],
+    ['2025-05-16','Fri · City Loop','周五 · 城市环线','Asakusa / Shibuya','浅草 / 涩谷','high']
+  ]);
+
+  addSheet('Locations',
+    ['day_date','id','time','name_en','name_zh','lat','lng','maps_link','special','optional','desc_en','desc_zh','reservation','cost_en','cost_zh','booking_url','notes_en','notes_zh'],[
+    ['2025-05-15','nrt','08:00','Narita Airport T1','成田机场 T1',35.7719,140.3929,'https://www.google.com/maps/search/?api=1&query=Narita+Airport','airport','','Arrive at NRT','抵达成田机场','fixed','','','','Allow time for immigration','留时间通关'],
+    ['2025-05-15','hotel-shinjuku','11:00','Hotel Gracery Shinjuku','新宿格雷斯利酒店',35.6944,139.7003,'https://www.google.com/maps/search/?api=1&query=Hotel+Gracery+Shinjuku','hotel','','Check in or store luggage','入住或寄存行李','fixed','¥15,000/night','约¥15,000/晚','https://gracery.com/shinjuku/','Godzilla head visible from high floors.','高层可见哥斯拉雕像。'],
+    ['2025-05-15','shinjuku-gyoen','13:00','Shinjuku Gyoen','新宿御苑',35.6852,139.7100,'https://www.google.com/maps/search/?api=1&query=Shinjuku+Gyoen','','','National garden','国家花园','rec','¥500','¥500','https://www.env.go.jp/garden/shinjukugyoen/english/','',''],
+    ['2025-05-15','meiji-shrine','17:30','Meiji Shrine','明治神宫',35.6764,139.6993,'https://www.google.com/maps/search/?api=1&query=Meiji+Shrine+Tokyo','','','Forested Shinto shrine','森林神社','free','Free','免费','','Close at sunset.','日落关闭。'],
+    ['2025-05-16','asakusa','09:00','Senso-ji Temple / Asakusa','浅草寺 / 浅草',35.7148,139.7967,'https://www.google.com/maps/search/?api=1&query=Sensoji+Temple','','','Tokyo oldest temple','东京最古老寺庙','free','Free','免费','','Go early to avoid crowds.','早去人少。'],
+    ['2025-05-16','teamlab','16:00','teamLab Borderless','teamLab 无界',35.6247,139.7742,'https://www.google.com/maps/search/?api=1&query=teamLab+Borderless','','','Immersive digital art','沉浸式数字艺术','must','¥3,200','¥3,200','https://www.teamlab.art/e/borderless-azabudai/','Book in advance - sells out.','提前预订，常售罄。'],
+    ['2025-05-16','shibuya-crossing','20:00','Shibuya Scramble Crossing','涩谷十字路口',35.6595,139.7004,'https://www.google.com/maps/search/?api=1&query=Shibuya+Scramble+Crossing','','','World-famous crossing','世界著名斑马线','free','Free','免费','','','']
+  ]);
+
+  addSheet('Transit',
+    ['day_date','from_id','to_id','mode','cost','duration_en','duration_zh','route_en','route_zh','notes_en','notes_zh'],[
+    ['2025-05-15','nrt','hotel-shinjuku','train','¥3,070','~75 min','约75分钟','Narita Express (N\'EX) to Shinjuku','成田特快至新宿','Fastest from NRT','从成田最快方式'],
+    ['2025-05-15','hotel-shinjuku','shinjuku-gyoen','walk','-','~10 min','约10分钟','Walk from hotel','从酒店步行','',''],
+    ['2025-05-15','shinjuku-gyoen','meiji-shrine','metro','¥178','~10 min','约10分钟','JR Yamanote → Harajuku → walk','JR山手线→原宿→步行','',''],
+    ['2025-05-16','hotel-shinjuku','asakusa','metro','¥255','~40 min','约40分钟','Toei Oedo Line → Asakusa','都营大江户线→浅草','',''],
+    ['2025-05-16','asakusa','teamlab','metro','¥204','~40 min','约40分钟','Metro to Azabudai Hills','地铁至麻布台之丘','',''],
+    ['2025-05-16','teamlab','shibuya-crossing','metro','¥178','~15 min','约15分钟','Metro to Shibuya','地铁至涩谷','','']
+  ]);
+
+  addSheet('Reservations',
+    ['priority','name_en','name_zh','when_en','when_zh','url','note_en','note_zh'],[
+    ['must','teamLab Borderless','teamLab 无界','May 16, 16:00','5/16 16:00','https://www.teamlab.art/e/borderless-azabudai/','Sells out weeks ahead.','提前数周售罄。'],
+    ['rec','Shinjuku Gyoen','新宿御苑','May 15, 13:00','5/15 13:00','https://www.env.go.jp/garden/shinjukugyoen/english/','Online entry recommended.','建议网上购票。']
+  ]);
+
+  addSheet('Budget',
+    ['cat_en','cat_zh','low','high','sel','note_en','note_zh'],[
+    ['Hotel, 2 nights','酒店 2 晚',140,220,180,'Hotel Gracery Shinjuku','新宿格雷斯利酒店'],
+    ['Transit','交通',48,67,58,'IC card + N\'EX','IC卡 + 成田特快'],
+    ['Attractions','景点门票',30,40,35,'teamLab + Gyoen','teamLab + 新宿御苑'],
+    ['Food, 2 days','餐饮 2 天',60,100,75,'Ramen + sushi + convenience','拉面+寿司+便利店'],
+    ['Shopping buffer','购物缓冲',50,150,80,'',''],
+    ['TOTAL','合计',328,577,428,'','']
+  ]);
+
+  addSheet('Tips',
+    ['icon','title_en','title_zh','body_en','body_zh'],[
+    ['🗂️','IC Card','IC 卡','Get a Suica or Pasmo at any JR station. Works on trains, buses, and convenience stores.','在各大 JR 站购买 Suica 或 Pasmo，适用于所有电车、公交和便利店。'],
+    ['🌡️','Weather','天气','Mid-May Tokyo: 18-26°C, mostly sunny. Light jacket for evenings.','东京五月中旬 18-26°C，多晴，傍晚可带薄外套。'],
+    ['🍜','Food','餐饮','Convenience store onigiri are excellent and cheap. Ramen under ¥1,000 is common.','便利店饭团极好且便宜。¥1,000 以内的拉面很常见。'],
+    ['📱','Apps','App','Google Maps works for transit. Hyperdia or Navitime for train schedules.','Google Maps 导航好用。Hyperdia 或 Navitime 查列车时刻。'],
+    ['💴','Cash','现金','Many small restaurants are cash-only. Get yen at airport or 7-Eleven ATMs.','很多小餐馆只收现金。在机场或 7-11 ATM 取日元。']
+  ]);
+
+  addSheet('Links',
+    ['name_en','name_zh','url'],[
+    ['JR East (Narita Express)','JR东日本(成田特快)','https://www.jreast.co.jp/e/nex/'],
+    ['Tokyo Metro Route Map','东京地铁路线图','https://www.tokyometro.jp/en/tourist/route_map/'],
+    ['teamLab Borderless','teamLab 无界','https://www.teamlab.art/e/borderless-azabudai/'],
+    ['Japan Weather (JMA)','日本气象厅','https://www.jma.go.jp/en/week/'],
+    ['Hyperdia Train Search','Hyperdia 列车搜索','https://www.hyperdia.com/en/']
+  ]);
+
+  XLSX.writeFile(wb,'trip-template-tokyo2025.xlsx');
+}
+
+function initTripUploadModal(){
+  var dz=document.getElementById('tuploadDropzone');
+  var fi=document.getElementById('tuploadFileInput');
+  dz.addEventListener('click',function(e){if(e.target!==fi)fi.click();});
+  fi.addEventListener('change',function(){handleTripFile(fi.files[0]);});
+  dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('drag-over');});
+  dz.addEventListener('dragleave',function(){dz.classList.remove('drag-over');});
+  dz.addEventListener('drop',function(e){
+    e.preventDefault();dz.classList.remove('drag-over');
+    handleTripFile(e.dataTransfer.files[0]);
+  });
+  document.getElementById('tripUploadModal').addEventListener('click',function(e){
+    if(e.target.id==='tripUploadModal')closeTripUploadModal();
+  });
+}
+
 /* ===== INIT ===== */
 async function init(){
   setLang('en');
@@ -2565,6 +2955,11 @@ async function init(){
     });
   });
   document.getElementById('tripBackBtn').addEventListener('click',closeTripView);
+  // Event delegation for Add Trip card (backup to inline onclick)
+  document.getElementById('tripGrid').addEventListener('click',function(e){
+    if(e.target.closest('.trip-add-card'))openTripUploadModal();
+  });
+  initTripUploadModal();
   document.getElementById('langBtn').addEventListener('click',function(){
     setLang(lang==='zh'?'en':'zh');
   });
