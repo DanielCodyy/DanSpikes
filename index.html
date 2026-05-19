@@ -481,6 +481,39 @@ a.chip:hover{color:var(--accent)}
 .tupload-dl{font-family:var(--font-mono);font-size:11px;color:var(--text-faint);text-decoration:underline;cursor:pointer;transition:color .15s}
 .tupload-dl:hover{color:var(--gold)}
 .tupload-fmt{font-family:var(--font-mono);font-size:10px;color:var(--text-faint);line-height:1.6}
+
+/* ===== TRIP CARD ACCESS BADGES ===== */
+.trip-card{position:relative;}
+.trip-access-badge{position:absolute;top:8px;right:8px;padding:3px 8px;border-radius:12px;
+  font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;z-index:2;
+  display:flex;align-items:center;gap:4px;pointer-events:none;}
+.trip-access-badge.protected{background:rgba(201,168,92,.18);color:var(--gold);border:1px solid var(--gold-dim);}
+.trip-access-badge.private{background:rgba(0,0,0,.55);color:var(--text-soft);border:1px solid var(--border);}
+.trip-card.private-locked{opacity:.6;cursor:default;}
+.trip-card.private-locked .trip-card-cover{filter:grayscale(.6);}
+.trip-admin-bar{padding:8px 12px;background:rgba(201,168,92,.08);
+  border-top:1px solid var(--gold-dim);display:flex;gap:6px;align-items:center;justify-content:space-between;flex-wrap:wrap;}
+.trip-vis-btn{font-size:11px;padding:3px 10px;border-radius:10px;border:1px solid var(--border);
+  background:var(--surface-2);color:var(--text-soft);cursor:pointer;transition:all .15s;}
+.trip-vis-btn.active{background:var(--gold);color:#000;border-color:var(--gold);}
+.trip-vis-btn:hover:not(.active){border-color:var(--gold-dim);color:var(--text);}
+.admin-mode-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);
+  display:inline-block;margin-left:5px;vertical-align:middle;animation:adminpulse 2s infinite;}
+@keyframes adminpulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+/* ===== ACCESS PASSWORD MODAL ===== */
+.access-modal-overlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.65);
+  display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
+.access-modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:28px 24px;width:min(360px,90vw);box-shadow:var(--shadow-lg);}
+.access-modal-title{font-family:var(--font-d);font-size:22px;margin-bottom:6px;color:var(--text);}
+.access-modal-sub{font-size:13px;color:var(--text-soft);margin-bottom:18px;}
+.access-pw-input{width:100%;padding:10px 14px;border-radius:10px;border:1px solid var(--border);
+  background:var(--surface-2);font-size:14px;color:var(--text);margin-bottom:10px;outline:none;box-sizing:border-box;}
+.access-pw-input:focus{border-color:var(--gold-dim);}
+.access-pw-error{font-size:12px;color:#dc2626;margin-bottom:8px;}
+@keyframes shake{0%,100%{transform:translateX(0);}20%,60%{transform:translateX(-6px);}40%,80%{transform:translateX(6px);}}
+.shake{animation:shake .35s ease;}
 </style>
 </head>
 <body>
@@ -488,7 +521,7 @@ a.chip:hover{color:var(--accent)}
 
   <!-- ===== SITE NAV ===== -->
   <nav class="site-nav">
-    <div class="nav-logo">D<em>.</em>LIU</div>
+    <div class="nav-logo" id="navLogo">D<em>.</em>LIU</div>
     <div class="nav-links">
       <button class="nav-link active" data-nav="home" id="navHome">HOME</button>
       <button class="nav-link" data-nav="photography" id="navPhoto">PHOTOGRAPHY</button>
@@ -673,6 +706,20 @@ a.chip:hover{color:var(--accent)}
   </div>
 </div>
 
+<!-- Access Password Modal -->
+<div id="accessModal" class="access-modal-overlay" style="display:none" onclick="handleAccessOverlayClick(event)">
+  <div class="access-modal">
+    <div class="access-modal-title">🔒 此行程需要密码</div>
+    <div class="access-modal-sub">输入访问密码以继续</div>
+    <input id="accessPwInput" class="access-pw-input" type="password" placeholder="输入密码…" autocomplete="off"/>
+    <div id="accessPwError" class="access-pw-error" style="display:none">密码错误，请重试</div>
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <button class="btn" onclick="closeAccessModal()" style="flex:1;justify-content:center;">取消</button>
+      <button class="btn" onclick="submitAccessPassword()" style="flex:1;justify-content:center;background:var(--gold);color:#000;border-color:var(--gold);">确认</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script>
@@ -682,6 +729,22 @@ var photoMapInited=false,tripMapInited=false,photoMap=null,tripMap=null;
 var pmapMarkers=[],pmapActiveCat='all';
 var activeTripId=null;
 var NL=String.fromCharCode(10);
+
+/* ===== ACCESS CONTROL ===== */
+// SHA-256 of initial passwords. Change these to set your passwords.
+// To generate: open browser console, run: sha256hex('yourpassword').then(console.log)
+var FRIEND_PW_HASH='8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92'; // default: "123456" — CHANGE THIS
+var ADMIN_PW_HASH='240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';  // default: "admin123" — CHANGE THIS
+var ACCESS_CONFIG_FILE='site_access_config.json';
+
+async function sha256hex(str){
+  var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+}
+function isFriendUnlocked(){return sessionStorage.getItem('access_unlocked_friend')==='true';}
+function isAdminMode(){return sessionStorage.getItem('access_admin_mode')==='true';}
+function setFriendUnlocked(){sessionStorage.setItem('access_unlocked_friend','true');}
+function setAdminMode(){sessionStorage.setItem('access_admin_mode','true');}
 
 /* ===== OUTER SITE TRANSLATIONS ===== */
 var T={
@@ -750,7 +813,8 @@ var MAP_LOCS=[
 var TRIPS=[
   {id:'paris2026',name_zh:'巴黎 2026',name_en:'Paris 2026',
    dates_zh:'2026年6月9日–13日',dates_en:'Jun 9–13, 2026',
-   status:'upcoming',cover:'https://picsum.photos/seed/paris2026cover/600/400'}
+   status:'upcoming',cover:'https://picsum.photos/seed/paris2026cover/600/400',
+   visibility:'protected'}
 ];
 
 /* ===== PARIS 2026: EXACT DATA ===== */
@@ -2529,24 +2593,56 @@ function pmapFlyTo(idx,el){
 function renderTripSelector(){
   var grid=document.getElementById('tripGrid');
   if(!grid)return;
+  var zh=lang==='zh';
   grid.innerHTML=TRIPS.map(function(trip){
-    var name=lang==='zh'?trip.name_zh:trip.name_en;
-    var dates=lang==='zh'?trip.dates_zh:trip.dates_en;
+    var name=zh?trip.name_zh:trip.name_en;
+    var dates=zh?trip.dates_zh:trip.dates_en;
     var stLbl=trip.status==='upcoming'?ts('upcoming'):ts('done');
     var stCls=trip.status==='upcoming'?'trip-tag-upcoming':'trip-tag-done';
-    return '<div class="trip-card" onclick="openTrip(\''+trip.id+'\')">'+
+    var vis=trip.visibility||'public';
+    var unlocked=(vis==='public')||(vis==='protected'&&(isFriendUnlocked()||isAdminMode()));
+    var cardCls='trip-card'+(vis==='private'?' private-locked':'');
+    var badge='';
+    if(vis==='protected'&&!unlocked) badge='<div class="trip-access-badge protected">🔒 '+(zh?'需密码':'Password')+'</div>';
+    if(vis==='protected'&&unlocked)  badge='<div class="trip-access-badge protected">🔓 '+(zh?'已解锁':'Unlocked')+'</div>';
+    if(vis==='private')              badge='<div class="trip-access-badge private">🔒 '+(zh?'暂未公开':'Private')+'</div>';
+    var adminBar='';
+    if(isAdminMode()){
+      adminBar='<div class="trip-admin-bar">'+
+        '<span style="font-size:11px;color:var(--gold);font-weight:600">'+(zh?'管理':'Admin')+'</span>'+
+        '<div style="display:flex;gap:4px">'+
+        '<button class="trip-vis-btn'+(vis==='public'?' active':'')+'" onclick="event.stopPropagation();setTripVis(\''+trip.id+'\',\'public\',this)">'+(zh?'公开':'Public')+'</button>'+
+        '<button class="trip-vis-btn'+(vis==='protected'?' active':'')+'" onclick="event.stopPropagation();setTripVis(\''+trip.id+'\',\'protected\',this)">'+(zh?'需密码':'Protected')+'</button>'+
+        '<button class="trip-vis-btn'+(vis==='private'?' active':'')+'" onclick="event.stopPropagation();setTripVis(\''+trip.id+'\',\'private\',this)">'+(zh?'私有':'Private')+'</button>'+
+        '</div>'+
+        '</div>';
+    }
+    return '<div class="'+cardCls+'" onclick="handleTripCardClick(\''+trip.id+'\')">'+
+      badge+
       '<img class="trip-card-cover" src="'+trip.cover+'" alt="'+name+'"/>'+
       '<div class="trip-card-body">'+
         '<div class="trip-card-name">'+name+'</div>'+
         '<div class="trip-card-dates">'+dates+'</div>'+
         '<span class="trip-card-tag '+stCls+'">'+stLbl+'</span>'+
       '</div>'+
+      adminBar+
     '</div>';
   }).join('')+
   '<div class="trip-add-card" onclick="openTripUploadModal()">'+
     '<div class="trip-add-icon">+</div>'+
-    '<div class="trip-add-lbl">'+(lang==='zh'?'添加行程':'Add Trip')+'</div>'+
-  '</div>';
+    '<div class="trip-add-lbl">'+(zh?'添加行程':'Add Trip')+'</div>'+
+  '</div>'+
+  (isAdminMode()?
+    '<div style="margin-top:16px;padding:14px 16px;background:var(--surface-2);border-radius:12px;border:1px solid var(--gold-dim)">'+
+    '<div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:10px;letter-spacing:.08em">'+(zh?'管理员工具':'Admin Tools')+'</div>'+
+    '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">'+
+    '<span style="font-size:12px;color:var(--text-soft)">'+(zh?'修改友人密码：':'Friend Password:')+'</span>'+
+    '<input id="newFriendPwInput" type="password" placeholder="'+(zh?'新密码…':'New password…')+'" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface);font-size:12px;color:var(--text);width:140px;"/>'+
+    '<button class="btn" onclick="changeFriendPassword()" style="font-size:12px;">'+(zh?'保存密码':'Save')+'</button>'+
+    '</div>'+
+    '<div style="font-size:11px;color:var(--text-faint);margin-top:6px">'+(zh?'保存后新密码立刻生效（当前已解锁会话不受影响）':'Takes effect immediately for new sessions.')+'</div>'+
+    '</div>'
+  :'');
 }
 
 async function openTrip(id){
@@ -2633,6 +2729,7 @@ function setLang(l){
   if(tst)tst.textContent=ts('trip_title');
   if(tsb)tsb.textContent=ts('trip_sub');
   if(bb)bb.textContent=ts('back');
+  loadAccessConfig().then(renderTripSelector);
   renderTripSelector();
   document.querySelectorAll('[data-photo-id]').forEach(function(card){
     var p=PHOTOS.find(function(x){return x.id===card.dataset.photoId;});
@@ -3001,6 +3098,185 @@ async function init(){
   setInterval(function(){if(activeTripId)fetchWeather();},600000);
 }
 init();
+
+/* ===== ACCESS MODAL ===== */
+var _pendingTripId=null;
+
+function showAccessModal(tripId){
+  _pendingTripId=tripId;
+  var m=document.getElementById('accessModal');
+  var inp=document.getElementById('accessPwInput');
+  var err=document.getElementById('accessPwError');
+  if(!m)return;
+  inp.value='';
+  err.style.display='none';
+  m.style.display='flex';
+  setTimeout(function(){inp.focus();},80);
+  inp.onkeydown=function(e){if(e.key==='Enter')submitAccessPassword();};
+}
+
+function closeAccessModal(){
+  document.getElementById('accessModal').style.display='none';
+  _pendingTripId=null;
+}
+
+function handleAccessOverlayClick(e){
+  if(e.target===document.getElementById('accessModal'))closeAccessModal();
+}
+
+async function submitAccessPassword(){
+  var inp=document.getElementById('accessPwInput');
+  var err=document.getElementById('accessPwError');
+  var modal=document.getElementById('accessModal');
+  var val=(inp.value||'').trim();
+  if(!val)return;
+  var h=await sha256hex(val);
+  if(h===FRIEND_PW_HASH||h===ADMIN_PW_HASH){
+    if(h===ADMIN_PW_HASH)setAdminMode();
+    setFriendUnlocked();
+    closeAccessModal();
+    renderTripSelector();
+    if(_pendingTripId)openTrip(_pendingTripId);
+  } else {
+    err.style.display='block';
+    inp.value='';
+    var box=modal.querySelector('.access-modal');
+    box.classList.remove('shake');
+    void box.offsetWidth;
+    box.classList.add('shake');
+  }
+}
+
+function handleTripCardClick(id){
+  var trip=TRIPS.find(function(t){return t.id===id;});
+  if(!trip)return;
+  var vis=trip.visibility||'public';
+  if(vis==='private'){
+    var toast=document.createElement('div');
+    toast.textContent='此行程暂未公开';
+    toast.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--surface-2);color:var(--text-soft);padding:10px 20px;border-radius:10px;font-size:13px;z-index:20000;border:1px solid var(--border);box-shadow:var(--shadow-md);pointer-events:none;';
+    document.body.appendChild(toast);
+    setTimeout(function(){toast.remove();},2200);
+    return;
+  }
+  if(vis==='protected'&&!isFriendUnlocked()&&!isAdminMode()){
+    showAccessModal(id);
+    return;
+  }
+  openTrip(id);
+}
+
+/* ===== ADMIN ENTRY (triple-click logo) ===== */
+(function(){
+  var clicks=0,timer=null;
+  document.addEventListener('click',function(e){
+    var logo=document.getElementById('navLogo');
+    if(!logo||!logo.contains(e.target))return;
+    clicks++;
+    if(timer)clearTimeout(timer);
+    timer=setTimeout(function(){clicks=0;},600);
+    if(clicks>=3){
+      clicks=0;
+      if(isAdminMode()){
+        sessionStorage.removeItem('access_admin_mode');
+        var dot=document.getElementById('adminModeDot');
+        if(dot)dot.remove();
+        renderTripSelector();
+        return;
+      }
+      promptAdminPassword();
+    }
+  });
+})();
+
+function promptAdminPassword(){
+  var val=prompt('站长密码：');
+  if(!val)return;
+  sha256hex(val.trim()).then(function(h){
+    if(h===ADMIN_PW_HASH){
+      setAdminMode();
+      setFriendUnlocked();
+      var logo=document.getElementById('navLogo');
+      if(logo&&!document.getElementById('adminModeDot')){
+        var dot=document.createElement('span');
+        dot.id='adminModeDot';
+        dot.className='admin-mode-dot';
+        dot.title='管理模式（再次三击退出）';
+        logo.appendChild(dot);
+      }
+      renderTripSelector();
+    } else {
+      alert('密码错误');
+    }
+  });
+}
+
+function setTripVis(id,vis,btnEl){
+  var trip=TRIPS.find(function(t){return t.id===id;});
+  if(!trip)return;
+  trip.visibility=vis;
+  saveAccessConfig();
+  renderTripSelector();
+}
+
+async function changeFriendPassword(){
+  var inp=document.getElementById('newFriendPwInput');
+  if(!inp)return;
+  var val=(inp.value||'').trim();
+  if(!val){showSyncToast('请输入新密码',false);return;}
+  FRIEND_PW_HASH=await sha256hex(val);
+  inp.value='';
+  await saveAccessConfig();
+}
+
+/* ===== ACCESS CONFIG (Gist) ===== */
+async function loadAccessConfig(){
+  var id=getGistId(),tk=getGithubToken();
+  if(!id||!tk)return;
+  try{
+    var r=await fetch('https://api.github.com/gists/'+id,{headers:{'Authorization':'Bearer '+tk,'X-GitHub-Api-Version':'2022-11-28'}});
+    if(!r.ok)return;
+    var d=await r.json();
+    var f=d.files&&d.files[ACCESS_CONFIG_FILE];
+    if(!f)return;
+    var cfg=JSON.parse(f.content);
+    if(cfg.friendPasswordHash)FRIEND_PW_HASH=cfg.friendPasswordHash;
+    if(cfg.trips){
+      TRIPS.forEach(function(trip){
+        if(cfg.trips[trip.id]!==undefined)trip.visibility=cfg.trips[trip.id];
+      });
+    }
+  }catch(e){}
+}
+
+async function saveAccessConfig(){
+  var id=getGistId(),tk=getGithubToken();
+  if(!tk){showSyncToast('请先在行程助手的同步设置里填写 GitHub Token',false);return;}
+  var cfg={friendPasswordHash:FRIEND_PW_HASH,trips:{}};
+  TRIPS.forEach(function(trip){cfg.trips[trip.id]=trip.visibility||'public';});
+  var body={files:{}};
+  body.files[ACCESS_CONFIG_FILE]={content:JSON.stringify(cfg,null,2)};
+  try{
+    var method=id?'PATCH':'POST';
+    var url=id?'https://api.github.com/gists/'+id:'https://api.github.com/gists';
+    if(!id)body.description='Site access config';
+    var r=await fetch(url,{method:method,headers:{'Authorization':'Bearer '+tk,'Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'},body:JSON.stringify(body)});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    var d=await r.json();
+    if(!id)saveGistId(d.id);
+    showSyncToast('已同步',true);
+  }catch(e){
+    showSyncToast('同步失败：'+e.message,false);
+  }
+}
+
+function showSyncToast(msg,ok){
+  var toast=document.createElement('div');
+  toast.textContent=msg;
+  toast.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:10px;font-size:13px;z-index:20000;box-shadow:var(--shadow-md);pointer-events:none;'+(ok?'background:#d1fae5;color:#065f46;':'background:#fee2e2;color:#991b1b;');
+  document.body.appendChild(toast);
+  setTimeout(function(){toast.remove();},2500);
+}
 </script>
 </body>
 </html>
