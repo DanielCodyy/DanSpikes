@@ -3157,10 +3157,11 @@ async function submitAccessPassword(){
         logo.appendChild(dot);
       }
     }
+    var tripToOpen=_pendingTripId;
     setFriendUnlocked();
     closeAccessModal();
     renderTripSelector();
-    if(_pendingTripId)openTrip(_pendingTripId);
+    if(tripToOpen)openTrip(tripToOpen);
   } else {
     err.style.display='block';
     inp.value='';
