@@ -3101,15 +3101,26 @@ init();
 
 /* ===== ACCESS MODAL ===== */
 var _pendingTripId=null;
+var _adminOnlyMode=false;
 
-function showAccessModal(tripId){
-  _pendingTripId=tripId;
+function showAccessModal(tripId,adminOnly){
+  _pendingTripId=tripId||null;
+  _adminOnlyMode=!!adminOnly;
   var m=document.getElementById('accessModal');
   var inp=document.getElementById('accessPwInput');
   var err=document.getElementById('accessPwError');
+  var title=document.getElementById('accessModalTitle');
+  var sub=document.getElementById('accessModalSub');
   if(!m)return;
   inp.value='';
   err.style.display='none';
+  if(_adminOnlyMode){
+    title.textContent='🔑 站长验证';
+    sub.textContent='输入站长密码以进入管理模式';
+  } else {
+    title.textContent='🔒 此行程需要密码';
+    sub.textContent='输入访问密码以继续';
+  }
   m.style.display='flex';
   setTimeout(function(){inp.focus();},80);
   inp.onkeydown=function(e){if(e.key==='Enter')submitAccessPassword();};
@@ -3118,6 +3129,7 @@ function showAccessModal(tripId){
 function closeAccessModal(){
   document.getElementById('accessModal').style.display='none';
   _pendingTripId=null;
+  _adminOnlyMode=false;
 }
 
 function handleAccessOverlayClick(e){
@@ -3131,8 +3143,20 @@ async function submitAccessPassword(){
   var val=(inp.value||'').trim();
   if(!val)return;
   var h=await sha256hex(val);
-  if(h===FRIEND_PW_HASH||h===ADMIN_PW_HASH){
-    if(h===ADMIN_PW_HASH)setAdminMode();
+  var adminOk=(h===ADMIN_PW_HASH);
+  var friendOk=(h===FRIEND_PW_HASH);
+  if(_adminOnlyMode?adminOk:(adminOk||friendOk)){
+    if(adminOk){
+      setAdminMode();
+      var logo=document.getElementById('navLogo');
+      if(logo&&!document.getElementById('adminModeDot')){
+        var dot=document.createElement('span');
+        dot.id='adminModeDot';
+        dot.className='admin-mode-dot';
+        dot.title='管理模式（再次三击退出）';
+        logo.appendChild(dot);
+      }
+    }
     setFriendUnlocked();
     closeAccessModal();
     renderTripSelector();
@@ -3190,25 +3214,7 @@ function handleTripCardClick(id){
 })();
 
 function promptAdminPassword(){
-  var val=prompt('站长密码：');
-  if(!val)return;
-  sha256hex(val.trim()).then(function(h){
-    if(h===ADMIN_PW_HASH){
-      setAdminMode();
-      setFriendUnlocked();
-      var logo=document.getElementById('navLogo');
-      if(logo&&!document.getElementById('adminModeDot')){
-        var dot=document.createElement('span');
-        dot.id='adminModeDot';
-        dot.className='admin-mode-dot';
-        dot.title='管理模式（再次三击退出）';
-        logo.appendChild(dot);
-      }
-      renderTripSelector();
-    } else {
-      alert('密码错误');
-    }
-  });
+  showAccessModal(null,true);
 }
 
 function setTripVis(id,vis,btnEl){
