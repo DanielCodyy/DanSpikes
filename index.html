@@ -1763,9 +1763,11 @@ function renderMap(){
   function addLoc(loc,color,num,dayLabel){
     if(loc.optional && !showOptional) return null;
     var sp=loc.special, visited=!!checkins[loc.id];
-    var cls='mm '+(sp==='hotel'?'hotel':sp==='airport'?'airport':sp==='station'?'station':'')+(visited?' visited':'');
-    var content=sp==='hotel'?'🏨':sp==='airport'?'✈':sp==='station'?'🚉':num;
-    var bg=sp?'':'style="background:'+color+'"';
+    var isIconSp=sp==='hotel'||sp==='airport'||sp==='station';
+    var cls='mm '+(isIconSp?sp:'')+(visited?' visited':'');
+    var spEmoji={arrival:'✈',departure:'✈',airbnb:'🏠',camping:'⛺',hiking:'🥾',viewpoint:'👁',sunset:'🌇'};
+    var content=isIconSp?(sp==='hotel'?'🏨':sp==='airport'?'✈':'🚉'):(spEmoji[sp]||num);
+    var bg=isIconSp?'':'style="background:'+color+'"';
     var icon=L.divIcon({className:'custom-marker',html:'<div class="'+cls+'" '+bg+'>'+content+'</div>',iconSize:[28,28],iconAnchor:[14,14],popupAnchor:[0,-14]});
     var m=L.marker(loc.coords,{icon:icon}).addTo(markersLayer);
     m.bindPopup('<div class="popup"><div class="pn">'+L_(loc.name)+(visited?' ✓':'')+'</div>'+
@@ -2429,7 +2431,10 @@ function wCodeToEmoji(c){
 }
 async function fetchWeather(){
   try{
-    var res=await fetch('https://api.open-meteo.com/v1/forecast?latitude=48.8566&longitude=2.3522&current=temperature_2m,weather_code&timezone=Europe%2FParis&forecast_days=1');
+    var coord=days&&days[0]&&days[0].locations&&days[0].locations[0]&&days[0].locations[0].coords;
+    var lat=coord?coord[0]:48.8566,lon=coord?coord[1]:2.3522;
+    var tz=encodeURIComponent(currentTripTimezone||'Europe/Paris');
+    var res=await fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,weather_code&timezone='+tz+'&forecast_days=1');
     if(!res.ok)throw new Error('HTTP '+res.status);
     var data=await res.json();
     var cur=data.current;
