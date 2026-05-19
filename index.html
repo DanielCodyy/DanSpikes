@@ -2859,7 +2859,7 @@ function setLang(l){
 /* ===== EXCEL TRIP UPLOAD ===== */
 
 function parseExcelTrip(wb){
-  var DC=['#c9a85c','#5b8dd9','#7dd9a0','#e67e5a','#9b7dd9'];
+  var DC=['#c9a85c','#5b8dd9','#7dd9a0','#e67e5a','#9b7dd9','#d9815b','#60a5fa','#34d399','#f59e0b','#a78bfa'];
   function rows(name){
     var ws=wb.Sheets[name];
     if(!ws)return [];
@@ -2995,7 +2995,9 @@ function parseExcelTrip(wb){
       name_en:info['name_en']||'Trip',
       dates_zh:info['dates_zh']||'',dates_en:info['dates_en']||'',
       status:info['status']||'upcoming',
-      cover:info['cover_url']||('https://picsum.photos/seed/trip'+Date.now()+'/600/400')
+      cover:info['cover_url']||('https://picsum.photos/seed/trip'+Date.now()+'/600/400'),
+      visibility:info['visibility']||'protected',
+      timezone:info['timezone']||''
     },
     t_obj:t_obj,days_arr:days_arr,reservations_arr:reservations_arr,
     budget_arr:budget_arr,budgetTotal_obj:budgetTotal_obj,
