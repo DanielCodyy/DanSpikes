@@ -2708,12 +2708,14 @@ function renderTripSelector(){
     if(vis==='private')              badge='<div class="trip-access-badge private">🔒 '+(zh?'暂未公开':'Private')+'</div>';
     var adminBar='';
     if(isAdminMode()){
+      var isUploaded=!!(TRIP_DATA[trip.id]&&TRIP_DATA[trip.id].isUploaded);
       adminBar='<div class="trip-admin-bar">'+
         '<span style="font-size:11px;color:var(--gold);font-weight:600">'+(zh?'管理':'Admin')+'</span>'+
-        '<div style="display:flex;gap:4px">'+
+        '<div style="display:flex;gap:4px;flex-wrap:wrap;">'+
         '<button class="trip-vis-btn'+(vis==='public'?' active':'')+'" onclick="event.stopPropagation();setTripVis(\''+trip.id+'\',\'public\',this)">'+(zh?'公开':'Public')+'</button>'+
         '<button class="trip-vis-btn'+(vis==='protected'?' active':'')+'" onclick="event.stopPropagation();setTripVis(\''+trip.id+'\',\'protected\',this)">'+(zh?'需密码':'Protected')+'</button>'+
         '<button class="trip-vis-btn'+(vis==='private'?' active':'')+'" onclick="event.stopPropagation();setTripVis(\''+trip.id+'\',\'private\',this)">'+(zh?'私有':'Private')+'</button>'+
+        (isUploaded?'<button class="trip-vis-btn" style="margin-left:4px;color:#e55;border-color:rgba(238,85,85,0.4)" onclick="event.stopPropagation();deleteTripConfirm(\''+trip.id+'\',this)">'+(zh?'删除':'Delete')+'</button>':'')+
         '</div>'+
         '</div>';
     }
@@ -3371,6 +3373,31 @@ function setTripVis(id,vis,btnEl){
   trip.visibility=vis;
   saveAccessConfig();
   renderTripSelector();
+}
+
+function deleteTripConfirm(id,btn){
+  if(btn.dataset.confirm==='1'){
+    delete TRIP_DATA[id];
+    var idx=TRIPS.findIndex(function(tr){return tr.id===id;});
+    if(idx>=0)TRIPS.splice(idx,1);
+    saveUploadedTrips();
+    renderTripSelector();
+  }else{
+    btn.dataset.confirm='1';
+    btn.textContent=lang==='zh'?'确认删除？':'Confirm?';
+    btn.style.background='rgba(238,85,85,0.15)';
+    btn.style.color='#e55';
+    btn.style.borderColor='#e55';
+    setTimeout(function(){
+      if(btn.dataset&&btn.dataset.confirm==='1'){
+        btn.dataset.confirm='';
+        btn.textContent=lang==='zh'?'删除':'Delete';
+        btn.style.background='';
+        btn.style.color='#e55';
+        btn.style.borderColor='rgba(238,85,85,0.4)';
+      }
+    },3000);
+  }
 }
 
 async function changeFriendPassword(){
