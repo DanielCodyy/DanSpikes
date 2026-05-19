@@ -727,7 +727,7 @@ a.chip:hover{color:var(--accent)}
 var lang='zh',activeCat='all',activeMed='all';
 var photoMapInited=false,tripMapInited=false,photoMap=null,tripMap=null;
 var pmapMarkers=[],pmapActiveCat='all';
-var activeTripId=null;
+var activeTripId=null,currentTripTimezone='Europe/Paris';
 var NL=String.fromCharCode(10);
 
 /* ===== ACCESS CONTROL ===== */
@@ -814,11 +814,11 @@ var TRIPS=[
   {id:'paris2026',name_zh:'巴黎 2026',name_en:'Paris 2026',
    dates_zh:'2026年6月9日–13日',dates_en:'Jun 9–13, 2026',
    status:'upcoming',cover:'https://picsum.photos/seed/paris2026cover/600/400',
-   visibility:'protected'},
+   visibility:'protected',timezone:'Europe/Paris'},
   {id:'la2026',name_zh:'洛杉矶–洋葱谷 2026',name_en:'LA – Onion Valley 2026',
    dates_zh:'2026年5月28日–6月2日',dates_en:'May 28–Jun 2, 2026',
    status:'upcoming',cover:'imgs/la2026.jpeg',
-   visibility:'protected'}
+   visibility:'protected',timezone:'America/Los_Angeles'}
 ];
 
 /* ===== PARIS 2026: EXACT DATA ===== */
@@ -1572,8 +1572,8 @@ async function openBookingView(id){
 }
 
 // ===== Pre-trip strip =====
-function daysUntilTrip(){var start=new Date('2026-06-09T00:00:00');return Math.ceil((start-new Date())/86400000);}
-function parisHour(){try{return new Date().toLocaleTimeString(lang==='zh'?'zh-CN':'en-GB',{timeZone:'Europe/Paris',hour:'2-digit',minute:'2-digit',hour12:false});}catch(e){return '';}}
+function daysUntilTrip(){var start=new Date((days&&days[0]?days[0].date:'2026-06-09')+'T00:00:00');return Math.ceil((start-new Date())/86400000);}
+function parisHour(){try{return new Date().toLocaleTimeString(lang==='zh'?'zh-CN':'en-GB',{timeZone:currentTripTimezone||'Europe/Paris',hour:'2-digit',minute:'2-digit',hour12:false});}catch(e){return '';}}
 
 function dayProgress(d){var elig=d.locations.filter(function(l){return !l.special;});var v=elig.filter(function(l){return checkins[l.id];}).length;return {v:v,tot:elig.length,pct:elig.length?Math.round(v/elig.length*100):0};}
 function tripProgress(){var v=0,tot=0;days.forEach(function(d){var p=dayProgress(d);v+=p.v;tot+=p.tot;});return {v:v,tot:tot,pct:tot?Math.round(v/tot*100):0};}
@@ -2748,6 +2748,8 @@ async function openTrip(id){
     budget=td.budget_arr; budgetTotal=td.budgetTotal_obj;
     tips=td.tips_obj; links=td.links_obj;
   }
+  var tripMeta=TRIPS.find(function(tr){return tr.id===id;});
+  currentTripTimezone=(tripMeta&&tripMeta.timezone)||'Europe/Paris';
   document.getElementById('tripSelector').style.display='none';
   var tv=document.getElementById('tripView');
   tv.style.display='flex';
