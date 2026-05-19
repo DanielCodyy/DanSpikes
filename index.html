@@ -814,11 +814,7 @@ var TRIPS=[
   {id:'paris2026',name_zh:'巴黎 2026',name_en:'Paris 2026',
    dates_zh:'2026年6月9日–13日',dates_en:'Jun 9–13, 2026',
    status:'upcoming',cover:'https://picsum.photos/seed/paris2026cover/600/400',
-   visibility:'protected',timezone:'Europe/Paris'},
-  {id:'la2026',name_zh:'洛杉矶–洋葱谷 2026',name_en:'LA – Onion Valley 2026',
-   dates_zh:'2026年5月28日–6月2日',dates_en:'May 28–Jun 2, 2026',
-   status:'upcoming',cover:'imgs/la2026.jpeg',
-   visibility:'protected',timezone:'America/Los_Angeles'}
+   visibility:'protected',timezone:'Europe/Paris'}
 ];
 
 /* ===== PARIS 2026: EXACT DATA ===== */
@@ -1133,91 +1129,6 @@ var links = {
   ]
 };
 
-/* ===== LA – ONION VALLEY 2026: DATA ===== */
-var la_dayColors=['#c9a85c','#5b8dd9','#7dd9a0','#e67e5a','#9b7dd9','#d9815b'];
-var la_t=makeGenericT('洛杉矶–洋葱谷 2026','LA – Onion Valley 2026','2026年5月28日–6月2日','May 28–Jun 2, 2026',6);
-var la_days=[
-  {date:'2026-05-28',color:la_dayColors[0],dayName:{zh:'周四 · 抵达 · 洛杉矶市区',en:'Thu · Arrival · LA City'},area:{zh:'洛杉矶',en:'LA'},intensity:'easy',
-   locations:[
-     {id:'la-d1-01',time:'10:00',name:{zh:'到达洛杉矶国际机场',en:'Arrive at LAX'},coords:[33.9416,-118.4085],mapsLink:'https://www.google.com/maps/search/?api=1&query=LAX+Los+Angeles+International+Airport',desc:{zh:'约10点到达洛杉矶。',en:'Arrive in LA around 10:00.'},reservation:'free',notes:{zh:'',en:''},special:'arrival'},
-     {id:'la-d1-02',time:'11:30',name:{zh:'Rosemead 民宿',en:'Airbnb – Rosemead'},coords:[34.069,-118.083],mapsLink:'https://www.google.com/maps/search/?api=1&query=3245+Isabel+Avenue+Rosemead+CA+91770',desc:{zh:'从机场前往民宿放东西。',en:'Go from LAX to the Airbnb and drop luggage.'},reservation:'free',notes:{zh:'',en:''},special:'airbnb'},
-     {id:'la-d1-03',time:'15:30',name:{zh:'伊利森公园',en:'Elysian Park'},coords:[34.081,-118.2365],mapsLink:'https://www.google.com/maps/search/?api=1&query=Elysian+Park+Los+Angeles',desc:{zh:'拍摄洛杉矶城市全景。',en:'Take city skyline photos.'},reservation:'free',notes:{zh:'',en:''},special:'viewpoint'},
-     {id:'la-d1-04',time:{zh:'日落/傍晚',en:'Sunset / Evening'},name:{zh:'格里菲斯天文台',en:'Griffith Observatory'},coords:[34.1184,-118.3004],mapsLink:'https://www.google.com/maps/search/?api=1&query=Griffith+Observatory+Los+Angeles',desc:{zh:'看日落以及星星。',en:'Watch sunset and stars.'},reservation:'free',notes:{zh:'',en:''},special:'sunset'}
-   ],
-   transit:[
-     {from:'la-d1-01',to:'la-d1-02',mode:'driving',cost:'-',duration:{zh:'45-75分钟',en:'45-75 min'},route:{zh:'LAX 到 Rosemead 民宿',en:'LAX to Rosemead Airbnb'},notes:{zh:'',en:''}},
-     {from:'la-d1-02',to:'la-d1-03',mode:'driving',cost:'-',duration:{zh:'25-40分钟',en:'25-40 min'},route:{zh:'Rosemead 民宿到 Elysian Park',en:'Rosemead Airbnb to Elysian Park'},notes:{zh:'',en:''}},
-     {from:'la-d1-03',to:'la-d1-04',mode:'driving',cost:'-',duration:{zh:'15-30分钟',en:'15-30 min'},route:{zh:'Elysian Park 到 Griffith Observatory',en:'Elysian Park to Griffith Observatory'},notes:{zh:'',en:''}}
-   ]},
-  {date:'2026-05-29',color:la_dayColors[1],dayName:{zh:'周五 · 穆古角州立公园 · 塔特尔溪露营区',en:'Fri · Point Mugu State Park · Tuttle Creek Campground'},area:{zh:'穆古角 / 孤松镇',en:'Point Mugu / Lone Pine'},intensity:'moderate',
-   locations:[
-     {id:'la-d2-01',time:{zh:'上午',en:'Morning'},name:{zh:'前往 Point Mugu 州立公园',en:'Drive to Point Mugu State Park'},coords:[34.098,-119.014],mapsLink:'https://www.google.com/maps/search/?api=1&query=Point+Mugu+State+Park',desc:{zh:'从洛杉矶区域开车前往 Point Mugu 州立公园。',en:'Drive from LA area to Point Mugu State Park.'},reservation:'free',notes:{zh:'',en:''},special:'drive'},
-     {id:'la-d2-02',time:{zh:'白天',en:'Daytime'},name:{zh:'Point Mugu 州立公园徒步',en:'Point Mugu State Park Hike'},coords:[34.098,-119.014],mapsLink:'https://www.google.com/maps/search/?api=1&query=Point+Mugu+State+Park+hiking',desc:{zh:'在 Point Mugu 州立公园徒步。',en:'Hike in Point Mugu State Park.'},reservation:'free',notes:{zh:'',en:''},special:'hiking'},
-     {id:'la-d2-03',time:{zh:'下午晚些/傍晚',en:'Late afternoon / Evening'},name:{zh:'前往 Tuttle Creek 露营地',en:'Drive to Tuttle Creek Campground'},coords:[36.566,-118.125],mapsLink:'https://www.google.com/maps/search/?api=1&query=Tuttle+Creek+Campground+Lone+Pine+CA',desc:{zh:'徒步后开车前往 Tuttle Creek Campground。',en:'Drive to Tuttle Creek Campground after the hike.'},reservation:'free',notes:{zh:'',en:''},special:'drive'},
-     {id:'la-d2-04',time:{zh:'夜间',en:'Night'},name:{zh:'Tuttle Creek 露营地',en:'Tuttle Creek Campground'},coords:[36.566,-118.125],mapsLink:'https://www.google.com/maps/search/?api=1&query=Tuttle+Creek+Campground+Lone+Pine+CA',desc:{zh:'在 Tuttle Creek Campground 露营。',en:'Camp at Tuttle Creek Campground.'},reservation:'free',notes:{zh:'',en:''},special:'camping'}
-   ],
-   transit:[
-     {from:'la-d1-02',to:'la-d2-02',mode:'driving',cost:'-',duration:{zh:'1.5-2.25小时',en:'1.5-2.25 hr'},route:{zh:'Rosemead 民宿到 Point Mugu 州立公园',en:'Rosemead Airbnb to Point Mugu State Park'},notes:{zh:'',en:''}},
-     {from:'la-d2-02',to:'la-d2-04',mode:'driving',cost:'-',duration:{zh:'4.0-5.0小时',en:'4.0-5.0 hr'},route:{zh:'Point Mugu 州立公园到 Tuttle Creek Campground',en:'Point Mugu State Park to Tuttle Creek Campground'},notes:{zh:'',en:''}}
-   ]},
-  {date:'2026-05-30',color:la_dayColors[2],dayName:{zh:'周六 · 洋葱谷 · 基瑟奇山口步道 · 大壶穴湖',en:'Sat · Onion Valley · Kearsarge Pass Trail · Big Pothole Lake'},area:{zh:'基瑟奇山口 / 洋葱谷',en:'Kearsarge Pass / Onion Valley'},intensity:'hard',
-   locations:[
-     {id:'la-d3-01',time:{zh:'上午',en:'Morning'},name:{zh:'前往 Onion Valley Trailhead',en:'Drive to Onion Valley Trailhead'},coords:[36.7725,-118.342],mapsLink:'https://www.google.com/maps/search/?api=1&query=Onion+Valley+Trailhead+Independence+CA',desc:{zh:'开车前往 Onion Valley Trailhead。',en:'Drive to Onion Valley Trailhead.'},reservation:'free',notes:{zh:'',en:''},special:'drive'},
-     {id:'la-d3-02',time:{zh:'白天',en:'Daytime'},name:{zh:'Kearsarge Pass Trail 徒步',en:'Kearsarge Pass Trail'},coords:[36.7725,-118.342],mapsLink:'https://www.google.com/maps/search/?api=1&query=Kearsarge+Pass+Trail+Onion+Valley+Trailhead',desc:{zh:'从 Onion Valley Trailhead 开始走 Kearsarge Pass Trail。',en:'Hike Kearsarge Pass Trail from Onion Valley Trailhead.'},reservation:'free',notes:{zh:'',en:''},special:'hiking'},
-     {id:'la-d3-03',time:{zh:'傍晚/夜间',en:'Evening / Night'},name:{zh:'Big Pothole Lake 露营',en:'Big Pothole Lake Camp'},coords:[36.771,-118.389],mapsLink:'https://www.google.com/maps/search/?api=1&query=Big+Pothole+Lake+Kearsarge+Pass+Trail',desc:{zh:'在 Big Pothole Lake 开始露营。',en:'Camp around Big Pothole Lake.'},reservation:'free',notes:{zh:'',en:''},special:'camping'}
-   ],
-   transit:[
-     {from:'la-d2-04',to:'la-d3-01',mode:'driving',cost:'-',duration:{zh:'40-55分钟',en:'40-55 min'},route:{zh:'Tuttle Creek Campground 到 Onion Valley Trailhead',en:'Tuttle Creek Campground to Onion Valley Trailhead'},notes:{zh:'',en:''}},
-     {from:'la-d3-01',to:'la-d3-03',mode:'hiking',cost:'-',duration:{zh:'4-6小时',en:'4-6 hr'},route:{zh:'从 Onion Valley Trailhead 沿 Kearsarge Pass Trail 到 Big Pothole Lake',en:'Onion Valley Trailhead via Kearsarge Pass Trail to Big Pothole Lake'},notes:{zh:'',en:''}}
-   ]},
-  {date:'2026-05-31',color:la_dayColors[3],dayName:{zh:'周日 · 回到洛杉矶',en:'Sun · Back to LA City'},area:{zh:'洛杉矶',en:'LA'},intensity:'hard',
-   locations:[
-     {id:'la-d4-01',time:{zh:'上午',en:'Morning'},name:{zh:'返回 Onion Valley Trailhead',en:'Hike out to Onion Valley Trailhead'},coords:[36.7725,-118.342],mapsLink:'https://www.google.com/maps/search/?api=1&query=Onion+Valley+Trailhead+Independence+CA',desc:{zh:'沿 Kearsarge Pass Trail 走出并返回 Onion Valley Trailhead。',en:'Hike out on Kearsarge Pass Trail back to Onion Valley Trailhead.'},reservation:'free',notes:{zh:'',en:''},special:'hiking'},
-     {id:'la-d4-02',time:{zh:'下午/傍晚',en:'Afternoon / Evening'},name:{zh:'开车返回洛杉矶',en:'Drive back to LA'},coords:[34.0522,-118.2437],mapsLink:'https://www.google.com/maps/search/?api=1&query=Los+Angeles+CA',desc:{zh:'从 Onion Valley Trailhead 开车回洛杉矶。',en:'Drive from Onion Valley Trailhead back to LA.'},reservation:'free',notes:{zh:'',en:''},special:'drive'},
-     {id:'la-d4-03',time:{zh:'夜间',en:'Night'},name:{zh:'Monterey Park 民宿',en:'Airbnb – Monterey Park'},coords:[34.05,-118.13],mapsLink:'https://www.google.com/maps/search/?api=1&query=1118+Newlee+Street+Monterey+Park+CA+91754',desc:{zh:'入住 Monterey Park 的 Airbnb 民宿。',en:'Stay at the Monterey Park Airbnb.'},reservation:'free',notes:{zh:'',en:''},special:'airbnb'}
-   ],
-   transit:[
-     {from:'la-d3-03',to:'la-d4-01',mode:'hiking',cost:'-',duration:{zh:'4-6小时',en:'4-6 hr'},route:{zh:'从 Big Pothole Lake 沿 Kearsarge Pass Trail 返回 Onion Valley Trailhead',en:'Big Pothole Lake via Kearsarge Pass Trail back to Onion Valley Trailhead'},notes:{zh:'',en:''}},
-     {from:'la-d4-01',to:'la-d4-03',mode:'driving',cost:'-',duration:{zh:'4.25-5.5小时',en:'4.25-5.5 hr'},route:{zh:'Onion Valley Trailhead 到 Monterey Park 民宿',en:'Onion Valley Trailhead to Monterey Park Airbnb'},notes:{zh:'',en:''}}
-   ]},
-  {date:'2026-06-01',color:la_dayColors[4],dayName:{zh:'周一 · 圣地亚哥',en:'Mon · San Diego'},area:{zh:'圣地亚哥',en:'San Diego'},intensity:'easy',
-   locations:[
-     {id:'la-d5-01',time:{zh:'上午',en:'Morning'},name:{zh:'前往圣地亚哥',en:'Drive to San Diego'},coords:[32.7157,-117.1611],mapsLink:'https://www.google.com/maps/search/?api=1&query=San+Diego+CA',desc:{zh:'从洛杉矶开车前往圣地亚哥。',en:'Drive from LA to San Diego.'},reservation:'free',notes:{zh:'',en:''},special:'drive'},
-     {id:'la-d5-02',time:{zh:'白天',en:'Daytime'},name:{zh:'圣地亚哥',en:'San Diego'},coords:[32.7157,-117.1611],mapsLink:'https://www.google.com/maps/search/?api=1&query=San+Diego+CA',desc:{zh:'在圣地亚哥游览。',en:'Spend the day in San Diego.'},reservation:'free',notes:{zh:'',en:''},special:'city'},
-     {id:'la-d5-03',time:{zh:'傍晚',en:'Evening'},name:{zh:'返回 Monterey Park 民宿',en:'Return to Monterey Park Airbnb'},coords:[34.05,-118.13],mapsLink:'https://www.google.com/maps/search/?api=1&query=1118+Newlee+Street+Monterey+Park+CA+91754',desc:{zh:'开车返回 Monterey Park 民宿。',en:'Drive back to the Monterey Park Airbnb.'},reservation:'free',notes:{zh:'',en:''},special:'drive'},
-     {id:'la-d5-04',time:{zh:'夜间',en:'Night'},name:{zh:'Monterey Park 民宿',en:'Airbnb – Monterey Park'},coords:[34.05,-118.13],mapsLink:'https://www.google.com/maps/search/?api=1&query=1118+Newlee+Street+Monterey+Park+CA+91754',desc:{zh:'入住 Monterey Park 的 Airbnb 民宿。',en:'Stay at the Monterey Park Airbnb.'},reservation:'free',notes:{zh:'',en:''},special:'airbnb'}
-   ],
-   transit:[
-     {from:'la-d4-03',to:'la-d5-02',mode:'driving',cost:'-',duration:{zh:'2.25-3.5小时',en:'2.25-3.5 hr'},route:{zh:'Monterey Park 民宿到 San Diego',en:'Monterey Park Airbnb to San Diego'},notes:{zh:'',en:''}},
-     {from:'la-d5-02',to:'la-d5-04',mode:'driving',cost:'-',duration:{zh:'2.25-3.5小时',en:'2.25-3.5 hr'},route:{zh:'San Diego 返回 Monterey Park 民宿',en:'San Diego back to Monterey Park Airbnb'},notes:{zh:'',en:''}}
-   ]},
-  {date:'2026-06-02',color:la_dayColors[5],dayName:{zh:'周二 · 离开',en:'Tue · Depart · LAX'},area:{zh:'洛杉矶',en:'LA'},intensity:'easy',
-   locations:[
-     {id:'la-d6-01',time:{zh:'上午/下午',en:'Morning / Afternoon'},name:{zh:'前往 LAX',en:'Depart for LAX'},coords:[33.9416,-118.4085],mapsLink:'https://www.google.com/maps/search/?api=1&query=LAX+Los+Angeles+International+Airport',desc:{zh:'从洛杉矶区域前往 LAX。',en:'Go from LA area to LAX.'},reservation:'free',notes:{zh:'',en:''},special:'drive'},
-     {id:'la-d6-02',time:{zh:'下午',en:'Afternoon'},name:{zh:'从 LAX 离开',en:'Depart from LAX'},coords:[33.9416,-118.4085],mapsLink:'https://www.google.com/maps/search/?api=1&query=LAX+Los+Angeles+International+Airport',desc:{zh:'下午从洛杉矶坐飞机离开。',en:'Depart from LA by flight in the afternoon.'},reservation:'free',notes:{zh:'',en:''},special:'departure'}
-   ],
-   transit:[
-     {from:'la-d5-04',to:'la-d6-01',mode:'driving',cost:'-',duration:{zh:'40-75分钟',en:'40-75 min'},route:{zh:'Monterey Park 民宿到 LAX',en:'Monterey Park Airbnb to LAX'},notes:{zh:'',en:''}}
-   ]}
-];
-var la_reservations=[];
-var la_budget=[];
-var la_budgetTotal={low:0,high:0,sel:0};
-var la_tips={zh:[],en:[]};
-var la_links={
-  zh:[
-    {name:'洛杉矶天气',url:'https://forecast.weather.gov/MapClick.php?CityName=Los+Angeles&state=CA&site=LOX'},
-    {name:'Google Maps 导航',url:'https://www.google.com/maps'},
-    {name:'格里菲斯天文台票务',url:'https://griffithobservatory.lacity.gov/exhibits/samuel-oschin-planetarium/'},
-    {name:'中途岛号博物馆票务',url:'https://www.midway.org/visit/buy-tickets'}
-  ],
-  en:[
-    {name:'LA Weather',url:'https://forecast.weather.gov/MapClick.php?CityName=Los+Angeles&state=CA&site=LOX'},
-    {name:'Google Maps',url:'https://www.google.com/maps'},
-    {name:'Griffith Observatory tickets',url:'https://griffithobservatory.lacity.gov/exhibits/samuel-oschin-planetarium/'},
-    {name:'USS Midway Museum tickets',url:'https://www.midway.org/visit/buy-tickets'}
-  ]
-};
 
 // ===== Trip Registry =====
 // Keyed by trip id; openTrip() swaps these globals before rendering
@@ -1226,11 +1137,6 @@ var TRIP_DATA = {
     t_obj: t, days_arr: days, reservations_arr: reservations,
     budget_arr: budget, budgetTotal_obj: budgetTotal,
     tips_obj: tips, links_obj: links
-  },
-  la2026: {
-    t_obj: la_t, days_arr: la_days, reservations_arr: la_reservations,
-    budget_arr: la_budget, budgetTotal_obj: la_budgetTotal,
-    tips_obj: la_tips, links_obj: la_links
   }
 };
 
