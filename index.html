@@ -709,8 +709,8 @@ a.chip:hover{color:var(--accent)}
 <!-- Access Password Modal -->
 <div id="accessModal" class="access-modal-overlay" style="display:none" onclick="handleAccessOverlayClick(event)">
   <div class="access-modal">
-    <div class="access-modal-title">🔒 此行程需要密码</div>
-    <div class="access-modal-sub">输入访问密码以继续</div>
+    <div class="access-modal-title" id="accessModalTitle">🔒 此行程需要密码</div>
+    <div class="access-modal-sub" id="accessModalSub">输入访问密码以继续</div>
     <input id="accessPwInput" class="access-pw-input" type="password" placeholder="输入密码…" autocomplete="off"/>
     <div id="accessPwError" class="access-pw-error" style="display:none">密码错误，请重试</div>
     <div style="display:flex;gap:8px;margin-top:4px;">
