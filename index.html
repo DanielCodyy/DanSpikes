@@ -3098,7 +3098,9 @@ function downloadTripTemplate(){
     ['dates_en','May 15-16, 2025'],['dates_zh','2025年5月15-16日'],
     ['sub_en','May 15-16, 2025'],['sub_zh','2025年5月15-16日'],
     ['status','done'],
-    ['cover_url','https://picsum.photos/seed/tokyo2025/600/400']
+    ['cover_url','https://picsum.photos/seed/tokyo2025/600/400'],
+    ['timezone','Asia/Tokyo'],
+    ['visibility','protected']
   ]);
 
   addSheet('Days',
@@ -3162,7 +3164,35 @@ function downloadTripTemplate(){
     ['Hyperdia Train Search','Hyperdia 列车搜索','https://www.hyperdia.com/en/']
   ]);
 
-  XLSX.writeFile(wb,'trip-template-tokyo2025.xlsx');
+  addSheet('README',['Field','Sheet','Valid Values / Notes'],[
+    ['name_en / name_zh','Info','Trip name in English and Chinese'],
+    ['dates_en / dates_zh','Info','Display date range string (not parsed)'],
+    ['sub_en / sub_zh','Info','Subtitle shown on card (usually same as dates)'],
+    ['status','Info','"upcoming" or "done"'],
+    ['cover_url','Info','Direct image URL for trip card thumbnail'],
+    ['timezone','Info','IANA timezone string — controls clock display and weather fetch. Examples: Asia/Tokyo · America/Los_Angeles · America/New_York · Europe/Paris · Europe/London. Leave blank to default to Europe/Paris.'],
+    ['visibility','Info','"protected" (default, requires friend password) | "public" (no password) | "private" (hidden from visitors)'],
+    ['','',''],
+    ['date','Days','YYYY-MM-DD format'],
+    ['dayName_en / dayName_zh','Days','Day header title, e.g. "Mon · Arrival"'],
+    ['area_en / area_zh','Days','Region/city shown in day header'],
+    ['intensity','Days','"light" or "easy" | "moderate" | "high" or "hard"'],
+    ['','',''],
+    ['day_date','Locations','Must match a date in the Days sheet exactly'],
+    ['id','Locations','Unique string ID, used to link transit from/to'],
+    ['lat / lng','Locations','Decimal degrees (e.g. 35.6595 / 139.7004). Required for map markers.'],
+    ['special','Locations','Icon-only markers (no day color): "hotel" | "airport" | "station". Day-colored emoji markers: "arrival" | "departure" | "airbnb" | "camping" | "hiking" | "viewpoint" | "sunset". Other values (e.g. "drive", "city") show day-colored number. Leave blank for numbered marker.'],
+    ['optional','Locations','TRUE to hide when "Show optional" is off'],
+    ['reservation','Locations','"free" | "rec" (recommended) | "fixed" | "opt" (optional) | "must"'],
+    ['','',''],
+    ['priority','Reservations','"must" | "rec" (recommended) | "opt" (optional)'],
+    ['','',''],
+    ['cat_en','Budget','Use "TOTAL" as the last row for the grand total'],
+    ['','',''],
+    ['mode','Transit','"walk" | "metro" | "train" | "bus" | "taxi" | "drive" | "ferry"']
+  ]);
+
+  XLSX.writeFile(wb,'trip-template.xlsx');
 }
 
 function initTripUploadModal(){
