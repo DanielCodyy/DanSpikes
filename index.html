@@ -1239,7 +1239,7 @@ function makeGenericT(name_zh, name_en, sub_zh, sub_en, numDays) {
     return {
       title: zh ? name_zh : name_en,
       sub: zh ? sub_zh : sub_en,
-      intensity: zh ? {light:'轻',moderate:'中',high:'高'} : {light:'Light',moderate:'Moderate',high:'High'},
+      intensity: zh ? {light:'轻',easy:'轻',moderate:'中',high:'高',hard:'高'} : {light:'Light',easy:'Light',moderate:'Moderate',high:'High',hard:'High'},
       badges: zh ? {must:'必预约',rec:'推荐预约',opt:'可选',free:'免费',fixed:'固定',visited:'已打卡'} : {must:'MUST',rec:'Recommended',opt:'Optional',free:'Free',fixed:'Fixed',visited:'Visited'},
       rsvLabel: zh ? {must:'必须预约',rec:'推荐预约',opt:'可选预约'} : {must:'Booking required',rec:'Recommended',opt:'Optional'},
       openMaps: zh ? '在 Google Maps 打开' : 'Open in Google Maps',
