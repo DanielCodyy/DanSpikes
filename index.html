@@ -1279,10 +1279,9 @@ var la_links={
 };
 
 // ===== Trail Data =====
-// pts are loaded at runtime from OSM Overpass API + OpenTopoData SRTM30M elevation service.
-// osmWayIds[0] = east (pass→TH order), osmWayIds[1] = west (westEnd→junction order).
-// Both are reversed at load time so the combined route runs TH → Pass → BPL.
-// endCutoffLon: truncate west side when longitude passes this value (going westward).
+// pts = [lat, lon, elev_m, cumKm] — 80 representative points from OSM ways
+// 51714121 (east, TH→Pass) + 1125529741 (west, Pass→BPL), SRTM30M elevations.
+// cumKm = proportional cumulative distance (full 998-pt haversine total = 9.6 km).
 var TRAIL_DATA = {
   'kearsarge-pass': {
     name_zh: 'Kearsarge Pass 步道',
@@ -1290,12 +1289,53 @@ var TRAIL_DATA = {
     color: '#7dd9a0',
     osmWayIds: [51714121, 1125529741],
     endCutoffLon: -118.393,
-    stats: { dist_km: 9.6, gain_m: 780, peak_m: 3584, peak_ft: 11760 },
-    pts: [],
+    stats: { dist_km: 9.6, gain_m: 793, peak_m: 3590, peak_ft: 11778 },
+    pts: [
+      [36.772498,-118.341122,2798,0.00],[36.771900,-118.342108,2809,0.12],
+      [36.772187,-118.342284,2818,0.24],[36.773046,-118.342162,2829,0.36],
+      [36.773855,-118.342075,2842,0.49],[36.775343,-118.343217,2868,0.61],
+      [36.774591,-118.343434,2878,0.73],[36.774130,-118.343453,2885,0.85],
+      [36.773876,-118.344574,2905,0.97],[36.773596,-118.344992,2904,1.09],
+      [36.773097,-118.345085,2912,1.22],[36.771791,-118.344756,2918,1.34],
+      [36.772213,-118.344838,2933,1.46],[36.771945,-118.345146,2936,1.58],
+      [36.771685,-118.345952,2953,1.70],[36.771878,-118.345846,2955,1.82],
+      [36.771616,-118.346918,2983,1.95],[36.771069,-118.348284,2998,2.07],
+      [36.771197,-118.348418,3004,2.19],[36.771070,-118.348699,3012,2.31],
+      [36.770248,-118.348778,3030,2.43],[36.770008,-118.349011,3043,2.55],
+      [36.770290,-118.349306,3049,2.67],[36.769855,-118.349746,3056,2.80],
+      [36.770101,-118.350082,3064,2.92],[36.770385,-118.350145,3070,3.04],
+      [36.771048,-118.350224,3076,3.16],[36.770983,-118.350737,3087,3.28],
+      [36.771382,-118.351163,3101,3.40],[36.770723,-118.351852,3114,3.53],
+      [36.771112,-118.351873,3121,3.65],[36.770410,-118.352744,3137,3.77],
+      [36.770498,-118.353029,3149,3.89],[36.771076,-118.353013,3158,4.01],
+      [36.770354,-118.353870,3171,4.13],[36.770165,-118.355260,3180,4.25],
+      [36.770463,-118.356202,3184,4.38],[36.770369,-118.357185,3196,4.50],
+      [36.769279,-118.358596,3209,4.62],[36.769299,-118.359918,3222,4.74],
+      [36.769604,-118.360151,3229,4.86],[36.769855,-118.360230,3236,4.99],
+      [36.770381,-118.360613,3251,5.11],[36.770628,-118.360477,3258,5.23],
+      [36.770922,-118.359892,3270,5.35],[36.771007,-118.361104,3276,5.47],
+      [36.771548,-118.362506,3293,5.59],[36.771934,-118.363949,3313,5.72],
+      [36.772535,-118.364100,3329,5.84],[36.772519,-118.364793,3335,5.96],
+      [36.771431,-118.366208,3357,6.08],[36.770678,-118.366301,3369,6.20],
+      [36.770653,-118.366475,3370,6.32],[36.770739,-118.366558,3374,6.44],
+      [36.770832,-118.366786,3383,6.57],[36.771470,-118.366815,3400,6.69],
+      [36.771065,-118.367110,3409,6.81],[36.771162,-118.367236,3420,6.93],
+      [36.771859,-118.367222,3429,7.05],[36.772462,-118.367976,3441,7.17],
+      [36.773105,-118.368384,3461,7.30],[36.773714,-118.370865,3494,7.42],
+      [36.774362,-118.371530,3532,7.54],[36.774453,-118.372997,3563,7.66],
+      [36.773776,-118.375615,3590,7.78],[36.773085,-118.376640,3590,7.90],
+      [36.773504,-118.377633,3571,8.03],[36.773744,-118.379054,3541,8.15],
+      [36.773743,-118.380719,3497,8.27],[36.773660,-118.381069,3484,8.39],
+      [36.773694,-118.381908,3471,8.51],[36.773872,-118.383112,3458,8.63],
+      [36.773797,-118.383554,3448,8.76],[36.773590,-118.385041,3438,8.88],
+      [36.773772,-118.386264,3429,9.00],[36.773918,-118.387415,3427,9.12],
+      [36.773694,-118.388817,3412,9.24],[36.773651,-118.390176,3395,9.36],
+      [36.773838,-118.391683,3392,9.49],[36.774306,-118.393116,3388,9.60]
+    ],
     waypoints: [
-      {name_zh:'洋葱谷起点',       name_en:'Onion Valley TH',    pt:0, camp:false},
-      {name_zh:'Kearsarge 山口 ▲', name_en:'Kearsarge Pass ▲',  pt:0, camp:false},
-      {name_zh:'大壶穴湖 ⛺',      name_en:'Big Pothole Lake ⛺', pt:0, camp:true}
+      {name_zh:'洋葱谷起点',       name_en:'Onion Valley TH',    pt:0,  camp:false},
+      {name_zh:'Kearsarge 山口 ▲', name_en:'Kearsarge Pass ▲',  pt:64, camp:false},
+      {name_zh:'大壶穴湖 ⛺',      name_en:'Big Pothole Lake ⛺', pt:79, camp:true}
     ]
   }
 };
@@ -1939,6 +1979,10 @@ function getCurrentTrailKey(){
 
 function toggleTrail(){
   trailVisible=!trailVisible;
+  if(trailVisible){
+    var k=getCurrentTrailKey();
+    if(k&&trailLoadState[k]==='error')trailLoadState[k]='idle'; // allow retry
+  }
   renderTrailLayer();
   updateTrailBtn();
   if(trailVisible)showElevPanel();
@@ -1975,8 +2019,8 @@ function renderTrailLayer(){
   // Trigger async load if pts not yet available
   if(!td.pts||td.pts.length===0){
     var st=trailLoadState[key]||'idle';
-    if(st==='idle'||st==='error')loadTrailData(key);
-    return;
+    if(st==='idle')loadTrailData(key);
+    return; // wait for load callback to re-invoke renderTrailLayer
   }
   var latlngs=td.pts.map(function(p){return[p[0],p[1]];});
   L.polyline(latlngs,{color:td.color,weight:4,opacity:0.92}).addTo(trailLayer);
@@ -2138,9 +2182,15 @@ function buildElevSVG(td){
   if(!wrap)return;
   var pts=td.pts;
   if(!pts||pts.length<2){wrap.innerHTML='';return;}
-  // Cumulative distances
-  var dists=[0];
-  for(var i=1;i<pts.length;i++)dists.push(dists[i-1]+haverKm(pts[i-1],pts[i]));
+  // Use pre-computed cumulative distances (p[3]) when available for accurate x-axis.
+  // Falls back to haverKm for dynamically-loaded pts without stored distances.
+  var dists;
+  if(pts[0].length>=4&&pts[pts.length-1][3]>0){
+    dists=pts.map(function(p){return p[3];});
+  } else {
+    dists=[0];
+    for(var i=1;i<pts.length;i++)dists.push(dists[i-1]+haverKm(pts[i-1],pts[i]));
+  }
   var totalKm=dists[dists.length-1];
   var elevs=pts.map(function(p){return p[2];});
   var minE=Math.min.apply(null,elevs),maxE=Math.max.apply(null,elevs);
