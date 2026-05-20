@@ -1429,6 +1429,228 @@
         "intensity": "medium",
         "recommended_position": "mid-left"
       }
+    ],
+    "photo_lightbox_open": [
+      {
+        "text": {
+          "en": "Full frame. This is how it was meant to be seen.",
+          "zh": "全画幅，这才是它本来的面貌。"
+        },
+        "emotion": "surprised",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "The exif doesn't lie. Good light was found.",
+          "zh": "EXIF 不会骗人，那天的光线真的很好。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Opened. Take a proper look.",
+          "zh": "打开了，好好看一眼。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Film grain at this size is a whole mood.",
+          "zh": "放这么大，胶片颗粒感全出来了。"
+        },
+        "emotion": "surprised",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Something about the composition here.",
+          "zh": "这张的构图有点东西。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "The full resolution deserves the full attention.",
+          "zh": "全分辨率值得全注意力。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "That shot earned its lightbox.",
+          "zh": "这张照片值得放大来看。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "A7R2 at full stretch. Respect.",
+          "zh": "A7R2 全力输出，尊重。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
+      }
+    ],
+    "gallery_filter_change": [
+      {
+        "text": {
+          "en": "Category switched. New gallery, same camera.",
+          "zh": "类别切换，新图库，同一台相机。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "CITY. Urban geometry and available light.",
+          "zh": "CITY，城市线条与现有光线。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "PEOPLE. The harder shots to get right.",
+          "zh": "PEOPLE，最难拍好的类别。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "NATURE. Slower pace, different patience.",
+          "zh": "NATURE，更慢的节奏，不同的耐心。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "TIME. The contemplative ones.",
+          "zh": "TIME，那些关于时间感的照片。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Filtered. Curated taste detected.",
+          "zh": "筛选完毕，品味已确认。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Every category tells a different story.",
+          "zh": "每个类别都在讲不同的故事。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "Good choice. Each filter is its own edit.",
+          "zh": "不错的选择，每个筛选都是一次重新编辑。"
+        },
+        "emotion": "mocking",
+        "intensity": "low",
+        "recommended_position": "bottom-left"
+      }
+    ],
+    "trip_select": [
+      {
+        "text": {
+          "en": "Itinerary opened. The planning begins.",
+          "zh": "行程打开了，规划开始。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Day one loading. The trip has a shape now.",
+          "zh": "第一天加载中，旅程有轮廓了。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "A full itinerary. Someone did the homework.",
+          "zh": "完整行程，有人提前做足了功课。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Day-by-day. This is how good trips happen.",
+          "zh": "按天规划，好旅行就是这么来的。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "The reservations are all in here.",
+          "zh": "所有预订都在里面了。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "Every hour accounted for. Ambitious.",
+          "zh": "每个小时都安排好了，很有野心。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "Trip selected. Adventure loading.",
+          "zh": "行程已选，冒险加载中。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Scroll the days. Each one is real.",
+          "zh": "滚动查看每一天，每天都是真实的。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      }
     ]
   }
 }

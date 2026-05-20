@@ -570,6 +570,9 @@
     attachSectionTriggers();
     attachSectionNavTrigger();
     attachMapMarkerTrigger();
+    attachPhotoLightboxTrigger();
+    attachGalleryFilterTrigger();
+    attachTripSelectTrigger();
     attachFormPauseTrigger();
     attachLongReadingTrigger();
     attachHoverCtaTrigger();
@@ -798,6 +801,65 @@
         }
         el = el.parentElement;
       }
+    });
+  }
+
+
+  /* ── Photo lightbox ────────────────────────────────────────────── */
+  /* Fires when the user opens a photo in fullscreen lightbox view.
+     Watches for .show being added to #photoLb via MutationObserver. */
+
+  function attachPhotoLightboxTrigger() {
+    var lb = document.getElementById('photoLb');
+    if (!lb || !window.MutationObserver) return;
+
+    var obs = new MutationObserver(function (mutations) {
+      for (var i = 0; i < mutations.length; i++) {
+        var mut = mutations[i];
+        if (mut.attributeName !== 'class') continue;
+        var wasShown = mut.oldValue && mut.oldValue.indexOf('show') >= 0;
+        if (!wasShown && lb.classList.contains('show')) {
+          fireTrigger('photo_lightbox_open');
+          break;
+        }
+      }
+    });
+
+    obs.observe(lb, { attributes: true, attributeFilter: ['class'], attributeOldValue: true });
+  }
+
+
+  /* ── Gallery filter change ─────────────────────────────────────── */
+  /* Fires when the user switches photo category (PEOPLE/CITY/NATURE/TIME).
+     Delegates on .photo-filter-bar and ignores clicks on already-active btn. */
+
+  function attachGalleryFilterTrigger() {
+    var filterBar = document.querySelector('.photo-filter-bar');
+    if (!filterBar) return;
+
+    filterBar.addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('.pcat-btn') : null;
+      if (!btn) return;
+      if (!btn.classList.contains('active')) {
+        fireTrigger('gallery_filter_change');
+      }
+    });
+  }
+
+
+  /* ── Trip card select ──────────────────────────────────────────── */
+  /* Fires when the user opens a trip itinerary from the trip grid.
+     Delegates on #tripGrid; skips private-locked cards. */
+
+  function attachTripSelectTrigger() {
+    var grid = document.getElementById('tripGrid');
+    if (!grid) return;
+
+    grid.addEventListener('click', function (e) {
+      var card = e.target.closest ? e.target.closest('.trip-card') : null;
+      if (!card) return;
+      if (card.classList.contains('private-locked')) return;
+      fireTrigger('trip_select');
     });
   }
 

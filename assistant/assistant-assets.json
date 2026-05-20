@@ -262,6 +262,27 @@
       "animation": "popIn",
       "cooldownMs": 20000,
       "displayMs": 4200
+    },
+    "photo_lightbox_open": {
+      "emotion": "surprised",
+      "position": "mid-right",
+      "animation": "popIn",
+      "cooldownMs": 20000,
+      "displayMs": 4200
+    },
+    "gallery_filter_change": {
+      "emotion": "talk",
+      "position": "bottom-right",
+      "animation": "talkBounce",
+      "cooldownMs": 30000,
+      "displayMs": 3800
+    },
+    "trip_select": {
+      "emotion": "thinking",
+      "position": "bottom-right",
+      "animation": "slideMove",
+      "cooldownMs": 40000,
+      "displayMs": 4500
     }
   },
   "animations": {
