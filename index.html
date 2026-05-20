@@ -786,7 +786,7 @@ var lang='zh',activeCat='all',activeMed='all';
 var photoMapInited=false,tripMapInited=false,photoMap=null,tripMap=null;
 var pmapMarkers=[],pmapActiveCat='all';
 var activeTripId=null,currentTripTimezone='Europe/Paris';
-var trailLayer=null,trailVisible=false;
+var trailLayer=null,trailVisible=false,trailLoadState={};
 var NL=String.fromCharCode(10);
 
 /* ===== ACCESS CONTROL ===== */
@@ -1279,41 +1279,23 @@ var la_links={
 };
 
 // ===== Trail Data =====
-// Each entry: pts = [[lat, lng, elev_m], ...], waypoints have pt_idx into pts array
-// Route: Onion Valley TH → ascent → Kearsarge Pass (summit) → descent → Big Pothole Lake (camp, west basin)
+// pts are loaded at runtime from OSM Overpass API + OpenTopoData SRTM30M elevation service.
+// osmWayIds[0] = east (pass→TH order), osmWayIds[1] = west (westEnd→junction order).
+// Both are reversed at load time so the combined route runs TH → Pass → BPL.
+// endCutoffLon: truncate west side when longitude passes this value (going westward).
 var TRAIL_DATA = {
   'kearsarge-pass': {
     name_zh: 'Kearsarge Pass 步道',
     name_en: 'Kearsarge Pass Trail',
     color: '#7dd9a0',
+    osmWayIds: [51714121, 1125529741],
+    endCutoffLon: -118.393,
     stats: { dist_km: 9.6, gain_m: 780, peak_m: 3584, peak_ft: 11760 },
-    pts: [
-      // — Ascent: Onion Valley TH → Kearsarge Pass (pts 0–36) —
-      [36.7727,-118.3420,2804],[36.7726,-118.3444,2826],[36.7725,-118.3468,2843],
-      [36.7724,-118.3490,2860],[36.7723,-118.3511,2876],[36.7723,-118.3529,2896],
-      [36.7724,-118.3548,2912],[36.7727,-118.3566,2926],[36.7730,-118.3584,2940],
-      [36.7732,-118.3599,2953],[36.7735,-118.3614,2964],[36.7739,-118.3630,2979],
-      [36.7743,-118.3646,2996],[36.7748,-118.3661,3014],[36.7754,-118.3674,3037],
-      [36.7760,-118.3686,3063],[36.7765,-118.3696,3088],[36.7771,-118.3704,3114],
-      [36.7777,-118.3711,3141],[36.7783,-118.3716,3164],[36.7789,-118.3720,3183],
-      [36.7795,-118.3723,3196],[36.7800,-118.3726,3206],[36.7805,-118.3729,3217],
-      [36.7809,-118.3733,3231],[36.7812,-118.3739,3252],[36.7815,-118.3745,3274],
-      [36.7818,-118.3751,3299],[36.7821,-118.3755,3335],[36.7823,-118.3758,3372],
-      [36.7825,-118.3761,3406],[36.7829,-118.3764,3437],[36.7834,-118.3767,3465],
-      [36.7840,-118.3770,3504],[36.7846,-118.3774,3538],[36.7852,-118.3778,3564],
-      [36.7856,-118.3782,3584],
-      // — Descent: Kearsarge Pass → Big Pothole Lake / Kearsarge Basin (pts 37–45) —
-      [36.7848,-118.3786,3563],[36.7836,-118.3791,3534],[36.7820,-118.3799,3500],
-      [36.7803,-118.3811,3468],[36.7785,-118.3827,3436],[36.7766,-118.3846,3406],
-      [36.7746,-118.3864,3378],[36.7727,-118.3877,3360],[36.7710,-118.3890,3349]
-    ],
+    pts: [],
     waypoints: [
-      {name_zh:'洋葱谷起点',      name_en:'Onion Valley TH',          pt:0,  camp:false},
-      {name_zh:'Gilbert 湖',      name_en:'Gilbert Lake',              pt:17, camp:false},
-      {name_zh:'Flower 湖',       name_en:'Flower Lake',               pt:22, camp:false},
-      {name_zh:'Heart 湖',        name_en:'Heart Lake',                pt:27, camp:false},
-      {name_zh:'Kearsarge 山口 ▲',name_en:'Kearsarge Pass ▲',         pt:36, camp:false},
-      {name_zh:'大壶穴湖 ⛺',     name_en:'Big Pothole Lake ⛺',       pt:45, camp:true}
+      {name_zh:'洋葱谷起点',       name_en:'Onion Valley TH',    pt:0, camp:false},
+      {name_zh:'Kearsarge 山口 ▲', name_en:'Kearsarge Pass ▲',  pt:0, camp:false},
+      {name_zh:'大壶穴湖 ⛺',      name_en:'Big Pothole Lake ⛺', pt:0, camp:true}
     ]
   }
 };
@@ -1971,7 +1953,11 @@ function updateTrailBtn(){
   if(key){
     btn.classList.add('visible');
     btn.classList.toggle('active',trailVisible);
-    if(lbl)lbl.textContent=trailVisible?(lang==='zh'?'隐藏步道':'Hide Trail'):(lang==='zh'?'显示步道':'Show Trail');
+    if(lbl){
+      var st=trailLoadState[key]||'idle';
+      if(st==='loading') lbl.textContent=lang==='zh'?'加载中…':'Loading…';
+      else lbl.textContent=trailVisible?(lang==='zh'?'隐藏步道':'Hide Trail'):(lang==='zh'?'显示步道':'Show Trail');
+    }
   } else {
     btn.classList.remove('visible','active');
     if(trailVisible){trailVisible=false;hideElevPanel();if(trailLayer)trailLayer.clearLayers();}
@@ -1986,18 +1972,23 @@ function renderTrailLayer(){
   var key=getCurrentTrailKey();
   var td=key?TRAIL_DATA[key]:null;
   if(!td)return;
+  // Trigger async load if pts not yet available
+  if(!td.pts||td.pts.length===0){
+    var st=trailLoadState[key]||'idle';
+    if(st==='idle'||st==='error')loadTrailData(key);
+    return;
+  }
   var latlngs=td.pts.map(function(p){return[p[0],p[1]];});
   L.polyline(latlngs,{color:td.color,weight:4,opacity:0.92}).addTo(trailLayer);
-  // Waypoint markers
   td.waypoints.forEach(function(wp){
     var pt=td.pts[wp.pt];
+    if(!pt)return;
     var dotCls='trail-wp-dot'+(wp.camp?' camp':'');
     var icon=L.divIcon({className:'trail-wp-icon',html:'<div class="'+dotCls+'"></div>',iconSize:[10,10],iconAnchor:[5,5],popupAnchor:[0,-8]});
     var m=L.marker([pt[0],pt[1]],{icon:icon}).addTo(trailLayer);
     m.bindPopup('<div class="popup"><div class="pn">'+(lang==='zh'?wp.name_zh:wp.name_en)+'</div>'+
       '<div class="pt">'+pt[2]+' m &nbsp;/&nbsp; '+Math.round(pt[2]*3.28084)+' ft</div></div>');
   });
-  // Fit to trail bounds
   tripMap.fitBounds(latlngs,{padding:[50,50]});
 }
 
@@ -2006,8 +1997,25 @@ function showElevPanel(){
   if(!panel)return;
   var key=getCurrentTrailKey();
   var td=key?TRAIL_DATA[key]:null;
-  if(!td)return;
+  if(!td){panel.classList.remove('show');return;}
+  var st=trailLoadState[key]||'idle';
   document.getElementById('elevTitle').textContent=lang==='zh'?td.name_zh:td.name_en;
+  if(st==='loading'){
+    document.getElementById('elevDist').textContent='';
+    document.getElementById('elevGain').textContent='';
+    document.getElementById('elevPeak').textContent='';
+    var w=document.getElementById('elevChartWrap');
+    if(w)w.innerHTML='<div style="text-align:center;padding:28px 0;color:rgba(201,168,92,.5);font-size:12px;font-style:italic">'+(lang==='zh'?'正在加载步道数据…':'Loading trail data…')+'</div>';
+    panel.classList.add('show');return;
+  }
+  if(st==='error'){
+    document.getElementById('elevDist').textContent='';
+    document.getElementById('elevGain').textContent='';
+    document.getElementById('elevPeak').textContent='';
+    var w=document.getElementById('elevChartWrap');
+    if(w)w.innerHTML='<div style="text-align:center;padding:28px 0;color:rgba(220,100,80,.55);font-size:12px;font-style:italic">'+(lang==='zh'?'步道数据加载失败，请检查网络后重试':'Trail data unavailable — check network and retry')+'</div>';
+    panel.classList.add('show');return;
+  }
   document.getElementById('elevDist').textContent=td.stats.dist_km+' km';
   document.getElementById('elevGain').textContent='↑ '+td.stats.gain_m+' m';
   document.getElementById('elevPeak').textContent=td.stats.peak_ft.toLocaleString()+' ft summit';
@@ -2026,10 +2034,110 @@ function haverKm(a,b){
   return R*2*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));
 }
 
+// ===== Async trail data loader =====
+// Fetches real trail geometry from OSM Overpass API, then SRTM30M elevations.
+// Stores results in TRAIL_DATA[key].pts and updates waypoints + stats.
+async function loadTrailData(key){
+  var td=TRAIL_DATA[key];
+  if(!td||!td.osmWayIds)return;
+  var st=trailLoadState[key]||'idle';
+  if(st==='loading'||st==='loaded')return;
+  trailLoadState[key]='loading';
+  updateTrailBtn();
+  if(trailVisible&&getCurrentTrailKey()===key)showElevPanel();
+
+  try{
+    // 1. Fetch OSM way geometry via Overpass
+    var ids=td.osmWayIds;
+    var q='[out:json];(way('+ids[0]+');way('+ids[1]+'););out geom;';
+    var r1=await fetch('https://overpass-api.de/api/interpreter',{
+      method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:'data='+encodeURIComponent(q)
+    });
+    if(!r1.ok)throw new Error('Overpass HTTP '+r1.status);
+    var osm=await r1.json();
+    var wayMap={};
+    osm.elements.forEach(function(el){if(el.type==='way')wayMap[el.id]=el.geometry;});
+    var g0=wayMap[ids[0]],g1=wayMap[ids[1]];
+    if(!g0||!g1)throw new Error('OSM ways not in response');
+
+    // 2. Build directional arrays: both oriented so combined route runs TH → Pass → BPL
+    // Way ids[0] (east): stored pass→TH; reverse → TH→junction
+    var east=g0.map(function(n){return[n.lat,n.lon];});
+    // Way ids[1] (west): stored westEnd→junction; reverse → junction→westEnd
+    var west=g1.map(function(n){return[n.lat,n.lon];});
+    // Auto-orient: east should start at TH (easternmost point = greatest lon)
+    if(east[0][1]<east[east.length-1][1])east.reverse();
+    // Auto-orient: west should start at junction (greater lon) going to westEnd
+    if(west[0][1]<west[west.length-1][1])west.reverse();
+
+    // 3. Truncate west at endCutoffLon (stop near Big Pothole Lake)
+    var cutLon=td.endCutoffLon||-118.393;
+    var cutAt=west.length;
+    for(var i=0;i<west.length;i++){if(west[i][1]<cutLon){cutAt=i+1;break;}}
+    west=west.slice(0,cutAt);
+
+    // 4. Combine: east path + west path (drop west[0] = duplicate of east[last] = junction)
+    var all=east.concat(west.slice(1));
+
+    // 5. Downsample to ≤90 points for elevation API (100-location max per request)
+    var N=Math.min(90,all.length);
+    var sampled=[];
+    for(var i=0;i<N;i++)sampled.push(all[Math.round(i*(all.length-1)/(N-1))]);
+
+    // 6. Fetch SRTM30M elevations from OpenTopoData
+    var locStr=sampled.map(function(c){return c[0].toFixed(6)+','+c[1].toFixed(6);}).join('|');
+    var r2=await fetch('https://api.opentopodata.org/v1/srtm30m?locations='+encodeURIComponent(locStr));
+    if(!r2.ok)throw new Error('OpenTopoData HTTP '+r2.status);
+    var elevJson=await r2.json();
+
+    // 7. Attach elevations, build pts array
+    var ptsFull=sampled.map(function(c,i){
+      var e=(elevJson.results&&elevJson.results[i]&&elevJson.results[i].elevation!=null)?
+        Math.round(elevJson.results[i].elevation):2800;
+      return[c[0],c[1],e];
+    });
+
+    // 8. Compute stats
+    var elevs=ptsFull.map(function(p){return p[2];});
+    var maxE=Math.max.apply(null,elevs);
+    var gain=0;
+    for(var i=1;i<ptsFull.length;i++){var d=ptsFull[i][2]-ptsFull[i-1][2];if(d>0)gain+=d;}
+    var totalDist=0;
+    for(var i=1;i<ptsFull.length;i++)totalDist+=haverKm(ptsFull[i-1],ptsFull[i]);
+    var passIdx=elevs.indexOf(maxE);
+
+    // 9. Store
+    td.pts=ptsFull;
+    td.waypoints=[
+      {name_zh:'洋葱谷起点',       name_en:'Onion Valley TH',    pt:0,                  camp:false},
+      {name_zh:'Kearsarge 山口 ▲', name_en:'Kearsarge Pass ▲',  pt:passIdx,             camp:false},
+      {name_zh:'大壶穴湖 ⛺',      name_en:'Big Pothole Lake ⛺', pt:ptsFull.length-1,   camp:true}
+    ];
+    td.stats={
+      dist_km: Math.round(totalDist*10)/10,
+      gain_m:  Math.round(gain),
+      peak_m:  maxE,
+      peak_ft: Math.round(maxE*3.28084)
+    };
+    trailLoadState[key]='loaded';
+  }catch(e){
+    console.warn('[Trail] load failed:',e);
+    trailLoadState[key]='error';
+  }
+
+  updateTrailBtn();
+  if(trailVisible&&getCurrentTrailKey()===key){
+    renderTrailLayer();
+    if(trailVisible)showElevPanel();
+  }
+}
+
 function buildElevSVG(td){
   var wrap=document.getElementById('elevChartWrap');
   if(!wrap)return;
   var pts=td.pts;
+  if(!pts||pts.length<2){wrap.innerHTML='';return;}
   // Cumulative distances
   var dists=[0];
   for(var i=1;i<pts.length;i++)dists.push(dists[i-1]+haverKm(pts[i-1],pts[i]));
@@ -2038,7 +2146,7 @@ function buildElevSVG(td){
   var minE=Math.min.apply(null,elevs),maxE=Math.max.apply(null,elevs);
   var eRange=maxE-minE||1;
 
-  var W=560,H=110,pL=46,pR=10,pT=8,pB=32;
+  var W=560,H=118,pL=46,pR=10,pT=14,pB=28;
   var cW=W-pL-pR,cH=H-pT-pB;
   function xp(d){return pL+d/totalKm*cW;}
   function yp(e){return pT+(1-(e-minE)/eRange)*cH;}
@@ -2059,34 +2167,39 @@ function buildElevSVG(td){
   }).join('');
 
   // X labels (distance in km)
-  var kmMarks=[0,2,4,6,8];
-  if(totalKm>9)kmMarks.push(Math.round(totalKm*10)/10);
+  var kmStep=totalKm>9?2:1;
+  var kmMarks=[];
+  for(var k=0;k<=totalKm+0.1;k+=kmStep)kmMarks.push(Math.round(k*10)/10);
+  if(kmMarks[kmMarks.length-1]<totalKm-0.3)kmMarks.push(Math.round(totalKm*10)/10);
   var xLabels=kmMarks.map(function(km){
-    if(km>totalKm+0.2)return '';
     var x=xp(Math.min(km,totalKm));
-    return '<text x="'+x.toFixed(1)+'" y="'+(H-5)+'" text-anchor="middle" fill="rgba(138,134,121,.65)" font-size="8" font-family="JetBrains Mono,monospace">'+km+'</text>'+
+    return '<text x="'+x.toFixed(1)+'" y="'+(H-4)+'" text-anchor="middle" fill="rgba(138,134,121,.65)" font-size="8" font-family="JetBrains Mono,monospace">'+km+'</text>'+
       '<line x1="'+x.toFixed(1)+'" y1="'+(pT+cH)+'" x2="'+x.toFixed(1)+'" y2="'+(pT+cH+3)+'" stroke="rgba(138,134,121,.4)" stroke-width="1"/>';
   }).join('');
 
-  // Waypoint dots + vertical guides
+  // Waypoint dots + vertical guides (all waypoints)
   var wpDots=td.waypoints.map(function(wp){
-    var pt=pts[wp.pt];
+    var pt=pts[wp.pt];if(!pt)return'';
     var x=xp(dists[wp.pt]).toFixed(1),y=yp(pt[2]).toFixed(1);
     var col=wp.camp?'#7dd9a0':'#c9a85c';
     return '<line x1="'+x+'" y1="'+(pT+cH)+'" x2="'+x+'" y2="'+y+'" stroke="'+col+'" stroke-width="1" stroke-opacity="0.3" stroke-dasharray="2,2"/>'+
       '<circle cx="'+x+'" cy="'+y+'" r="3.5" fill="'+col+'" stroke="rgba(14,13,11,.7)" stroke-width="1.5"/>';
   }).join('');
 
-  // Waypoint name labels for first, camp, last
-  var namedWps=[td.waypoints[0],td.waypoints.find(function(w){return w.camp;}),td.waypoints[td.waypoints.length-1]].filter(Boolean);
+  // Named waypoint labels: TH (start), Pass (summit = wp[1]), BPL (end) — deduplicated
+  var wps=td.waypoints;
+  var namedWps=[wps[0]];
+  if(wps.length>2&&wps[1].pt!==wps[0].pt)namedWps.push(wps[1]);
+  var lastWp=wps[wps.length-1];
+  if(lastWp.pt!==namedWps[namedWps.length-1].pt)namedWps.push(lastWp);
   var wpLabels=namedWps.map(function(wp,i){
-    var pt=pts[wp.pt];
+    var pt=pts[wp.pt];if(!pt)return'';
     var x=xp(dists[wp.pt]),y=yp(pt[2]);
     var name=(lang==='zh'?wp.name_zh:wp.name_en).replace(' ⛺','');
-    // Position label above/below depending on which waypoint
-    var ly=y-8;
     var anchor=i===0?'start':i===namedWps.length-1?'end':'middle';
-    return '<text x="'+x.toFixed(1)+'" y="'+ly.toFixed(1)+'" text-anchor="'+anchor+'" fill="rgba(232,228,217,.6)" font-size="8" font-family="inherit">'+name+'</text>';
+    // Place label above point; if too close to top edge, shift down
+    var ly=y-9;if(ly<pT+4)ly=y+14;
+    return '<text x="'+x.toFixed(1)+'" y="'+ly.toFixed(1)+'" text-anchor="'+anchor+'" fill="rgba(232,228,217,.65)" font-size="7.5" font-family="inherit">'+name+'</text>';
   }).join('');
 
   wrap.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">'+
