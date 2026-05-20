@@ -832,18 +832,28 @@
 
   /* ── Gallery filter change ─────────────────────────────────────── */
   /* Fires when the user switches photo category (PEOPLE/CITY/NATURE/TIME).
-     Delegates on .photo-filter-bar and ignores clicks on already-active btn. */
+     Uses mousedown to capture the pre-click active state — the site's
+     inline onclick runs before addEventListener and adds 'active' before
+     the click handler fires, so checking active on click is always true. */
 
   function attachGalleryFilterTrigger() {
     var filterBar = document.querySelector('.photo-filter-bar');
     if (!filterBar) return;
 
+    var pendingFilter = false;
+
+    filterBar.addEventListener('mousedown', function (e) {
+      var btn = e.target.closest ? e.target.closest('.pcat-btn') : null;
+      pendingFilter = btn ? !btn.classList.contains('active') : false;
+    });
+
     filterBar.addEventListener('click', function (e) {
       var btn = e.target.closest ? e.target.closest('.pcat-btn') : null;
       if (!btn) return;
-      if (!btn.classList.contains('active')) {
+      if (pendingFilter) {
         fireTrigger('gallery_filter_change');
       }
+      pendingFilter = false;
     });
   }
 
@@ -994,7 +1004,7 @@
      Exposes window.__yuiMascot for browser console testing.
      ================================================================ */
 
-  if (true) { /* TEMP: debug API exposed for trigger testing — revert after */
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     window.__yuiMascot = {
       /* Fire any trigger by name, bypassing cooldowns */
       fire: function (triggerName, nearEl) {
