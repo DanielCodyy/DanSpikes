@@ -515,6 +515,8 @@ a.chip:hover{color:var(--accent)}
 @keyframes shake{0%,100%{transform:translateX(0);}20%,60%{transform:translateX(-6px);}40%,80%{transform:translateX(6px);}}
 .shake{animation:shake .35s ease;}
 </style>
+<!-- Yui mascot assistant styles -->
+<link rel="stylesheet" href="./assistant/assistant.css"/>
 </head>
 <body>
 <div class="site-app">
@@ -3489,5 +3491,7 @@ function showSyncToast(msg,ok){
   setTimeout(function(){toast.remove();},2500);
 }
 </script>
+<!-- Yui mascot assistant — loads manifest + dialogue via fetch, builds overlay -->
+<script src="./assistant/assistant.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,335 @@
+{
+  "character": {
+    "id": "web_mascot_yui",
+    "displayName": "Yui",
+    "role": "floating webpage commentary mascot",
+    "description": "Original anime-style web mascot assistant for a plain HTML/CSS/JavaScript personal website overlay. The mascot is not a chatbot; it appears occasionally and comments on browsing behavior.",
+    "runtimeFormat": "webp",
+    "sourceBackupFormat": "png",
+    "transparentBackgroundRequired": true,
+    "emotions": [
+      "idle",
+      "talk",
+      "mocking",
+      "surprised",
+      "thinking",
+      "peek",
+      "bored"
+    ],
+    "recommendedDisplaySize": {
+      "desktop": {
+        "minHeightPx": 160,
+        "maxHeightPx": 240
+      },
+      "tablet": {
+        "minHeightPx": 130,
+        "maxHeightPx": 180
+      },
+      "mobile": {
+        "minHeightPx": 96,
+        "maxHeightPx": 140
+      }
+    }
+  },
+  "basePath": "./assistant/",
+  "assets": {
+    "idle": {
+      "id": "idle",
+      "emotion": "idle",
+      "fileName": "character_idle.webp",
+      "file": "character_idle.webp",
+      "sourceFile": "source/character_idle.png",
+      "description": "Default resting asset when the mascot is visible but not speaking.",
+      "defaultPosition": "bottom-right",
+      "defaultAnimation": "idleFloat",
+      "fullBody": true
+    },
+    "talk": {
+      "id": "talk",
+      "emotion": "talk",
+      "fileName": "character_talk.webp",
+      "file": "character_talk.webp",
+      "sourceFile": "source/character_talk.png",
+      "description": "Used when the mascot displays a normal short comment.",
+      "defaultPosition": "bottom-right",
+      "defaultAnimation": "talkBounce",
+      "fullBody": true
+    },
+    "mocking": {
+      "id": "mocking",
+      "emotion": "mocking",
+      "fileName": "character_mocking.webp",
+      "file": "character_mocking.webp",
+      "sourceFile": "source/character_mocking.png",
+      "description": "Used for playful and harmless light teasing.",
+      "defaultPosition": "bottom-left",
+      "defaultAnimation": "talkBounce",
+      "fullBody": true
+    },
+    "surprised": {
+      "id": "surprised",
+      "emotion": "surprised",
+      "fileName": "character_surprised.webp",
+      "file": "character_surprised.webp",
+      "sourceFile": "source/character_surprised.png",
+      "description": "Used for sudden actions, rapid scrolling, tab return, or failed actions.",
+      "defaultPosition": "mid-right",
+      "defaultAnimation": "popIn",
+      "fullBody": true
+    },
+    "thinking": {
+      "id": "thinking",
+      "emotion": "thinking",
+      "fileName": "character_thinking.webp",
+      "file": "character_thinking.webp",
+      "sourceFile": "source/character_thinking.png",
+      "description": "Used when the user pauses, hovers, compares information, or reads carefully.",
+      "defaultPosition": "mid-right",
+      "defaultAnimation": "idleFloat",
+      "fullBody": true
+    },
+    "peek": {
+      "id": "peek",
+      "emotion": "peek",
+      "fileName": "character_peek.webp",
+      "file": "character_peek.webp",
+      "sourceFile": "source/character_peek.png",
+      "description": "Used for edge-entry, page-enter, and subtle appearance animations.",
+      "defaultPosition": "top-peek",
+      "defaultAnimation": "peekIn",
+      "fullBody": false
+    },
+    "bored": {
+      "id": "bored",
+      "emotion": "bored",
+      "fileName": "character_bored.webp",
+      "file": "character_bored.webp",
+      "sourceFile": "source/character_bored.png",
+      "description": "Used during longer inactivity or long page dwell time.",
+      "defaultPosition": "bottom-right",
+      "defaultAnimation": "idleFloat",
+      "fullBody": true
+    }
+  },
+  "emotionToAsset": {
+    "idle": "character_idle.webp",
+    "talk": "character_talk.webp",
+    "mocking": "character_mocking.webp",
+    "surprised": "character_surprised.webp",
+    "thinking": "character_thinking.webp",
+    "peek": "character_peek.webp",
+    "bored": "character_bored.webp"
+  },
+  "sourceAsset": {
+    "idle": "source/character_idle.png",
+    "talk": "source/character_talk.png",
+    "mocking": "source/character_mocking.png",
+    "surprised": "source/character_surprised.png",
+    "thinking": "source/character_thinking.png",
+    "peek": "source/character_peek.png",
+    "bored": "source/character_bored.png"
+  },
+  "triggerMap": {
+    "page_enter": {
+      "emotion": "peek",
+      "position": "top-peek",
+      "animation": "peekIn",
+      "cooldownMs": 12000,
+      "displayMs": 4200
+    },
+    "idle_30s": {
+      "emotion": "thinking",
+      "position": "bottom-right",
+      "animation": "idleFloat",
+      "cooldownMs": 30000,
+      "displayMs": 4500
+    },
+    "idle_60s": {
+      "emotion": "bored",
+      "position": "bottom-left",
+      "animation": "idleFloat",
+      "cooldownMs": 60000,
+      "displayMs": 5200
+    },
+    "scroll_fast": {
+      "emotion": "surprised",
+      "position": "mid-right",
+      "animation": "popIn",
+      "cooldownMs": 14000,
+      "displayMs": 3600
+    },
+    "scroll_to_bottom": {
+      "emotion": "talk",
+      "position": "bottom-right",
+      "animation": "popIn",
+      "cooldownMs": 20000,
+      "displayMs": 4200
+    },
+    "repeated_click": {
+      "emotion": "mocking",
+      "position": "near-element",
+      "animation": "talkBounce",
+      "cooldownMs": 16000,
+      "displayMs": 4200
+    },
+    "hover_cta": {
+      "emotion": "thinking",
+      "position": "near-element",
+      "animation": "idleFloat",
+      "cooldownMs": 18000,
+      "displayMs": 4200
+    },
+    "pricing_section": {
+      "emotion": "thinking",
+      "position": "mid-right",
+      "animation": "slideMove",
+      "cooldownMs": 30000,
+      "displayMs": 4500
+    },
+    "faq_section": {
+      "emotion": "thinking",
+      "position": "mid-left",
+      "animation": "slideMove",
+      "cooldownMs": 30000,
+      "displayMs": 4500
+    },
+    "form_pause": {
+      "emotion": "thinking",
+      "position": "near-element",
+      "animation": "idleFloat",
+      "cooldownMs": 18000,
+      "displayMs": 4500
+    },
+    "tab_return": {
+      "emotion": "surprised",
+      "position": "top-peek",
+      "animation": "popIn",
+      "cooldownMs": 20000,
+      "displayMs": 3600
+    },
+    "exit_intent": {
+      "emotion": "peek",
+      "position": "top-peek",
+      "animation": "peekIn",
+      "cooldownMs": 30000,
+      "displayMs": 4200
+    },
+    "error_or_failed_action": {
+      "emotion": "surprised",
+      "position": "near-element",
+      "animation": "popIn",
+      "cooldownMs": 12000,
+      "displayMs": 4200
+    },
+    "long_reading": {
+      "emotion": "thinking",
+      "position": "mid-right",
+      "animation": "idleFloat",
+      "cooldownMs": 25000,
+      "displayMs": 4500
+    },
+    "random_comment": {
+      "emotion": "talk",
+      "position": "bottom-right",
+      "animation": "talkBounce",
+      "cooldownMs": 25000,
+      "displayMs": 4200
+    }
+  },
+  "animations": {
+    "idleFloat": {
+      "cssClass": "mascot-animation-idleFloat",
+      "description": "Gentle floating loop for quiet visible states.",
+      "loop": true
+    },
+    "popIn": {
+      "cssClass": "mascot-animation-popIn",
+      "description": "Short entrance animation for sudden or attention-catching reactions.",
+      "loop": false
+    },
+    "talkBounce": {
+      "cssClass": "mascot-animation-talkBounce",
+      "description": "Subtle bounce while the mascot displays a short comment.",
+      "loop": true
+    },
+    "slideMove": {
+      "cssClass": "mascot-animation-slideMove",
+      "description": "Smooth slide movement for repositioning or section-based appearances.",
+      "loop": false
+    },
+    "peekIn": {
+      "cssClass": "mascot-animation-peekIn",
+      "description": "Edge-peeking entrance animation.",
+      "loop": false
+    },
+    "slideAway": {
+      "cssClass": "mascot-animation-slideAway",
+      "description": "Exit animation before hiding the mascot.",
+      "loop": false
+    }
+  },
+  "positions": {
+    "bottom-right": {
+      "cssClass": "mascot-position-bottom-right",
+      "description": "Lower-right floating position for general appearances."
+    },
+    "bottom-left": {
+      "cssClass": "mascot-position-bottom-left",
+      "description": "Lower-left floating position when the right side should stay clear."
+    },
+    "mid-right": {
+      "cssClass": "mascot-position-mid-right",
+      "description": "Middle-right floating position for reading or gallery sections."
+    },
+    "mid-left": {
+      "cssClass": "mascot-position-mid-left",
+      "description": "Middle-left floating position for reading or gallery sections."
+    },
+    "top-peek": {
+      "cssClass": "mascot-position-top-peek",
+      "description": "Upper viewport edge position for peeking appearances."
+    },
+    "bottom-peek": {
+      "cssClass": "mascot-position-bottom-peek",
+      "description": "Lower viewport edge position for peeking appearances."
+    },
+    "near-element": {
+      "cssClass": "mascot-position-near-element",
+      "description": "Dynamic position calculated near the triggering element."
+    }
+  },
+  "fallbacks": {
+    "missingEmotion": "idle",
+    "missingTrigger": "random_comment",
+    "missingPosition": "bottom-right",
+    "missingAnimation": "idleFloat",
+    "missingDisplayMs": 4000,
+    "missingCooldownMs": 25000
+  },
+  "behaviorLimits": {
+    "globalCooldownMs": 25000,
+    "sameTriggerCooldownMs": 60000,
+    "maxAppearancesPerSession": 8,
+    "hideAfterCloseForSession": true,
+    "pauseWhileTyping": true,
+    "respectReducedMotion": true
+  },
+  "implementationNotes": [
+    "This manifest is designed for a plain HTML/CSS/JavaScript personal website.",
+    "Load this file with fetch('./assistant/assistant-assets.json').",
+    "Use basePath plus emotionToAsset values to build runtime WebP image paths.",
+    "Use sourceAsset values only as source backup references, not runtime image paths.",
+    "Runtime images should be optimized WebP files stored directly in /assistant/.",
+    "Original PNG files should remain in /assistant/source/ as backup files.",
+    "Use triggerMap to choose emotion, position, animation, cooldownMs, and displayMs for each behavior trigger.",
+    "Use animations to map animation names to CSS classes implemented in assistant.css.",
+    "Use positions to map position names to CSS classes implemented in assistant.css.",
+    "Use fallbacks when an unknown emotion, trigger, position, or animation is requested.",
+    "Use behaviorLimits to prevent the mascot from appearing too frequently.",
+    "Pause mascot triggers while the user is typing if pauseWhileTyping is true.",
+    "Disable or simplify animations when respectReducedMotion is true.",
+    "Use slideAway before hiding the mascot when an exit animation is needed.",
+    "Avoid placing the mascot over navigation, photo gallery controls, lightbox controls, forms, or important buttons.",
+    "Keep pointer events disabled on the mascot container unless intentional interaction is added later."
+  ]
+}

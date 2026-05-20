@@ -1,0 +1,1138 @@
+{
+  "language_mode": "bilingual",
+  "schema_version": "1.0.0",
+  "valid_emotions": [
+    "idle",
+    "talk",
+    "mocking",
+    "surprised",
+    "thinking",
+    "peek",
+    "bored"
+  ],
+  "valid_intensities": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "valid_positions": [
+    "bottom-right",
+    "bottom-left",
+    "mid-right",
+    "mid-left",
+    "top-peek",
+    "near-element"
+  ],
+  "triggers": {
+    "page_enter": [
+      {
+        "text": {
+          "en": "Oh, someone arrived. I'll behave.",
+          "zh": "咦，有人来了。那我先装乖一下。"
+        },
+        "emotion": "peek",
+        "intensity": "low",
+        "recommended_position": "top-peek"
+      },
+      {
+        "text": {
+          "en": "Welcome. I was totally not waiting.",
+          "zh": "欢迎光临。我才没有一直等你。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "New page, new tiny observations.",
+          "zh": "新页面，新一轮偷偷观察。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "I popped in. Very professional.",
+          "zh": "我闪亮登场。看起来很专业吧。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "You browse. I comment. Fair enough.",
+          "zh": "你负责浏览，我负责小声吐槽。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Let's see where your cursor wanders.",
+          "zh": "让我看看你的鼠标会飘去哪里。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "Don't mind me. I'm decorative judgment.",
+          "zh": "不用管我，我只是有点想法的装饰。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "Page entered. Mascot quietly activated.",
+          "zh": "页面已进入，小吉祥物悄悄上线。"
+        },
+        "emotion": "peek",
+        "intensity": "low",
+        "recommended_position": "top-peek"
+      }
+    ],
+    "idle_30s": [
+      {
+        "text": {
+          "en": "Taking a moment? Reasonable.",
+          "zh": "停一下也好，确实需要缓缓。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Still thinking, I see.",
+          "zh": "嗯，还在斟酌，我懂。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "The page has entered quiet mode.",
+          "zh": "页面进入安静观察模式。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "No rush. I can wait stylishly.",
+          "zh": "不急，我可以很优雅地等。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "A dramatic pause. Nice.",
+          "zh": "这个停顿，有点会营造气氛。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "Your cursor is suspiciously calm.",
+          "zh": "你的鼠标安静得有点可疑。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "I will just float here politely.",
+          "zh": "那我先礼貌地飘在这里。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "Thirty seconds of pure suspense.",
+          "zh": "三十秒过去了，悬念感拉满。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      }
+    ],
+    "idle_60s": [
+      {
+        "text": {
+          "en": "A full minute. Impressive commitment.",
+          "zh": "整整一分钟了，这耐心可以。"
+        },
+        "emotion": "bored",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "I blinked twice. Still nothing.",
+          "zh": "我都眨两轮眼了，还是很安静。"
+        },
+        "emotion": "bored",
+        "intensity": "medium",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "This is becoming a staring contest.",
+          "zh": "这气氛快变成对视比赛了。"
+        },
+        "emotion": "bored",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "The silence is getting confident.",
+          "zh": "这个沉默已经开始有气场了。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "I'm not bored. I'm on standby.",
+          "zh": "我不是无聊，我是在待机。"
+        },
+        "emotion": "bored",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "The page is calm. Maybe too calm.",
+          "zh": "页面很平静，平静得有点过分。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Should I make tea for the pixels?",
+          "zh": "要不要给这些像素泡杯茶？"
+        },
+        "emotion": "bored",
+        "intensity": "low",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "Still here. I respect the stillness.",
+          "zh": "还在。这个静止状态我认可。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      }
+    ],
+    "scroll_fast": [
+      {
+        "text": {
+          "en": "Whoa. Speedrun mode?",
+          "zh": "哇，这是开启速通模式了？"
+        },
+        "emotion": "surprised",
+        "intensity": "high",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "The content barely waved hello.",
+          "zh": "内容都还没来得及打招呼。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "That scroll had momentum.",
+          "zh": "这一下滑得很有冲劲。"
+        },
+        "emotion": "surprised",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "Efficient. Slightly alarming.",
+          "zh": "效率很高，高得有点突然。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Your scroll wheel deserves a break.",
+          "zh": "你的滚轮可能需要休息一下。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "I hope the sections had seatbelts.",
+          "zh": "希望这些版块都系好安全带了。"
+        },
+        "emotion": "surprised",
+        "intensity": "high",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Blink and the page is different.",
+          "zh": "一眨眼，页面就换地方了。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "Scrolling like there's treasure below.",
+          "zh": "滑得像下面藏了宝贝一样。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "bottom-left"
+      }
+    ],
+    "scroll_to_bottom": [
+      {
+        "text": {
+          "en": "You found the bottom. Explorer energy.",
+          "zh": "你居然滑到底了，探险精神不错。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Footer district reached.",
+          "zh": "已抵达页脚地带。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "End of page. Not end of commentary.",
+          "zh": "页面到底了，吐槽还没有。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "That was a clean descent.",
+          "zh": "这一路下滑还挺丝滑。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Nothing below here but dedication.",
+          "zh": "再往下就只剩执着了。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "Bottom reached. Tiny achievement unlocked.",
+          "zh": "到达底部，小小成就达成。"
+        },
+        "emotion": "surprised",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "You really checked the whole page.",
+          "zh": "看来你是真的认真翻完了。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "The page has no more downstairs.",
+          "zh": "这个页面已经没有下一层了。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "bottom-left"
+      }
+    ],
+    "repeated_click": [
+      {
+        "text": {
+          "en": "Clicking harder may not help.",
+          "zh": "点得再用力，也不一定更灵。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "That button has received your message.",
+          "zh": "这个按钮已经充分感受到你的热情了。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "A bold clicking strategy.",
+          "zh": "这套点击策略挺有气势。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "Persistence detected.",
+          "zh": "检测到持续输出。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "The button heard you earlier.",
+          "zh": "它刚才应该已经听见了。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "Multiple clicks. Classic negotiation.",
+          "zh": "连续点击，经典沟通方式。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "I saw the encore click.",
+          "zh": "我看到你又补了一下。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "Careful, it might feel popular.",
+          "zh": "小心，它要以为自己很受欢迎了。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      }
+    ],
+    "hover_cta": [
+      {
+        "text": {
+          "en": "Hovering with intent, I see.",
+          "zh": "这个悬停，有点想法啊。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "The button is being evaluated.",
+          "zh": "按钮正在接受你的审视。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "Almost clicking has drama.",
+          "zh": "差一点点点击，也挺有戏。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "No pressure. Just mascot pressure.",
+          "zh": "没压力，就是有一点吉祥物注视。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "Your cursor seems interested.",
+          "zh": "你的光标看起来很感兴趣。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "A careful hover. Respect.",
+          "zh": "这个悬停很谨慎，尊重。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "Decision loading softly.",
+          "zh": "决策正在缓慢加载中。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "The CTA is trying to look casual.",
+          "zh": "这个按钮正在假装自己很随意。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      }
+    ],
+    "pricing_section": [
+      {
+        "text": {
+          "en": "Ah, the numbers part.",
+          "zh": "哦，到了看数字的时候。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Pricing tables make everyone serious.",
+          "zh": "一到价格表，大家都会突然认真。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "Time for the careful eyebrow.",
+          "zh": "该露出精打细算的表情了。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Compare calmly. Sighing is optional.",
+          "zh": "慢慢比，叹气不是必选项。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "This is where tabs multiply.",
+          "zh": "这里通常会开始多开几个标签页。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "A wild pricing section appears.",
+          "zh": "价格区突然出现。请冷静。"
+        },
+        "emotion": "surprised",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Choose wisely. Or confidently.",
+          "zh": "选得明智最好，选得自信也行。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "I will not judge the budget math.",
+          "zh": "你心里算预算，我就假装没看见。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "bottom-left"
+      }
+    ],
+    "faq_section": [
+      {
+        "text": {
+          "en": "FAQ territory. Answers may hide here.",
+          "zh": "FAQ 区到了，答案可能就藏这儿。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "The questions have gathered.",
+          "zh": "问题们已经排好队了。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "A good place to pretend we read manuals.",
+          "zh": "这里很适合假装自己认真看过说明。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "Frequently asked. Occasionally understood.",
+          "zh": "经常被问，偶尔被看懂。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "This section looks suspiciously useful.",
+          "zh": "这一块看起来有点过于实用了。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Opening FAQs is oddly satisfying.",
+          "zh": "展开 FAQ 莫名有点解压。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Confused? This is the official hiding place.",
+          "zh": "有点疑惑的话，答案大概率躲在这里。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "The FAQ knows things. Probably.",
+          "zh": "FAQ 懂一些东西。大概吧。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-left"
+      }
+    ],
+    "form_pause": [
+      {
+        "text": {
+          "en": "Paused at the form. Understandable.",
+          "zh": "表单前停一下，完全合理。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "Forms do have that effect.",
+          "zh": "表单确实容易让人冷静下来。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "The cursor is reconsidering things.",
+          "zh": "光标好像在重新盘算。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "A thoughtful pause before commitment.",
+          "zh": "提交前谨慎一点，很正常。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "No rush. Blank fields are patient.",
+          "zh": "不急，空白框很有耐心。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "Typing would move the plot forward.",
+          "zh": "开始输入的话，剧情就推进了。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "That empty field has presence.",
+          "zh": "这个空白框存在感很强。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "Almost ready? The cursor believes.",
+          "zh": "快准备好了吧？光标看起来有信心。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "near-element"
+      }
+    ],
+    "tab_return": [
+      {
+        "text": {
+          "en": "Oh, you're back.",
+          "zh": "哦，你回来了。"
+        },
+        "emotion": "surprised",
+        "intensity": "medium",
+        "recommended_position": "top-peek"
+      },
+      {
+        "text": {
+          "en": "I kept the page warm.",
+          "zh": "我帮你把页面守住了。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Welcome back. I did important nothing.",
+          "zh": "欢迎回来。我刚刚很认真地无所事事。"
+        },
+        "emotion": "bored",
+        "intensity": "medium",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "Tab return detected. Drama resolved.",
+          "zh": "检测到回到标签页，悬念解除。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "I definitely did not miss you.",
+          "zh": "我绝对没有等你回来。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "top-peek"
+      },
+      {
+        "text": {
+          "en": "Back from another tab adventure?",
+          "zh": "从别的标签页冒险回来了？"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "Good timing. I looked busy.",
+          "zh": "回来得正好，我刚装得挺忙。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "The page survived. Barely.",
+          "zh": "页面撑住了，勉强。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "bottom-left"
+      }
+    ],
+    "exit_intent": [
+      {
+        "text": {
+          "en": "Leaving already? Dramatic.",
+          "zh": "这就要走了？有点突然哦。"
+        },
+        "emotion": "surprised",
+        "intensity": "medium",
+        "recommended_position": "top-peek"
+      },
+      {
+        "text": {
+          "en": "Before you vanish, one last look?",
+          "zh": "消失之前，要不要再看一眼？"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Cursor near the exit. Interesting.",
+          "zh": "光标靠近出口了，我看到了。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "top-peek"
+      },
+      {
+        "text": {
+          "en": "I respect the escape attempt.",
+          "zh": "这次撤退动作，我尊重。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "No pressure. Just a tiny goodbye stare.",
+          "zh": "没压力，我只是小小目送一下。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "The page still has feelings.",
+          "zh": "页面也是会有点舍不得的。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "That exit move was almost smooth.",
+          "zh": "这个离开动作差点就很丝滑。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "top-peek"
+      },
+      {
+        "text": {
+          "en": "If you go, I'll act fine.",
+          "zh": "你要是走了，我会假装没事。"
+        },
+        "emotion": "bored",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      }
+    ],
+    "error_or_failed_action": [
+      {
+        "text": {
+          "en": "That didn't quite work.",
+          "zh": "刚才好像没成功。"
+        },
+        "emotion": "surprised",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "Tiny technical hiccup.",
+          "zh": "小小技术波动了一下。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "The page tripped a little.",
+          "zh": "页面刚才小小绊了一下。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "Well, that was unexpected.",
+          "zh": "嗯，这个发展有点突然。"
+        },
+        "emotion": "surprised",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Something blinked first. Not you.",
+          "zh": "有东西先眨眼了，应该不是你。"
+        },
+        "emotion": "mocking",
+        "intensity": "low",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "Let's call that a rehearsal.",
+          "zh": "我们就当刚才是在彩排。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "The system had a tiny moment.",
+          "zh": "系统刚才短暂走神了。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "near-element"
+      },
+      {
+        "text": {
+          "en": "A retry may be less dramatic.",
+          "zh": "再试一次，可能会低调很多。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "near-element"
+      }
+    ],
+    "long_reading": [
+      {
+        "text": {
+          "en": "Careful reading detected.",
+          "zh": "检测到认真阅读中。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "You found the dense part.",
+          "zh": "你停在信息量大的地方了。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "This section has your attention.",
+          "zh": "这一段成功抓住你了。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "Slow reading. Very scholarly.",
+          "zh": "读得很细，有点学术气质。"
+        },
+        "emotion": "mocking",
+        "intensity": "low",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "The paragraph is winning.",
+          "zh": "这段文字暂时占上风。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "I'll wait while the words work.",
+          "zh": "我先等着，让文字发挥一下。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "That was not a casual skim.",
+          "zh": "这明显不是随便扫一眼。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "Long reading mode activated.",
+          "zh": "长阅读模式已开启。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "bottom-left"
+      }
+    ],
+    "random_comment": [
+      {
+        "text": {
+          "en": "Tiny commentary has arrived.",
+          "zh": "小小评论员上线了。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "This page has a certain vibe.",
+          "zh": "这个页面气质还挺明显。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "I have no agenda. Suspicious, yes.",
+          "zh": "我没有目的。听起来确实可疑。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "Just checking the atmosphere.",
+          "zh": "我只是来巡查一下气氛。"
+        },
+        "emotion": "peek",
+        "intensity": "low",
+        "recommended_position": "top-peek"
+      },
+      {
+        "text": {
+          "en": "Everything seems normal. Too normal.",
+          "zh": "一切看起来很正常，正常得有点刻意。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "A small mascot enters the scene.",
+          "zh": "一只小吉祥物路过现场。"
+        },
+        "emotion": "peek",
+        "intensity": "low",
+        "recommended_position": "top-peek"
+      },
+      {
+        "text": {
+          "en": "Here for moral support and mild commentary.",
+          "zh": "我负责精神支持，顺便轻微吐槽。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Background character energy is strong here.",
+          "zh": "这里的背景角色氛围很浓。"
+        },
+        "emotion": "mocking",
+        "intensity": "low",
+        "recommended_position": "bottom-left"
+      }
+    ]
+  }
+}
