@@ -57,6 +57,14 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;o
   padding:5px 10px;border-radius:6px;border:1px solid var(--border);letter-spacing:.06em;transition:all .2s}
 .lang-btn:hover{border-color:var(--gold-dim);color:var(--text-soft)}
 .lang-btn .a{color:var(--gold)}
+.music-btn{font-family:var(--font-mono);font-size:14px;color:var(--text-faint);
+  padding:5px 9px;border-radius:6px;border:1px solid var(--border);letter-spacing:.06em;
+  transition:all .2s;position:relative;cursor:pointer}
+.music-btn:hover{border-color:var(--gold-dim);color:var(--text-soft)}
+.music-btn.playing{color:var(--gold);border-color:var(--gold-dim)}
+.music-btn.playing::after{content:'';position:absolute;inset:-1px;border-radius:6px;
+  border:1px solid var(--gold-dim);animation:music-pulse 2s ease-in-out infinite}
+@keyframes music-pulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.9;transform:scale(1.04)}}
 @media(max-width:600px){.nav-links{gap:0}.nav-link{padding:6px 10px;font-size:13px}.nav-logo{font-size:20px}}
 @media(max-width:480px){
   .site-nav{padding:0 8px;gap:4px}
@@ -532,8 +540,10 @@ a.chip:hover{color:var(--accent)}
     </div>
     <div class="nav-right">
       <button class="lang-btn" id="globalLangBtn"><span id="glZh">中</span> / <span id="glEn">EN</span></button>
+      <button class="music-btn" id="musicBtn" title="Background music" aria-label="Toggle music">♪</button>
     </div>
   </nav>
+  <audio id="bgMusic" src="./assets/audio/bg.mp4" loop preload="none"></audio>
 
   <div class="site-content">
 
@@ -3493,5 +3503,156 @@ function showSyncToast(msg,ok){
 </script>
 <!-- Yui mascot assistant — loads manifest + dialogue via fetch, builds overlay -->
 <script src="./assistant/assistant.js?v=2" defer></script>
+
+<!-- Background music player -->
+<script>
+(function(){
+  var SKIP = 45;          // skip first 45s
+  var FADE = 2.0;         // fade-in seconds
+  var PHRASE = 30;        // phrase-boundary grid (seconds) for random start
+  var STORAGE_KEY = 'bgmusic_on_v1';
+
+  var audio = document.getElementById('bgMusic');
+  var btn   = document.getElementById('musicBtn');
+  if (!audio || !btn) return;
+
+  var playing = false;
+  var fadeTimer = null;
+
+  function pickStart(duration) {
+    // Build list of phrase-boundary start points from SKIP onward
+    var max = Math.max(SKIP, duration - 60);
+    var points = [];
+    for (var t = SKIP; t <= max; t += PHRASE) points.push(t);
+    if (!points.length) points = [SKIP];
+    return points[Math.floor(Math.random() * points.length)];
+  }
+
+  function fadeIn() {
+    audio.volume = 0;
+    var step = 0.05;
+    var interval = (FADE * 1000) / (1 / step);
+    if (fadeTimer) clearInterval(fadeTimer);
+    fadeTimer = setInterval(function() {
+      if (audio.volume < 1 - step) {
+        audio.volume = Math.min(1, audio.volume + step);
+      } else {
+        audio.volume = 1;
+        clearInterval(fadeTimer);
+        fadeTimer = null;
+      }
+    }, interval);
+  }
+
+  function fadeOut(cb) {
+    var step = 0.05;
+    var interval = (FADE * 500) / (1 / step); // half fade time for fade-out
+    if (fadeTimer) clearInterval(fadeTimer);
+    fadeTimer = setInterval(function() {
+      if (audio.volume > step) {
+        audio.volume = Math.max(0, audio.volume - step);
+      } else {
+        audio.volume = 0;
+        clearInterval(fadeTimer);
+        fadeTimer = null;
+        if (cb) cb();
+      }
+    }, interval);
+  }
+
+  function startPlay() {
+    audio.preload = 'auto';
+    // If duration known, pick random phrase-boundary start; else fall back to SKIP
+    var dur = audio.duration;
+    var start = (dur && isFinite(dur)) ? pickStart(dur) : SKIP;
+    audio.currentTime = start;
+    audio.play().then(function() {
+      playing = true;
+      btn.classList.add('playing');
+      fadeIn();
+    }).catch(function() {
+      // Autoplay blocked — will retry on next user click
+    });
+  }
+
+  function stopPlay() {
+    fadeOut(function() {
+      audio.pause();
+      playing = false;
+      btn.classList.remove('playing');
+    });
+  }
+
+  // Once metadata loads we know the duration — use it for better random start
+  audio.addEventListener('loadedmetadata', function() {
+    if (playing) {
+      // Re-pick if we started before metadata was available
+    }
+  });
+
+  // Handle loop: when audio ends (shouldn't with loop attr but just in case),
+  // restart from a new random position
+  audio.addEventListener('ended', function() {
+    if (playing) {
+      var start = (audio.duration && isFinite(audio.duration)) ? pickStart(audio.duration) : SKIP;
+      audio.currentTime = start;
+      audio.play();
+    }
+  });
+
+  btn.addEventListener('click', function() {
+    if (!playing) {
+      // Load and play
+      if (audio.readyState < 1) audio.load();
+      var tryPlay = function() {
+        var dur = audio.duration;
+        var start = (dur && isFinite(dur)) ? pickStart(dur) : SKIP;
+        audio.currentTime = start;
+        audio.play().then(function() {
+          playing = true;
+          btn.classList.add('playing');
+          btn.title = 'Music on — click to stop';
+          fadeIn();
+          localStorage.setItem(STORAGE_KEY, '1');
+        }).catch(function(){});
+      };
+      if (audio.readyState >= 1) {
+        tryPlay();
+      } else {
+        audio.addEventListener('loadedmetadata', tryPlay, { once: true });
+        audio.load();
+      }
+    } else {
+      stopPlay();
+      btn.title = 'Background music';
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  });
+
+  // Auto-resume if user had it on last visit
+  if (localStorage.getItem(STORAGE_KEY)) {
+    // Attempt autoplay after first user interaction
+    var autoResume = function() {
+      document.removeEventListener('click', autoResume);
+      document.removeEventListener('keydown', autoResume);
+      if (!playing) {
+        audio.load();
+        audio.addEventListener('loadedmetadata', function() {
+          var start = pickStart(audio.duration);
+          audio.currentTime = start;
+          audio.play().then(function() {
+            playing = true;
+            btn.classList.add('playing');
+            btn.title = 'Music on — click to stop';
+            fadeIn();
+          }).catch(function(){});
+        }, { once: true });
+      }
+    };
+    document.addEventListener('click', autoResume);
+    document.addEventListener('keydown', autoResume);
+  }
+})();
+</script>
 </body>
 </html>
