@@ -356,7 +356,7 @@
     "missingCooldownMs": 25000
   },
   "behaviorLimits": {
-    "globalCooldownMs": 25000,
+    "globalCooldownMs": 10000,
     "sameTriggerCooldownMs": 60000,
     "maxAppearancesPerSession": 8,
     "hideAfterCloseForSession": true,
