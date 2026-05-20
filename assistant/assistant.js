@@ -994,7 +994,7 @@
      Exposes window.__yuiMascot for browser console testing.
      ================================================================ */
 
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+  if (true) { /* TEMP: debug API exposed for trigger testing — revert after */
     window.__yuiMascot = {
       /* Fire any trigger by name, bypassing cooldowns */
       fire: function (triggerName, nearEl) {
