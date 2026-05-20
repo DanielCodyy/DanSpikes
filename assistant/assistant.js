@@ -569,6 +569,7 @@
     attachExitIntentTrigger();
     attachSectionTriggers();
     attachSectionNavTrigger();
+    attachMapMarkerTrigger();
     attachFormPauseTrigger();
     attachLongReadingTrigger();
     attachHoverCtaTrigger();
@@ -730,8 +731,8 @@
 
 
   /* ── Section navigation ───────────────────────────────────────── */
-  /* Fires random_comment whenever the user switches between the site's
-     main sections (HOME / PHOTOGRAPHY / MAP / TRAVEL).
+  /* Fires a section-specific trigger whenever the user switches between
+     HOME / PHOTOGRAPHY / MAP / TRAVEL sections.
      Uses MutationObserver on the 'active' CSS class toggled by the
      site's own switchSection() function. */
 
@@ -740,6 +741,13 @@
     var sections = document.querySelectorAll('.section');
     if (!sections.length) return;
 
+    var sectionToTrigger = {
+      'sec-photography': 'enter_photography',
+      'sec-map':         'enter_map',
+      'sec-travel':      'enter_travel',
+      'sec-home':        'random_comment',
+    };
+
     var obs = new MutationObserver(function (mutations) {
       for (var i = 0; i < mutations.length; i++) {
         var mut = mutations[i];
@@ -747,7 +755,9 @@
         /* Only fire when 'active' is being ADDED (section becoming visible) */
         var hadActive = mut.oldValue && mut.oldValue.indexOf('active') >= 0;
         if (!hadActive && mut.target.classList.contains('active')) {
-          fireTrigger('random_comment');
+          var secId  = mut.target.id;
+          var trigger = sectionToTrigger[secId] || 'random_comment';
+          fireTrigger(trigger);
           break; /* one trigger per navigation event is enough */
         }
       }
@@ -755,6 +765,39 @@
 
     sections.forEach(function (sec) {
       obs.observe(sec, { attributes: true, attributeFilter: ['class'], attributeOldValue: true });
+    });
+  }
+
+
+  /* ── Map marker clicks ─────────────────────────────────────────── */
+  /* Fires map_marker_click when the user clicks a Leaflet photo
+     marker in the sec-map section. Delegates on the map container
+     rather than individual markers so it works even after Leaflet
+     re-renders the layer. */
+
+  function attachMapMarkerTrigger() {
+    var mapSection = document.getElementById('sec-map');
+    if (!mapSection) return;
+
+    mapSection.addEventListener('click', function (e) {
+      var target = e.target;
+      /* Leaflet markers are either .leaflet-marker-icon or SVG paths
+         inside .leaflet-interactive. Walk up a few levels to check. */
+      var el = target;
+      for (var d = 0; d < 5; d++) {
+        if (!el) break;
+        if (
+          el.classList && (
+            el.classList.contains('leaflet-marker-icon') ||
+            el.classList.contains('leaflet-interactive') ||
+            el.classList.contains('photo-marker')
+          )
+        ) {
+          fireTrigger('map_marker_click');
+          return;
+        }
+        el = el.parentElement;
+      }
     });
   }
 

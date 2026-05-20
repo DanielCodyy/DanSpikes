@@ -1,6 +1,6 @@
 {
   "language_mode": "bilingual",
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "valid_emotions": [
     "idle",
     "talk",
@@ -27,8 +27,8 @@
     "page_enter": [
       {
         "text": {
-          "en": "Oh, someone arrived. I'll behave.",
-          "zh": "咦，有人来了。那我先装乖一下。"
+          "en": "Daniel's photography and travels. Welcome in.",
+          "zh": "Daniel 的摄影与旅行，欢迎进来。"
         },
         "emotion": "peek",
         "intensity": "low",
@@ -36,8 +36,8 @@
       },
       {
         "text": {
-          "en": "Welcome. I was totally not waiting.",
-          "zh": "欢迎光临。我才没有一直等你。"
+          "en": "Sony A7R2. Film and digital. Dark gold palette. This site has opinions.",
+          "zh": "A7R2，胶片加数码，暗金配色。这个网站很有主见。"
         },
         "emotion": "talk",
         "intensity": "low",
@@ -45,8 +45,8 @@
       },
       {
         "text": {
-          "en": "New page, new tiny observations.",
-          "zh": "新页面，新一轮偷偷观察。"
+          "en": "Photography, an interactive map, travel itineraries. Explore at will.",
+          "zh": "摄影集、交互地图、旅行行程，随便逛。"
         },
         "emotion": "thinking",
         "intensity": "low",
@@ -54,8 +54,8 @@
       },
       {
         "text": {
-          "en": "I popped in. Very professional.",
-          "zh": "我闪亮登场。看起来很专业吧。"
+          "en": "Film nostalgia and digital clarity in the same portfolio.",
+          "zh": "胶片的怀旧感和数码的清晰度，同一个作品集里。"
         },
         "emotion": "idle",
         "intensity": "low",
@@ -63,8 +63,8 @@
       },
       {
         "text": {
-          "en": "You browse. I comment. Fair enough.",
-          "zh": "你负责浏览，我负责小声吐槽。"
+          "en": "Welcome. The photos are better looking than I am.",
+          "zh": "欢迎。照片比我好看多了。"
         },
         "emotion": "talk",
         "intensity": "medium",
@@ -72,8 +72,8 @@
       },
       {
         "text": {
-          "en": "Let's see where your cursor wanders.",
-          "zh": "让我看看你的鼠标会飘去哪里。"
+          "en": "I wonder which section pulls you first.",
+          "zh": "我好奇你会先被哪个版块吸引。"
         },
         "emotion": "thinking",
         "intensity": "low",
@@ -81,8 +81,8 @@
       },
       {
         "text": {
-          "en": "Don't mind me. I'm decorative judgment.",
-          "zh": "不用管我，我只是有点想法的装饰。"
+          "en": "Dark aesthetic. Very deliberate.",
+          "zh": "暗调美学，非常有目的性。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -90,8 +90,8 @@
       },
       {
         "text": {
-          "en": "Page entered. Mascot quietly activated.",
-          "zh": "页面已进入，小吉祥物悄悄上线。"
+          "en": "The travel itineraries here are real. The photos too.",
+          "zh": "这里的旅行行程是真实的，照片也是。"
         },
         "emotion": "peek",
         "intensity": "low",
@@ -101,8 +101,8 @@
     "idle_30s": [
       {
         "text": {
-          "en": "Taking a moment? Reasonable.",
-          "zh": "停一下也好，确实需要缓缓。"
+          "en": "Taking it in. That shot deserves the pause.",
+          "zh": "慢慢看，那张照片值得停一下。"
         },
         "emotion": "idle",
         "intensity": "low",
@@ -110,8 +110,8 @@
       },
       {
         "text": {
-          "en": "Still thinking, I see.",
-          "zh": "嗯，还在斟酌，我懂。"
+          "en": "Deciding which city feels most like you?",
+          "zh": "在想哪座城市最像你？"
         },
         "emotion": "thinking",
         "intensity": "low",
@@ -119,8 +119,8 @@
       },
       {
         "text": {
-          "en": "The page has entered quiet mode.",
-          "zh": "页面进入安静观察模式。"
+          "en": "Film photos reward slow looking.",
+          "zh": "胶片照片，慢慢看才有味道。"
         },
         "emotion": "idle",
         "intensity": "low",
@@ -128,8 +128,8 @@
       },
       {
         "text": {
-          "en": "No rush. I can wait stylishly.",
-          "zh": "不急，我可以很优雅地等。"
+          "en": "No rush. Paris will still be there.",
+          "zh": "不急，巴黎又跑不掉。"
         },
         "emotion": "talk",
         "intensity": "low",
@@ -137,8 +137,8 @@
       },
       {
         "text": {
-          "en": "A dramatic pause. Nice.",
-          "zh": "这个停顿，有点会营造气氛。"
+          "en": "The itinerary has this effect on people.",
+          "zh": "行程表就是有这种让人发呆的魔力。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -146,8 +146,8 @@
       },
       {
         "text": {
-          "en": "Your cursor is suspiciously calm.",
-          "zh": "你的鼠标安静得有点可疑。"
+          "en": "Good light in a photo takes time to notice.",
+          "zh": "照片里好的光线，需要时间才能察觉。"
         },
         "emotion": "thinking",
         "intensity": "medium",
@@ -155,8 +155,8 @@
       },
       {
         "text": {
-          "en": "I will just float here politely.",
-          "zh": "那我先礼貌地飘在这里。"
+          "en": "I'll float here politely while you think.",
+          "zh": "你在思考，我就礼貌地飘着。"
         },
         "emotion": "idle",
         "intensity": "low",
@@ -164,8 +164,8 @@
       },
       {
         "text": {
-          "en": "Thirty seconds of pure suspense.",
-          "zh": "三十秒过去了，悬念感拉满。"
+          "en": "Time moves differently in front of a good photograph.",
+          "zh": "好照片面前，时间流速不一样。"
         },
         "emotion": "talk",
         "intensity": "medium",
@@ -175,8 +175,8 @@
     "idle_60s": [
       {
         "text": {
-          "en": "A full minute. Impressive commitment.",
-          "zh": "整整一分钟了，这耐心可以。"
+          "en": "A full minute. This section earned it.",
+          "zh": "整整一分钟，这版块担得起。"
         },
         "emotion": "bored",
         "intensity": "medium",
@@ -184,8 +184,8 @@
       },
       {
         "text": {
-          "en": "I blinked twice. Still nothing.",
-          "zh": "我都眨两轮眼了，还是很安静。"
+          "en": "Deep in the itinerary? Take your time.",
+          "zh": "研究行程呢？慢慢来。"
         },
         "emotion": "bored",
         "intensity": "medium",
@@ -193,8 +193,8 @@
       },
       {
         "text": {
-          "en": "This is becoming a staring contest.",
-          "zh": "这气氛快变成对视比赛了。"
+          "en": "The map dots are patient company.",
+          "zh": "地图上的点很有耐心陪着你。"
         },
         "emotion": "bored",
         "intensity": "medium",
@@ -202,8 +202,8 @@
       },
       {
         "text": {
-          "en": "The silence is getting confident.",
-          "zh": "这个沉默已经开始有气场了。"
+          "en": "Are you planning your own trip? I'm watching.",
+          "zh": "在参考行程规划自己的旅行？我注意到了。"
         },
         "emotion": "thinking",
         "intensity": "medium",
@@ -220,8 +220,8 @@
       },
       {
         "text": {
-          "en": "The page is calm. Maybe too calm.",
-          "zh": "页面很平静，平静得有点过分。"
+          "en": "The photos are not going anywhere. Neither are you.",
+          "zh": "照片不会跑，你也不会跑。"
         },
         "emotion": "thinking",
         "intensity": "medium",
@@ -229,8 +229,8 @@
       },
       {
         "text": {
-          "en": "Should I make tea for the pixels?",
-          "zh": "要不要给这些像素泡杯茶？"
+          "en": "One minute of quiet appreciation. Fair.",
+          "zh": "一分钟的安静欣赏，合理的。"
         },
         "emotion": "bored",
         "intensity": "low",
@@ -238,8 +238,8 @@
       },
       {
         "text": {
-          "en": "Still here. I respect the stillness.",
-          "zh": "还在。这个静止状态我认可。"
+          "en": "I thought you left. But here you still are.",
+          "zh": "我以为你走了，但你还在。"
         },
         "emotion": "idle",
         "intensity": "low",
@@ -249,8 +249,8 @@
     "scroll_fast": [
       {
         "text": {
-          "en": "Whoa. Speedrun mode?",
-          "zh": "哇，这是开启速通模式了？"
+          "en": "The gallery deserved more than that.",
+          "zh": "图库值得你多停留一会儿。"
         },
         "emotion": "surprised",
         "intensity": "high",
@@ -258,8 +258,8 @@
       },
       {
         "text": {
-          "en": "The content barely waved hello.",
-          "zh": "内容都还没来得及打招呼。"
+          "en": "Scrolling past travel photos at speed. Brave.",
+          "zh": "快速翻过旅行照片，挺大胆的。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -267,8 +267,8 @@
       },
       {
         "text": {
-          "en": "That scroll had momentum.",
-          "zh": "这一下滑得很有冲劲。"
+          "en": "Those photos were taken slowly. Just saying.",
+          "zh": "那些照片是慢慢拍的，仅供参考。"
         },
         "emotion": "surprised",
         "intensity": "medium",
@@ -276,8 +276,8 @@
       },
       {
         "text": {
-          "en": "Efficient. Slightly alarming.",
-          "zh": "效率很高，高得有点突然。"
+          "en": "The itinerary went by in a blur. Intentional?",
+          "zh": "行程表一下就翻过去了，是故意的？"
         },
         "emotion": "thinking",
         "intensity": "medium",
@@ -285,8 +285,8 @@
       },
       {
         "text": {
-          "en": "Your scroll wheel deserves a break.",
-          "zh": "你的滚轮可能需要休息一下。"
+          "en": "Fast scroll on a slow-travel site.",
+          "zh": "快速划过慢旅行网站，已记录。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -294,8 +294,8 @@
       },
       {
         "text": {
-          "en": "I hope the sections had seatbelts.",
-          "zh": "希望这些版块都系好安全带了。"
+          "en": "The photos only had time to blink at you.",
+          "zh": "照片只来得及眨个眼。"
         },
         "emotion": "surprised",
         "intensity": "high",
@@ -303,8 +303,8 @@
       },
       {
         "text": {
-          "en": "Blink and the page is different.",
-          "zh": "一眨眼，页面就换地方了。"
+          "en": "Speed-running a photography portfolio.",
+          "zh": "速通摄影作品集模式已开启。"
         },
         "emotion": "talk",
         "intensity": "medium",
@@ -312,8 +312,8 @@
       },
       {
         "text": {
-          "en": "Scrolling like there's treasure below.",
-          "zh": "滑得像下面藏了宝贝一样。"
+          "en": "Shot at 1/4000s. You scrolled faster.",
+          "zh": "快门 1/4000s，你滑得比快门还快。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -323,8 +323,8 @@
     "scroll_to_bottom": [
       {
         "text": {
-          "en": "You found the bottom. Explorer energy.",
-          "zh": "你居然滑到底了，探险精神不错。"
+          "en": "You scrolled all the way. Daniel approves.",
+          "zh": "你翻到底了，Daniel 会满意的。"
         },
         "emotion": "talk",
         "intensity": "medium",
@@ -332,8 +332,8 @@
       },
       {
         "text": {
-          "en": "Footer district reached.",
-          "zh": "已抵达页脚地带。"
+          "en": "Bottom of the portfolio. Very thorough.",
+          "zh": "到了作品集底部，很认真。"
         },
         "emotion": "idle",
         "intensity": "low",
@@ -341,8 +341,8 @@
       },
       {
         "text": {
-          "en": "End of page. Not end of commentary.",
-          "zh": "页面到底了，吐槽还没有。"
+          "en": "The itinerary ends here. The trip doesn't.",
+          "zh": "行程表到底了，旅途还没结束。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -350,8 +350,8 @@
       },
       {
         "text": {
-          "en": "That was a clean descent.",
-          "zh": "这一路下滑还挺丝滑。"
+          "en": "Full scroll. Commitment to the work.",
+          "zh": "翻到底了，对作品的尊重到位了。"
         },
         "emotion": "talk",
         "intensity": "low",
@@ -359,8 +359,8 @@
       },
       {
         "text": {
-          "en": "Nothing below here but dedication.",
-          "zh": "再往下就只剩执着了。"
+          "en": "Checked everything. Very organized.",
+          "zh": "全部看了一遍，很有条理。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -368,8 +368,8 @@
       },
       {
         "text": {
-          "en": "Bottom reached. Tiny achievement unlocked.",
-          "zh": "到达底部，小小成就达成。"
+          "en": "Explorer mode: complete.",
+          "zh": "探索模式：完成。"
         },
         "emotion": "surprised",
         "intensity": "medium",
@@ -377,8 +377,8 @@
       },
       {
         "text": {
-          "en": "You really checked the whole page.",
-          "zh": "看来你是真的认真翻完了。"
+          "en": "Nothing missed. Good.",
+          "zh": "没有遗漏，不错。"
         },
         "emotion": "thinking",
         "intensity": "medium",
@@ -386,8 +386,8 @@
       },
       {
         "text": {
-          "en": "The page has no more downstairs.",
-          "zh": "这个页面已经没有下一层了。"
+          "en": "End of page. Start of wherever this takes you.",
+          "zh": "页面结束，旅途开始。"
         },
         "emotion": "idle",
         "intensity": "low",
@@ -397,8 +397,8 @@
     "repeated_click": [
       {
         "text": {
-          "en": "Clicking harder may not help.",
-          "zh": "点得再用力，也不一定更灵。"
+          "en": "The filter button received your enthusiasm.",
+          "zh": "筛选按钮收到你的热情了。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -406,8 +406,8 @@
       },
       {
         "text": {
-          "en": "That button has received your message.",
-          "zh": "这个按钮已经充分感受到你的热情了。"
+          "en": "Category selected. Re-selected. Re-re-selected.",
+          "zh": "已选类别。重新选择。再次重新选择。"
         },
         "emotion": "talk",
         "intensity": "medium",
@@ -415,8 +415,8 @@
       },
       {
         "text": {
-          "en": "A bold clicking strategy.",
-          "zh": "这套点击策略挺有气势。"
+          "en": "That map marker is popular today.",
+          "zh": "那个地图标记今天很受欢迎。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -424,8 +424,8 @@
       },
       {
         "text": {
-          "en": "Persistence detected.",
-          "zh": "检测到持续输出。"
+          "en": "Bold clicking energy on the photo filters.",
+          "zh": "在照片筛选器上点击得很有气势。"
         },
         "emotion": "thinking",
         "intensity": "low",
@@ -433,8 +433,8 @@
       },
       {
         "text": {
-          "en": "The button heard you earlier.",
-          "zh": "它刚才应该已经听见了。"
+          "en": "The ALL filter is feeling very appreciated.",
+          "zh": "ALL 筛选项感受到被重视了。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -442,8 +442,8 @@
       },
       {
         "text": {
-          "en": "Multiple clicks. Classic negotiation.",
-          "zh": "连续点击，经典沟通方式。"
+          "en": "Curiosity metric: very high.",
+          "zh": "好奇心指数：很高。"
         },
         "emotion": "thinking",
         "intensity": "medium",
@@ -451,8 +451,8 @@
       },
       {
         "text": {
-          "en": "I saw the encore click.",
-          "zh": "我看到你又补了一下。"
+          "en": "The button heard you the first time.",
+          "zh": "按钮第一次就听见了。"
         },
         "emotion": "talk",
         "intensity": "medium",
@@ -460,8 +460,8 @@
       },
       {
         "text": {
-          "en": "Careful, it might feel popular.",
-          "zh": "小心，它要以为自己很受欢迎了。"
+          "en": "Click again and the map might feel special.",
+          "zh": "再点一下地图要觉得自己与众不同了。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -471,8 +471,8 @@
     "hover_cta": [
       {
         "text": {
-          "en": "Hovering with intent, I see.",
-          "zh": "这个悬停，有点想法啊。"
+          "en": "VIEW WORK is being evaluated. It can feel it.",
+          "zh": "VIEW WORK 正在被你审视，它感受到了。"
         },
         "emotion": "thinking",
         "intensity": "medium",
@@ -480,8 +480,8 @@
       },
       {
         "text": {
-          "en": "The button is being evaluated.",
-          "zh": "按钮正在接受你的审视。"
+          "en": "The gallery button is holding its breath.",
+          "zh": "图库按钮在屏住呼吸。"
         },
         "emotion": "thinking",
         "intensity": "low",
@@ -489,8 +489,8 @@
       },
       {
         "text": {
-          "en": "Almost clicking has drama.",
-          "zh": "差一点点点击，也挺有戏。"
+          "en": "One click from the photography section.",
+          "zh": "离摄影版块只差一次点击。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -498,8 +498,8 @@
       },
       {
         "text": {
-          "en": "No pressure. Just mascot pressure.",
-          "zh": "没压力，就是有一点吉祥物注视。"
+          "en": "TRAVEL is calling. You're almost there.",
+          "zh": "TRAVEL 在召唤你，快了。"
         },
         "emotion": "talk",
         "intensity": "medium",
@@ -507,8 +507,8 @@
       },
       {
         "text": {
-          "en": "Your cursor seems interested.",
-          "zh": "你的光标看起来很感兴趣。"
+          "en": "Hesitation before beauty. Classic.",
+          "zh": "在美面前犹豫，经典。"
         },
         "emotion": "thinking",
         "intensity": "low",
@@ -516,8 +516,8 @@
       },
       {
         "text": {
-          "en": "A careful hover. Respect.",
-          "zh": "这个悬停很谨慎，尊重。"
+          "en": "That button knows something good is on the other side.",
+          "zh": "那个按钮知道对面有好东西。"
         },
         "emotion": "idle",
         "intensity": "low",
@@ -525,8 +525,8 @@
       },
       {
         "text": {
-          "en": "Decision loading softly.",
-          "zh": "决策正在缓慢加载中。"
+          "en": "Almost clicked. The suspense is exquisite.",
+          "zh": "差点就点了，悬念拿捏得很好。"
         },
         "emotion": "thinking",
         "intensity": "low",
@@ -534,8 +534,8 @@
       },
       {
         "text": {
-          "en": "The CTA is trying to look casual.",
-          "zh": "这个按钮正在假装自己很随意。"
+          "en": "The travel section is very ready for you.",
+          "zh": "旅行版块已经准备好迎接你了。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -545,8 +545,8 @@
     "pricing_section": [
       {
         "text": {
-          "en": "Ah, the numbers part.",
-          "zh": "哦，到了看数字的时候。"
+          "en": "Photography is the most expensive free hobby.",
+          "zh": "摄影是最贵的免费爱好。"
         },
         "emotion": "thinking",
         "intensity": "low",
@@ -554,8 +554,8 @@
       },
       {
         "text": {
-          "en": "Pricing tables make everyone serious.",
-          "zh": "一到价格表，大家都会突然认真。"
+          "en": "A Sony A7R2 and a plane ticket. Reasonable expenses.",
+          "zh": "一台 A7R2 加机票，合理的支出。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -563,8 +563,8 @@
       },
       {
         "text": {
-          "en": "Time for the careful eyebrow.",
-          "zh": "该露出精打细算的表情了。"
+          "en": "Some investments are just memories you buy early.",
+          "zh": "有些投资只是提前购买的回忆。"
         },
         "emotion": "thinking",
         "intensity": "medium",
@@ -572,8 +572,8 @@
       },
       {
         "text": {
-          "en": "Compare calmly. Sighing is optional.",
-          "zh": "慢慢比，叹气不是必选项。"
+          "en": "Travel budgets are just wishes with numbers attached.",
+          "zh": "旅行预算不过是带数字的愿望清单。"
         },
         "emotion": "talk",
         "intensity": "low",
@@ -581,8 +581,8 @@
       },
       {
         "text": {
-          "en": "This is where tabs multiply.",
-          "zh": "这里通常会开始多开几个标签页。"
+          "en": "The best shots usually cost a long flight.",
+          "zh": "最好的照片往往要坐一趟长途飞机。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -590,8 +590,8 @@
       },
       {
         "text": {
-          "en": "A wild pricing section appears.",
-          "zh": "价格区突然出现。请冷静。"
+          "en": "Camera gear or plane tickets. Why not both.",
+          "zh": "相机配件还是机票，为什么不能都要。"
         },
         "emotion": "surprised",
         "intensity": "low",
@@ -599,8 +599,8 @@
       },
       {
         "text": {
-          "en": "Choose wisely. Or confidently.",
-          "zh": "选得明智最好，选得自信也行。"
+          "en": "The ROI on good travel photography is immeasurable.",
+          "zh": "好的旅行摄影回报率无法计算。"
         },
         "emotion": "talk",
         "intensity": "medium",
@@ -608,8 +608,8 @@
       },
       {
         "text": {
-          "en": "I will not judge the budget math.",
-          "zh": "你心里算预算，我就假装没看见。"
+          "en": "Every photo here is a receipt for a great moment.",
+          "zh": "这里每张照片都是一个美好时刻的收据。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -619,8 +619,8 @@
     "faq_section": [
       {
         "text": {
-          "en": "FAQ territory. Answers may hide here.",
-          "zh": "FAQ 区到了，答案可能就藏这儿。"
+          "en": "Questions about the trip? The itinerary section answers most.",
+          "zh": "关于旅行有疑问？行程版块大多都有答案。"
         },
         "emotion": "thinking",
         "intensity": "low",
@@ -628,8 +628,8 @@
       },
       {
         "text": {
-          "en": "The questions have gathered.",
-          "zh": "问题们已经排好队了。"
+          "en": "The map shows where. The travel section shows when and why.",
+          "zh": "地图告诉你去哪，旅行版块告诉你何时去和为什么。"
         },
         "emotion": "talk",
         "intensity": "low",
@@ -637,8 +637,8 @@
       },
       {
         "text": {
-          "en": "A good place to pretend we read manuals.",
-          "zh": "这里很适合假装自己认真看过说明。"
+          "en": "Curious about the camera? Sony A7R2. Film and digital.",
+          "zh": "好奇用什么相机？A7R2，胶片加数码。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -646,8 +646,8 @@
       },
       {
         "text": {
-          "en": "Frequently asked. Occasionally understood.",
-          "zh": "经常被问，偶尔被看懂。"
+          "en": "Where were these taken? The map has all of them.",
+          "zh": "这些在哪里拍的？地图上全都有标注。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -655,8 +655,8 @@
       },
       {
         "text": {
-          "en": "This section looks suspiciously useful.",
-          "zh": "这一块看起来有点过于实用了。"
+          "en": "The photography section is very self-explanatory.",
+          "zh": "摄影版块是能自我解释的那种。"
         },
         "emotion": "thinking",
         "intensity": "medium",
@@ -664,8 +664,8 @@
       },
       {
         "text": {
-          "en": "Opening FAQs is oddly satisfying.",
-          "zh": "展开 FAQ 莫名有点解压。"
+          "en": "Travel questions answered by the itinerary. Usually.",
+          "zh": "关于旅行的问题，行程基本都能回答。"
         },
         "emotion": "idle",
         "intensity": "low",
@@ -673,8 +673,8 @@
       },
       {
         "text": {
-          "en": "Confused? This is the official hiding place.",
-          "zh": "有点疑惑的话，答案大概率躲在这里。"
+          "en": "The photos explain themselves better than I could.",
+          "zh": "照片比我解释得好多了。"
         },
         "emotion": "talk",
         "intensity": "medium",
@@ -682,8 +682,8 @@
       },
       {
         "text": {
-          "en": "The FAQ knows things. Probably.",
-          "zh": "FAQ 懂一些东西。大概吧。"
+          "en": "Ask the map. It knows more than it lets on.",
+          "zh": "问问地图，它懂的比看起来多。"
         },
         "emotion": "thinking",
         "intensity": "low",
@@ -693,8 +693,8 @@
     "form_pause": [
       {
         "text": {
-          "en": "Paused at the form. Understandable.",
-          "zh": "表单前停一下，完全合理。"
+          "en": "Searching for a destination? Take your time.",
+          "zh": "在找目的地？慢慢来。"
         },
         "emotion": "thinking",
         "intensity": "medium",
@@ -702,8 +702,8 @@
       },
       {
         "text": {
-          "en": "Forms do have that effect.",
-          "zh": "表单确实容易让人冷静下来。"
+          "en": "The trip selector is ready when you are.",
+          "zh": "行程选择器准备好了，等你。"
         },
         "emotion": "talk",
         "intensity": "low",
@@ -711,8 +711,8 @@
       },
       {
         "text": {
-          "en": "The cursor is reconsidering things.",
-          "zh": "光标好像在重新盘算。"
+          "en": "So many trips, so little cursor movement.",
+          "zh": "这么多行程，光标却迟迟不动。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -720,8 +720,8 @@
       },
       {
         "text": {
-          "en": "A thoughtful pause before commitment.",
-          "zh": "提交前谨慎一点，很正常。"
+          "en": "A thoughtful pause before choosing a destination.",
+          "zh": "选目的地前的谨慎停顿，很正常。"
         },
         "emotion": "thinking",
         "intensity": "low",
@@ -729,8 +729,8 @@
       },
       {
         "text": {
-          "en": "No rush. Blank fields are patient.",
-          "zh": "不急，空白框很有耐心。"
+          "en": "The map has no judgment. Wherever calls to you.",
+          "zh": "地图没有评判，哪里召唤你就去哪里。"
         },
         "emotion": "idle",
         "intensity": "low",
@@ -738,8 +738,8 @@
       },
       {
         "text": {
-          "en": "Typing would move the plot forward.",
-          "zh": "开始输入的话，剧情就推进了。"
+          "en": "Paris or Tokyo? The hardest question.",
+          "zh": "巴黎还是东京？最难的问题。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -747,8 +747,8 @@
       },
       {
         "text": {
-          "en": "That empty field has presence.",
-          "zh": "这个空白框存在感很强。"
+          "en": "The itinerary has strong opinions. Let it guide you.",
+          "zh": "行程表很有主见，让它带路吧。"
         },
         "emotion": "thinking",
         "intensity": "medium",
@@ -756,8 +756,8 @@
       },
       {
         "text": {
-          "en": "Almost ready? The cursor believes.",
-          "zh": "快准备好了吧？光标看起来有信心。"
+          "en": "Pick a trip. Any trip. They're all real.",
+          "zh": "选一个行程，随便哪个，都是真实走过的。"
         },
         "emotion": "talk",
         "intensity": "low",
@@ -767,8 +767,8 @@
     "tab_return": [
       {
         "text": {
-          "en": "Oh, you're back.",
-          "zh": "哦，你回来了。"
+          "en": "Welcome back. Did Google Maps have better photos?",
+          "zh": "回来了，Google Maps 上的照片更好看？"
         },
         "emotion": "surprised",
         "intensity": "medium",
@@ -776,8 +776,8 @@
       },
       {
         "text": {
-          "en": "I kept the page warm.",
-          "zh": "我帮你把页面守住了。"
+          "en": "Back from comparison-shopping destinations?",
+          "zh": "从对比目的地的标签页回来了？"
         },
         "emotion": "idle",
         "intensity": "low",
@@ -785,8 +785,8 @@
       },
       {
         "text": {
-          "en": "Welcome back. I did important nothing.",
-          "zh": "欢迎回来。我刚刚很认真地无所事事。"
+          "en": "I kept the gallery warm while you were away.",
+          "zh": "你不在的时候，我帮你把图库看守住了。"
         },
         "emotion": "bored",
         "intensity": "medium",
@@ -794,8 +794,8 @@
       },
       {
         "text": {
-          "en": "Tab return detected. Drama resolved.",
-          "zh": "检测到回到标签页，悬念解除。"
+          "en": "Tab return detected. The map missed you.",
+          "zh": "检测到回到标签页，地图想你了。"
         },
         "emotion": "talk",
         "intensity": "low",
@@ -803,8 +803,8 @@
       },
       {
         "text": {
-          "en": "I definitely did not miss you.",
-          "zh": "我绝对没有等你回来。"
+          "en": "I definitely was not waiting for your return.",
+          "zh": "我绝对不是在等你回来。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -812,8 +812,8 @@
       },
       {
         "text": {
-          "en": "Back from another tab adventure?",
-          "zh": "从别的标签页冒险回来了？"
+          "en": "Paris or Tokyo research on another tab?",
+          "zh": "刚才在别的标签页研究巴黎还是东京？"
         },
         "emotion": "thinking",
         "intensity": "medium",
@@ -821,8 +821,8 @@
       },
       {
         "text": {
-          "en": "Good timing. I looked busy.",
-          "zh": "回来得正好，我刚装得挺忙。"
+          "en": "Good timing. I was pretending to be busy.",
+          "zh": "回来得正好，我刚在假装很忙。"
         },
         "emotion": "talk",
         "intensity": "medium",
@@ -830,8 +830,8 @@
       },
       {
         "text": {
-          "en": "The page survived. Barely.",
-          "zh": "页面撑住了，勉强。"
+          "en": "The itinerary waited. Patiently.",
+          "zh": "行程表等着你呢，很有耐心。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -841,8 +841,8 @@
     "exit_intent": [
       {
         "text": {
-          "en": "Leaving already? Dramatic.",
-          "zh": "这就要走了？有点突然哦。"
+          "en": "Leaving already? The travel section hasn't landed yet.",
+          "zh": "这就走了？旅行版块还没来得及落地。"
         },
         "emotion": "surprised",
         "intensity": "medium",
@@ -850,8 +850,8 @@
       },
       {
         "text": {
-          "en": "Before you vanish, one last look?",
-          "zh": "消失之前，要不要再看一眼？"
+          "en": "One more photo before you go?",
+          "zh": "走之前再看一张？"
         },
         "emotion": "talk",
         "intensity": "medium",
@@ -859,8 +859,8 @@
       },
       {
         "text": {
-          "en": "Cursor near the exit. Interesting.",
-          "zh": "光标靠近出口了，我看到了。"
+          "en": "The Paris itinerary will be here when you return.",
+          "zh": "巴黎行程会等你回来的。"
         },
         "emotion": "thinking",
         "intensity": "medium",
@@ -868,8 +868,8 @@
       },
       {
         "text": {
-          "en": "I respect the escape attempt.",
-          "zh": "这次撤退动作，我尊重。"
+          "en": "The map pins will hold your place.",
+          "zh": "地图上的点会帮你留着位置。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -877,8 +877,8 @@
       },
       {
         "text": {
-          "en": "No pressure. Just a tiny goodbye stare.",
-          "zh": "没压力，我只是小小目送一下。"
+          "en": "A photographer's work deserves more than one visit.",
+          "zh": "摄影师的作品值得不止一次拜访。"
         },
         "emotion": "idle",
         "intensity": "low",
@@ -886,8 +886,8 @@
       },
       {
         "text": {
-          "en": "The page still has feelings.",
-          "zh": "页面也是会有点舍不得的。"
+          "en": "Saving the travel section for next time?",
+          "zh": "旅行版块留到下次？"
         },
         "emotion": "talk",
         "intensity": "medium",
@@ -895,8 +895,8 @@
       },
       {
         "text": {
-          "en": "That exit move was almost smooth.",
-          "zh": "这个离开动作差点就很丝滑。"
+          "en": "Exit detected. The gallery objects slightly.",
+          "zh": "检测到退出，图库有一点点意见。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -904,8 +904,8 @@
       },
       {
         "text": {
-          "en": "If you go, I'll act fine.",
-          "zh": "你要是走了，我会假装没事。"
+          "en": "You were here. The photos will remember.",
+          "zh": "你来过了，照片会记得的。"
         },
         "emotion": "bored",
         "intensity": "low",
@@ -915,8 +915,8 @@
     "error_or_failed_action": [
       {
         "text": {
-          "en": "That didn't quite work.",
-          "zh": "刚才好像没成功。"
+          "en": "The map marker had a moment.",
+          "zh": "地图标记刚才短暂失联了。"
         },
         "emotion": "surprised",
         "intensity": "medium",
@@ -924,8 +924,8 @@
       },
       {
         "text": {
-          "en": "Tiny technical hiccup.",
-          "zh": "小小技术波动了一下。"
+          "en": "Photos load at their own pace sometimes.",
+          "zh": "照片有时候按自己的节奏加载。"
         },
         "emotion": "talk",
         "intensity": "medium",
@@ -933,8 +933,8 @@
       },
       {
         "text": {
-          "en": "The page tripped a little.",
-          "zh": "页面刚才小小绊了一下。"
+          "en": "Small glitch. The itinerary is fine.",
+          "zh": "小波动，行程没问题。"
         },
         "emotion": "thinking",
         "intensity": "medium",
@@ -942,8 +942,8 @@
       },
       {
         "text": {
-          "en": "Well, that was unexpected.",
-          "zh": "嗯，这个发展有点突然。"
+          "en": "The filter had a brief identity crisis.",
+          "zh": "筛选器刚才短暂迷失自我了。"
         },
         "emotion": "surprised",
         "intensity": "medium",
@@ -951,8 +951,8 @@
       },
       {
         "text": {
-          "en": "Something blinked first. Not you.",
-          "zh": "有东西先眨眼了，应该不是你。"
+          "en": "Not a bug. A candid moment.",
+          "zh": "不是 bug，是一个抓拍瞬间。"
         },
         "emotion": "mocking",
         "intensity": "low",
@@ -961,7 +961,7 @@
       {
         "text": {
           "en": "Let's call that a rehearsal.",
-          "zh": "我们就当刚才是在彩排。"
+          "zh": "我们就当刚才是彩排。"
         },
         "emotion": "talk",
         "intensity": "medium",
@@ -969,8 +969,8 @@
       },
       {
         "text": {
-          "en": "The system had a tiny moment.",
-          "zh": "系统刚才短暂走神了。"
+          "en": "Technology blinked. Daniel's photos did not.",
+          "zh": "技术眨了个眼，Daniel 的照片没眨。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -989,8 +989,8 @@
     "long_reading": [
       {
         "text": {
-          "en": "Careful reading detected.",
-          "zh": "检测到认真阅读中。"
+          "en": "Reading the day-by-day itinerary. Smart.",
+          "zh": "在看每日行程，聪明的旅行者。"
         },
         "emotion": "thinking",
         "intensity": "low",
@@ -998,8 +998,8 @@
       },
       {
         "text": {
-          "en": "You found the dense part.",
-          "zh": "你停在信息量大的地方了。"
+          "en": "The travel notes are worth the slow read.",
+          "zh": "旅行笔记值得细读。"
         },
         "emotion": "talk",
         "intensity": "medium",
@@ -1007,8 +1007,8 @@
       },
       {
         "text": {
-          "en": "This section has your attention.",
-          "zh": "这一段成功抓住你了。"
+          "en": "Taking notes on the Paris day plan?",
+          "zh": "在记巴黎每日计划？"
         },
         "emotion": "thinking",
         "intensity": "low",
@@ -1016,8 +1016,8 @@
       },
       {
         "text": {
-          "en": "Slow reading. Very scholarly.",
-          "zh": "读得很细，有点学术气质。"
+          "en": "Good itineraries deserve good readers.",
+          "zh": "好行程需要认真的读者。"
         },
         "emotion": "mocking",
         "intensity": "low",
@@ -1025,8 +1025,8 @@
       },
       {
         "text": {
-          "en": "The paragraph is winning.",
-          "zh": "这段文字暂时占上风。"
+          "en": "Careful reading detected. The trip will go well.",
+          "zh": "检测到认真阅读，这趟旅行一定顺利。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -1034,8 +1034,8 @@
       },
       {
         "text": {
-          "en": "I'll wait while the words work.",
-          "zh": "我先等着，让文字发挥一下。"
+          "en": "I'll wait while the itinerary does its work.",
+          "zh": "我先等着，让行程发挥作用。"
         },
         "emotion": "idle",
         "intensity": "low",
@@ -1043,8 +1043,8 @@
       },
       {
         "text": {
-          "en": "That was not a casual skim.",
-          "zh": "这明显不是随便扫一眼。"
+          "en": "Not skimming. Actually reading. Respect.",
+          "zh": "不是扫一眼，是真的在读，尊重。"
         },
         "emotion": "thinking",
         "intensity": "medium",
@@ -1052,8 +1052,8 @@
       },
       {
         "text": {
-          "en": "Long reading mode activated.",
-          "zh": "长阅读模式已开启。"
+          "en": "Restaurant recommendations deserve this attention.",
+          "zh": "餐厅推荐值得这种重视。"
         },
         "emotion": "talk",
         "intensity": "low",
@@ -1063,8 +1063,8 @@
     "random_comment": [
       {
         "text": {
-          "en": "Tiny commentary has arrived.",
-          "zh": "小小评论员上线了。"
+          "en": "The dark aesthetic is doing something.",
+          "zh": "这个暗调美学确实有效果。"
         },
         "emotion": "talk",
         "intensity": "low",
@@ -1072,8 +1072,8 @@
       },
       {
         "text": {
-          "en": "This page has a certain vibe.",
-          "zh": "这个页面气质还挺明显。"
+          "en": "Gold on black. Daniel has opinions about contrast.",
+          "zh": "黑底金色，Daniel 对对比度有自己的想法。"
         },
         "emotion": "idle",
         "intensity": "low",
@@ -1081,8 +1081,8 @@
       },
       {
         "text": {
-          "en": "I have no agenda. Suspicious, yes.",
-          "zh": "我没有目的。听起来确实可疑。"
+          "en": "Film and digital in the same portfolio. Confident.",
+          "zh": "胶片和数码同一个作品集，很有自信。"
         },
         "emotion": "mocking",
         "intensity": "medium",
@@ -1090,8 +1090,8 @@
       },
       {
         "text": {
-          "en": "Just checking the atmosphere.",
-          "zh": "我只是来巡查一下气氛。"
+          "en": "Somewhere a Sony A7R2 is missing being used.",
+          "zh": "不知道哪里有台 A7R2 想被拿出来用。"
         },
         "emotion": "peek",
         "intensity": "low",
@@ -1099,8 +1099,8 @@
       },
       {
         "text": {
-          "en": "Everything seems normal. Too normal.",
-          "zh": "一切看起来很正常，正常得有点刻意。"
+          "en": "Every photo here has a weather story behind it.",
+          "zh": "这里每张照片背后都有一段天气故事。"
         },
         "emotion": "thinking",
         "intensity": "medium",
@@ -1108,8 +1108,8 @@
       },
       {
         "text": {
-          "en": "A small mascot enters the scene.",
-          "zh": "一只小吉祥物路过现场。"
+          "en": "Travel photography: making people want to book flights.",
+          "zh": "旅行摄影：让人想立刻去订机票。"
         },
         "emotion": "peek",
         "intensity": "low",
@@ -1117,8 +1117,8 @@
       },
       {
         "text": {
-          "en": "Here for moral support and mild commentary.",
-          "zh": "我负责精神支持，顺便轻微吐槽。"
+          "en": "I have no agenda. I just appreciate good composition.",
+          "zh": "我没有目的，只是欣赏好构图。"
         },
         "emotion": "talk",
         "intensity": "low",
@@ -1126,12 +1126,308 @@
       },
       {
         "text": {
-          "en": "Background character energy is strong here.",
-          "zh": "这里的背景角色氛围很浓。"
+          "en": "The map has more stories than the dots suggest.",
+          "zh": "地图上的点比看起来藏着更多故事。"
         },
         "emotion": "mocking",
         "intensity": "low",
         "recommended_position": "bottom-left"
+      }
+    ],
+    "enter_photography": [
+      {
+        "text": {
+          "en": "The gallery. Sony A7R2 in full effect.",
+          "zh": "图库，A7R2 的主场。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Film and digital side by side. Quite a collection.",
+          "zh": "胶片与数码并列，这个系列有分量。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "PEOPLE · CITY · NATURE · TIME. Pick your mood.",
+          "zh": "PEOPLE · CITY · NATURE · TIME，选一个心情。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "These shots were chosen carefully. Slow down.",
+          "zh": "这些照片都是精选过的，慢一点看。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Photography section. I'll be quiet.",
+          "zh": "摄影版块，我先安静一下。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "The light in these photos has opinions.",
+          "zh": "这些照片里的光线，是有想法的。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "Good eye required. You brought yours.",
+          "zh": "需要好眼力，你带来了。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "People shots or city shots — both have their reasons.",
+          "zh": "人文还是城市，两种都有说法。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-right"
+      }
+    ],
+    "enter_map": [
+      {
+        "text": {
+          "en": "Every dot is a real place Daniel stood with a camera.",
+          "zh": "每个点都是 Daniel 真实驻足过的地方。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Photo locations mapped. This is how trips become stories.",
+          "zh": "拍摄地点已标注，这就是旅行变成故事的方式。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "The map knows where the light was good.",
+          "zh": "地图知道哪里的光线最好。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Click a dot. Find where the photo was taken.",
+          "zh": "点一个标记，发现拍摄地。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Geography and photography, intertwined here.",
+          "zh": "地理与摄影，在这里交织在一起。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "Where in the world was the A7R2?",
+          "zh": "A7R2 曾经去过哪里？"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "The map is a different way to see the gallery.",
+          "zh": "地图是看图库的另一种方式。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Each marker is a moment that got preserved.",
+          "zh": "每个标记都是一个被留住的瞬间。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-right"
+      }
+    ],
+    "enter_travel": [
+      {
+        "text": {
+          "en": "Trip itineraries, publicly shared. Generous.",
+          "zh": "行程公开分享，大方。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Day-by-day planning, all visible. Rare.",
+          "zh": "每日计划全部公开，难得。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Someone planned these trips very carefully.",
+          "zh": "这些行程是认真规划过的。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Itinerary browsing mode activated.",
+          "zh": "行程浏览模式开启。"
+        },
+        "emotion": "idle",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Each trip card is a compressed story.",
+          "zh": "每个行程卡片都是一段故事的压缩版。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "bottom-left"
+      },
+      {
+        "text": {
+          "en": "Real trip plans. You could recreate this.",
+          "zh": "真实的旅行计划，你可以照着来一遍。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "The Paris itinerary is in here somewhere.",
+          "zh": "巴黎行程就在这里。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Travel notes from someone who actually went.",
+          "zh": "来自真正去过的人的旅行笔记。"
+        },
+        "emotion": "talk",
+        "intensity": "low",
+        "recommended_position": "bottom-right"
+      }
+    ],
+    "map_marker_click": [
+      {
+        "text": {
+          "en": "That spot. Good taste.",
+          "zh": "那个地点，眼光不错。"
+        },
+        "emotion": "surprised",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Photo location found. The shot was worth the trip.",
+          "zh": "找到拍摄地了，这张照片值那趟旅程。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Click. Story unlocked.",
+          "zh": "点击，故事解锁。"
+        },
+        "emotion": "surprised",
+        "intensity": "high",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "That frame was perfect at exactly that spot.",
+          "zh": "就在那个位置，那个画面是完美的。"
+        },
+        "emotion": "thinking",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
+      },
+      {
+        "text": {
+          "en": "You found where the photo lives.",
+          "zh": "你找到照片住的地方了。"
+        },
+        "emotion": "surprised",
+        "intensity": "medium",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "Location marked. Memory attached.",
+          "zh": "位置已标记，记忆已附上。"
+        },
+        "emotion": "thinking",
+        "intensity": "low",
+        "recommended_position": "mid-right"
+      },
+      {
+        "text": {
+          "en": "The camera was here. Now you are too.",
+          "zh": "相机在这里站过，现在轮到你了。"
+        },
+        "emotion": "talk",
+        "intensity": "medium",
+        "recommended_position": "bottom-right"
+      },
+      {
+        "text": {
+          "en": "Good spot. The A7R2 agreed at the time.",
+          "zh": "好地方，A7R2 当时也认可了。"
+        },
+        "emotion": "mocking",
+        "intensity": "medium",
+        "recommended_position": "mid-left"
       }
     ]
   }
