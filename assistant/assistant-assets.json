@@ -357,7 +357,7 @@
   },
   "behaviorLimits": {
     "globalCooldownMs": 10000,
-    "sameTriggerCooldownMs": 60000,
+    "sameTriggerCooldownMs": 15000,
     "maxAppearancesPerSession": 8,
     "hideAfterCloseForSession": true,
     "pauseWhileTyping": true,

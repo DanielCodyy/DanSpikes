@@ -463,10 +463,11 @@
     var globalMs     = limits.globalCooldownMs || 25000;
     if (now - state.lastGlobalMs < globalMs) return false;
 
-    var cfg     = manifest.triggerMap[triggerName];
-    var cooldown = cfg ? cfg.cooldownMs : manifest.fallbacks.missingCooldownMs;
-    var last     = state.lastTriggerMs[triggerName] || 0;
-    if (now - last < cooldown) return false;
+    var cfg          = manifest.triggerMap[triggerName];
+    var sameCooldown = limits.sameTriggerCooldownMs ||
+                       (cfg ? cfg.cooldownMs : manifest.fallbacks.missingCooldownMs);
+    var last         = state.lastTriggerMs[triggerName] || 0;
+    if (now - last < sameCooldown) return false;
 
     return true;
   }
