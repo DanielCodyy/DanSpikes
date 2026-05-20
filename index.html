@@ -3507,9 +3507,10 @@ function showSyncToast(msg,ok){
 <!-- Background music player -->
 <script>
 (function(){
-  var SKIP = 45;          // skip first 45s
-  var FADE = 2.0;         // fade-in seconds
-  var PHRASE = 30;        // phrase-boundary grid (seconds) for random start
+  var SKIP  = 45;   // skip first 45s
+  var FADE  = 2.0;  // fade-in seconds
+  var PHRASE = 30;  // phrase-boundary grid (seconds) for random start
+  var MAX   = 300;  // safe upper bound — don't rely on audio.duration (null with preload=none)
   var STORAGE_KEY = 'bgmusic_on_v1';
 
   var audio = document.getElementById('bgMusic');
@@ -3519,12 +3520,9 @@ function showSyncToast(msg,ok){
   var playing = false;
   var fadeTimer = null;
 
-  function pickStart(duration) {
-    // Build list of phrase-boundary start points from SKIP onward
-    var max = Math.max(SKIP, duration - 60);
+  function pickStart() {
     var points = [];
-    for (var t = SKIP; t <= max; t += PHRASE) points.push(t);
-    if (!points.length) points = [SKIP];
+    for (var t = SKIP; t <= MAX; t += PHRASE) points.push(t);
     return points[Math.floor(Math.random() * points.length)];
   }
 
@@ -3546,7 +3544,7 @@ function showSyncToast(msg,ok){
 
   function fadeOut(cb) {
     var step = 0.05;
-    var interval = (FADE * 500) / (1 / step); // half fade time for fade-out
+    var interval = (FADE * 500) / (1 / step);
     if (fadeTimer) clearInterval(fadeTimer);
     fadeTimer = setInterval(function() {
       if (audio.volume > step) {
@@ -3560,19 +3558,27 @@ function showSyncToast(msg,ok){
     }, interval);
   }
 
-  function startPlay() {
-    audio.preload = 'auto';
-    // If duration known, pick random phrase-boundary start; else fall back to SKIP
-    var dur = audio.duration;
-    var start = (dur && isFinite(dur)) ? pickStart(dur) : SKIP;
+  // Seek to start then play; waits for seeked event so seek is guaranteed complete
+  function seekAndPlay(start, onSuccess) {
+    audio.volume = 0;
     audio.currentTime = start;
-    audio.play().then(function() {
-      playing = true;
-      btn.classList.add('playing');
-      fadeIn();
-    }).catch(function() {
-      // Autoplay blocked — will retry on next user click
-    });
+    var seekTimeout;
+    function doPlay() {
+      clearTimeout(seekTimeout);
+      audio.play().then(function() {
+        playing = true;
+        btn.classList.add('playing');
+        btn.title = 'Music on — click to stop';
+        fadeIn();
+        if (onSuccess) onSuccess();
+      }).catch(function(){});
+    }
+    audio.addEventListener('seeked', doPlay, { once: true });
+    // Fallback: if seeked never fires (e.g. currentTime already there), play after 300ms
+    seekTimeout = setTimeout(function() {
+      audio.removeEventListener('seeked', doPlay);
+      doPlay();
+    }, 300);
   }
 
   function stopPlay() {
@@ -3583,38 +3589,20 @@ function showSyncToast(msg,ok){
     });
   }
 
-  // Once metadata loads we know the duration — use it for better random start
-  audio.addEventListener('loadedmetadata', function() {
-    if (playing) {
-      // Re-pick if we started before metadata was available
-    }
-  });
-
-  // Handle loop: when audio ends (shouldn't with loop attr but just in case),
-  // restart from a new random position
+  // Loop: restart from a new random position
   audio.addEventListener('ended', function() {
     if (playing) {
-      var start = (audio.duration && isFinite(audio.duration)) ? pickStart(audio.duration) : SKIP;
-      audio.currentTime = start;
+      audio.currentTime = pickStart();
       audio.play();
     }
   });
 
   btn.addEventListener('click', function() {
     if (!playing) {
-      // Load and play
-      if (audio.readyState < 1) audio.load();
       var tryPlay = function() {
-        var dur = audio.duration;
-        var start = (dur && isFinite(dur)) ? pickStart(dur) : SKIP;
-        audio.currentTime = start;
-        audio.play().then(function() {
-          playing = true;
-          btn.classList.add('playing');
-          btn.title = 'Music on — click to stop';
-          fadeIn();
+        seekAndPlay(pickStart(), function() {
           localStorage.setItem(STORAGE_KEY, '1');
-        }).catch(function(){});
+        });
       };
       if (audio.readyState >= 1) {
         tryPlay();
@@ -3631,22 +3619,19 @@ function showSyncToast(msg,ok){
 
   // Auto-resume if user had it on last visit
   if (localStorage.getItem(STORAGE_KEY)) {
-    // Attempt autoplay after first user interaction
     var autoResume = function() {
       document.removeEventListener('click', autoResume);
       document.removeEventListener('keydown', autoResume);
       if (!playing) {
-        audio.load();
-        audio.addEventListener('loadedmetadata', function() {
-          var start = pickStart(audio.duration);
-          audio.currentTime = start;
-          audio.play().then(function() {
-            playing = true;
-            btn.classList.add('playing');
-            btn.title = 'Music on — click to stop';
-            fadeIn();
-          }).catch(function(){});
-        }, { once: true });
+        var tryResume = function() {
+          seekAndPlay(pickStart());
+        };
+        if (audio.readyState >= 1) {
+          tryResume();
+        } else {
+          audio.addEventListener('loadedmetadata', tryResume, { once: true });
+          audio.load();
+        }
       }
     };
     document.addEventListener('click', autoResume);
