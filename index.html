@@ -558,6 +558,44 @@ a.chip:hover{color:var(--accent)}
 .access-pw-error{font-size:12px;color:#dc2626;margin-bottom:8px;}
 @keyframes shake{0%,100%{transform:translateX(0);}20%,60%{transform:translateX(-6px);}40%,80%{transform:translateX(6px);}}
 .shake{animation:shake .35s ease;}
+/* ===== PHOTO UPLOAD MODAL ===== */
+.photo-upload-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:9500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.photo-upload-modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 28px 24px;width:min(520px,94vw);max-height:90vh;overflow-y:auto;position:relative;box-shadow:var(--shadow-lg)}
+.photo-upload-modal::-webkit-scrollbar{width:4px}
+.photo-upload-modal::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.pup-close{position:absolute;top:14px;right:16px;color:var(--text-faint);font-size:18px;line-height:1;transition:color .15s}
+.pup-close:hover{color:var(--text)}
+.pup-title{font-family:var(--font-d);font-size:22px;font-weight:400;color:var(--text);margin-bottom:4px}
+.pup-sub{font-size:11px;color:var(--gold);font-family:var(--font-mono);letter-spacing:.12em;margin-bottom:20px}
+.pup-dropzone{border:1.5px dashed var(--border);border-radius:12px;padding:32px 20px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;margin-bottom:16px}
+.pup-dropzone:hover,.pup-dropzone.drag-over{border-color:var(--gold);background:var(--gold-soft)}
+.pup-dz-icon{font-size:32px;margin-bottom:8px}
+.pup-dz-text{font-family:var(--font-d);font-size:17px;color:var(--text-soft);margin-bottom:3px}
+.pup-dz-sub{font-size:11px;color:var(--text-faint);font-family:var(--font-mono)}
+.pup-preview{width:100%;max-height:220px;object-fit:contain;border-radius:8px;margin-bottom:16px;display:none;background:var(--surface-2)}
+.pup-section{margin-bottom:14px}
+.pup-label{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px;display:block}
+.pup-input{width:100%;padding:8px 11px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);font-family:var(--font-ui);font-size:13px;color:var(--text);outline:none;transition:border-color .15s;box-sizing:border-box}
+.pup-input:focus{border-color:var(--gold-dim)}
+.pup-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pup-exif-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.pup-toggle-group{display:flex;gap:4px}
+.pup-toggle-btn{flex:1;padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);cursor:pointer;transition:all .15s;text-align:center}
+.pup-toggle-btn.active{background:var(--gold);color:#0e0d0b;border-color:var(--gold)}
+.pup-cat-group{display:flex;gap:4px;flex-wrap:wrap}
+.pup-cat-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);cursor:pointer;transition:all .15s}
+.pup-cat-btn.active{background:var(--surface-3);border-color:var(--gold-dim);color:var(--gold)}
+.pup-commit-btn{width:100%;padding:11px;border-radius:10px;background:var(--gold);color:#0e0d0b;font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border:none;margin-top:18px;transition:background .15s}
+.pup-commit-btn:hover:not(:disabled){background:#d4b46a}
+.pup-commit-btn:disabled{background:var(--surface-2);color:var(--text-faint);cursor:not-allowed}
+.pup-status{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:12px;font-family:var(--font-mono);display:none}
+.pup-status.ok{background:rgba(5,150,105,.12);color:#34d399;border:1px solid rgba(5,150,105,.25);display:block}
+.pup-status.err{background:rgba(220,38,38,.12);color:#f87171;border:1px solid rgba(220,38,38,.25);display:block}
+.pup-status.loading{background:var(--surface-2);color:var(--text-soft);border:1px solid var(--border);display:block}
+.pup-token-section{margin-bottom:14px;padding:12px 14px;background:rgba(201,168,92,.06);border:1px solid var(--gold-dim);border-radius:10px}
+.pup-token-hint{font-size:11px;color:var(--text-soft);font-family:var(--font-mono);margin-bottom:8px;line-height:1.5}
+.photo-upload-admin-btn{flex-shrink:0;padding:5px 12px;border-radius:6px;border:1px solid var(--gold-dim);background:rgba(201,168,92,.08);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);cursor:pointer;transition:all .15s;margin-left:auto;margin-right:6px;display:none}
+.photo-upload-admin-btn:hover{background:rgba(201,168,92,.18)}
 </style>
 <!-- Yui mascot assistant styles -->
 <link rel="stylesheet" href="./assistant/assistant.css?v=2"/>
@@ -634,6 +672,7 @@ a.chip:hover{color:var(--accent)}
         <button class="pcat-btn" data-cat="city">CITY</button>
         <button class="pcat-btn" data-cat="nature">NATURE</button>
         <button class="pcat-btn" data-cat="time">TIME</button>
+        <button id="photoUploadBtn" class="photo-upload-admin-btn" onclick="openPhotoUploadModal()">+ UPLOAD</button>
         <div class="pmed-toggle">
           <button class="pmed-btn active" data-med="all">ALL</button>
           <button class="pmed-btn" data-med="digital">DIGITAL</button>
@@ -2877,7 +2916,7 @@ function switchSection(sec,cat){
   var nl=document.querySelector('[data-nav="'+sec+'"]');
   if(nl) nl.classList.add('active');
   if(sec==='map'&&!photoMapInited){photoMapInited=true;initPhotoMap();}
-  if(sec==='photography'){if(cat)setPhotoCat(cat);renderPhotoGrid();}
+  if(sec==='photography'){if(cat)setPhotoCat(cat);renderPhotoGrid();updatePhotoUploadBtnVisibility();}
   if(sec==='travel'){renderTripSelector();}
 }
 
@@ -3749,6 +3788,7 @@ async function submitAccessPassword(){
   if(_adminOnlyMode?adminOk:(adminOk||friendOk)){
     if(adminOk){
       setAdminMode();
+      updatePhotoUploadBtnVisibility();
       var logo=document.getElementById('navLogo');
       if(logo&&!document.getElementById('adminModeDot')){
         var dot=document.createElement('span');
@@ -3808,6 +3848,7 @@ function handleTripCardClick(id){
         var dot=document.getElementById('adminModeDot');
         if(dot)dot.remove();
         renderTripSelector();
+        updatePhotoUploadBtnVisibility();
         return;
       }
       promptAdminPassword();
@@ -4048,6 +4089,366 @@ function showSyncToast(msg,ok){
     document.addEventListener('keydown', autoResume);
   }
 })();
+
+/* ===== PHOTO UPLOAD ADMIN BUTTON ===== */
+function updatePhotoUploadBtnVisibility(){
+  var btn=document.getElementById('photoUploadBtn');
+  if(btn)btn.style.display=isAdminMode()?'block':'none';
+}
+
+/* ===== PHOTO UPLOAD MODAL JS ===== */
+var pupFile=null,pupMed='digital',pupCat='people',_exifrLoaded=false;
+
+function openPhotoUploadModal(){
+  if(!isAdminMode())return;
+  document.getElementById('photoUploadModal').style.display='flex';
+  document.getElementById('pupTokenSection').style.display=getGithubToken()?'none':'block';
+  if(!_exifrLoaded){
+    var s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/exifr/dist/lite.umd.js';
+    s.onload=function(){_exifrLoaded=true;};
+    document.head.appendChild(s);
+  }
+}
+
+function closePhotoUploadModal(){
+  document.getElementById('photoUploadModal').style.display='none';
+  _resetPupModal();
+}
+
+function handlePhotoUploadOverlayClick(e){
+  if(e.target===document.getElementById('photoUploadModal'))closePhotoUploadModal();
+}
+
+function _resetPupModal(){
+  pupFile=null;pupMed='digital';pupCat='people';
+  ['pupCamera','pupIso','pupAperture','pupFocal','pupTitleZh','pupTitleEn','pupLocZh','pupLocEn','pupFilename'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.value='';
+  });
+  var prev=document.getElementById('pupPreview');
+  if(prev){prev.style.display='none';prev.src='';prev.dataset.ratio='';}
+  document.getElementById('pupDzText').textContent='Drop photo here';
+  setPupMed('digital');setPupCat('people');
+  var st=document.getElementById('pupStatus');
+  if(st){st.className='pup-status';st.textContent='';}
+  var btn=document.getElementById('pupCommitBtn');
+  if(btn){btn.disabled=true;btn.textContent='COMMIT TO GITHUB';}
+  var fi=document.getElementById('pupFileInput');
+  if(fi)fi.value='';
+}
+
+function setPupMed(med){
+  pupMed=med;
+  document.querySelectorAll('.pup-toggle-btn').forEach(function(b){b.classList.toggle('active',b.dataset.med===med);});
+}
+
+function setPupCat(cat){
+  pupCat=cat;
+  document.querySelectorAll('.pup-cat-btn').forEach(function(b){b.classList.toggle('active',b.dataset.cat===cat);});
+}
+
+function savePupToken(){
+  var val=(document.getElementById('pupTokenInput').value||'').trim();
+  if(!val)return;
+  saveGithubToken(val);
+  document.getElementById('pupTokenInput').value='';
+  document.getElementById('pupTokenSection').style.display='none';
+}
+
+function showPupStatus(type,msg){
+  var el=document.getElementById('pupStatus');
+  if(!el)return;
+  el.className='pup-status '+type;
+  el.textContent=msg;
+}
+
+/* ===== PHOTO UPLOAD FILE HANDLING ===== */
+(function(){
+  document.addEventListener('DOMContentLoaded',function(){
+    var dz=document.getElementById('pupDropzone');
+    var fi=document.getElementById('pupFileInput');
+    if(!dz||!fi)return;
+    dz.addEventListener('click',function(e){if(e.target!==fi)fi.click();});
+    dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('drag-over');});
+    dz.addEventListener('dragleave',function(){dz.classList.remove('drag-over');});
+    dz.addEventListener('drop',function(e){
+      e.preventDefault();dz.classList.remove('drag-over');
+      var f=e.dataTransfer&&e.dataTransfer.files[0];
+      if(f)_handlePupFile(f);
+    });
+    fi.addEventListener('change',function(){if(fi.files[0])_handlePupFile(fi.files[0]);});
+  });
+})();
+
+function _handlePupFile(file){
+  if(!file.type.match(/^image\/(jpeg|png|webp)/i)){
+    showPupStatus('err','Only JPG, PNG, WEBP files are supported.');
+    return;
+  }
+  pupFile=file;
+  document.getElementById('pupFilename').value=file.name;
+  document.getElementById('pupDzText').textContent=file.name;
+  if(file.size>10*1024*1024){
+    showPupStatus('loading','⚠ File is '+(file.size/1024/1024).toFixed(1)+'MB — large files take longer to commit.');
+  }else{
+    var st=document.getElementById('pupStatus');
+    if(st){st.className='pup-status';st.textContent='';}
+  }
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var prev=document.getElementById('pupPreview');
+    prev.onload=function(){
+      prev.dataset.ratio=(prev.naturalWidth/prev.naturalHeight).toFixed(4);
+    };
+    prev.src=e.target.result;
+    prev.style.display='block';
+  };
+  reader.readAsDataURL(file);
+  document.getElementById('pupCommitBtn').disabled=false;
+  _tryReadExif(file);
+}
+
+async function _tryReadExif(file){
+  if(!window.exifr)return;
+  try{
+    var data=await window.exifr.parse(file,{
+      pick:['Make','Model','ISO','FNumber','FocalLength']
+    });
+    if(!data)return;
+    if(data.Make||data.Model){
+      document.getElementById('pupCamera').value=[data.Make,data.Model].filter(Boolean).join(' ').trim();
+    }
+    if(data.ISO)document.getElementById('pupIso').value=data.ISO;
+    if(data.FNumber)document.getElementById('pupAperture').value=Number(data.FNumber.toFixed(1));
+    if(data.FocalLength)document.getElementById('pupFocal').value=Math.round(data.FocalLength);
+  }catch(e){}
+}
+
+/* ===== PHOTO UPLOAD DATA BUILDERS ===== */
+function _buildPupExifString(){
+  var camera=(document.getElementById('pupCamera').value||'').trim();
+  var iso=(document.getElementById('pupIso').value||'').trim();
+  var ap=(document.getElementById('pupAperture').value||'').trim();
+  var fl=(document.getElementById('pupFocal').value||'').trim();
+  var parts=[];
+  if(camera)parts.push(camera);
+  if(fl&&ap)parts.push(fl+'mm f/'+ap);
+  else if(fl)parts.push(fl+'mm');
+  else if(ap)parts.push('f/'+ap);
+  if(iso)parts.push('ISO '+iso);
+  return parts.join(' · ');
+}
+
+function _buildPupPhotoEntry(){
+  var prev=document.getElementById('pupPreview');
+  var ratio=parseFloat(prev.dataset.ratio)||1.5;
+  var filename=(document.getElementById('pupFilename').value||'').trim()||('photo_'+Date.now()+'.jpg');
+  return{
+    id:'u_'+Date.now(),
+    cat:pupCat,
+    med:pupMed,
+    ratio:parseFloat(ratio.toFixed(4)),
+    title_zh:(document.getElementById('pupTitleZh').value||'').trim()||'无题',
+    title_en:(document.getElementById('pupTitleEn').value||'').trim()||'Untitled',
+    loc_zh:(document.getElementById('pupLocZh').value||'').trim(),
+    loc_en:(document.getElementById('pupLocEn').value||'').trim(),
+    exif:_buildPupExifString(),
+    url:'assets/photos/'+pupCat+'/'+filename
+  };
+}
+
+function _formatPhotoEntryAsJS(e){
+  function sq(s){return"'"+String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+"'";}
+  return '  {id:'+sq(e.id)+',cat:'+sq(e.cat)+',med:'+sq(e.med)+',ratio:'+e.ratio+
+    ',title_zh:'+sq(e.title_zh)+',title_en:'+sq(e.title_en)+
+    ',loc_zh:'+sq(e.loc_zh)+',loc_en:'+sq(e.loc_en)+
+    ',exif:'+sq(e.exif)+',url:'+sq(e.url)+'}';
+}
+
+function refreshHomeCatCounts(){
+  ['people','city','nature','time'].forEach(function(cat){
+    var n=PHOTOS.filter(function(p){return p.cat===cat;}).length;
+    var el=document.getElementById('hc'+cat.charAt(0).toUpperCase()+cat.slice(1)+'Count');
+    if(el)el.textContent=n+' '+ts('works');
+  });
+}
+
+/* ===== PHOTO UPLOAD GITHUB API HELPERS ===== */
+function _utf8ToBase64(str){
+  return btoa(unescape(encodeURIComponent(str)));
+}
+
+function _base64ToUtf8(b64){
+  return decodeURIComponent(escape(atob(b64.replace(/[\r\n\s]/g,''))));
+}
+
+function _fileToBase64(file){
+  return new Promise(function(resolve,reject){
+    var r=new FileReader();
+    r.onload=function(e){resolve(e.target.result.split(',')[1]);};
+    r.onerror=reject;
+    r.readAsDataURL(file);
+  });
+}
+
+async function _ghGetFile(token,repo,path){
+  var r=await fetch('https://api.github.com/repos/'+repo+'/contents/'+path,{
+    headers:{'Authorization':'Bearer '+token,'X-GitHub-Api-Version':'2022-11-28'}
+  });
+  if(!r.ok){var e=await r.json().catch(function(){return{};});throw new Error((e.message||'GitHub error')+' ('+r.status+')');}
+  return r.json();
+}
+
+async function _ghPutFile(token,repo,path,content,message,sha){
+  var body={message:message,content:content,branch:'main'};
+  if(sha)body.sha=sha;
+  var r=await fetch('https://api.github.com/repos/'+repo+'/contents/'+path,{
+    method:'PUT',
+    headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'},
+    body:JSON.stringify(body)
+  });
+  if(!r.ok){var e=await r.json().catch(function(){return{};});throw new Error((e.message||'GitHub error')+' ('+r.status+')');}
+  return r.json();
+}
+
+/* ===== PHOTO UPLOAD REPO UPDATER ===== */
+async function _updatePhotosInRepo(token,newEntry){
+  var REPO='danielcodyy/DanSpikes';
+  var fileData=await _ghGetFile(token,REPO,'index.html');
+  var content=_base64ToUtf8(fileData.content).replace(/\r\n/g,'\n');
+
+  var MARKER='\n];\n\n/* ===== PHOTO MAP LOCATIONS';
+  var idx=content.indexOf(MARKER);
+  if(idx===-1)throw new Error('Could not locate PHOTOS array end in index.html. The file may have changed.');
+
+  var entryLine='\n'+_formatPhotoEntryAsJS(newEntry)+',';
+  var updated=content.slice(0,idx)+entryLine+content.slice(idx);
+
+  await _ghPutFile(
+    token,REPO,'index.html',
+    _utf8ToBase64(updated),
+    'feat: add photo '+newEntry.title_en,
+    fileData.sha
+  );
+}
+
+/* ===== PHOTO UPLOAD COMMIT HANDLER ===== */
+async function commitPhotoToGithub(){
+  if(!pupFile)return;
+  var token=getGithubToken();
+  if(!token){document.getElementById('pupTokenSection').style.display='block';return;}
+
+  var REPO='danielcodyy/DanSpikes';
+  var newEntry=_buildPupPhotoEntry();
+  var filePath=newEntry.url;
+  var filename=filePath.split('/').pop();
+
+  var btn=document.getElementById('pupCommitBtn');
+  btn.disabled=true;
+  showPupStatus('loading','⏳ Step 1/2 — committing image file…');
+
+  try{
+    var imgBase64=await _fileToBase64(pupFile);
+
+    var existingSha=null;
+    try{var ex=await _ghGetFile(token,REPO,filePath);existingSha=ex.sha;}catch(e){}
+
+    await _ghPutFile(token,REPO,filePath,imgBase64,'feat: add photo asset '+filename,existingSha);
+
+    showPupStatus('loading','⏳ Step 2/2 — updating index.html…');
+    await _updatePhotosInRepo(token,newEntry);
+
+    PHOTOS.push(newEntry);
+    renderPhotoGrid();
+    refreshHomeCatCounts();
+
+    showPupStatus('ok','✓ Committed! Photo is now live. GitHub Pages will rebuild in ~1 min.');
+    btn.textContent='✓ COMMITTED';
+  }catch(e){
+    showPupStatus('err','✗ '+((e&&e.message)||'Commit failed — check token and try again.'));
+    btn.disabled=false;
+  }
+}
 </script>
+
+<!-- Photo Upload Modal -->
+<div id="photoUploadModal" class="photo-upload-overlay" style="display:none" onclick="handlePhotoUploadOverlayClick(event)">
+  <div class="photo-upload-modal">
+    <button class="pup-close" onclick="closePhotoUploadModal()">✕</button>
+    <div class="pup-title">Upload Photo</div>
+    <div class="pup-sub">ADMIN · GITHUB COMMIT</div>
+    <div id="pupTokenSection" class="pup-token-section" style="display:none">
+      <div class="pup-token-hint">GitHub token with <strong>repo</strong> scope required.<br>Generate at github.com → Settings → Developer settings → Tokens.</div>
+      <label class="pup-label">GitHub Token</label>
+      <input type="password" id="pupTokenInput" class="pup-input" placeholder="ghp_xxxx…" autocomplete="off"/>
+      <button onclick="savePupToken()" style="margin-top:8px;padding:6px 14px;border-radius:8px;background:var(--gold);color:#000;font-size:12px;font-weight:600;border:none;cursor:pointer">Save Token</button>
+    </div>
+    <div class="pup-dropzone" id="pupDropzone">
+      <div class="pup-dz-icon">📷</div>
+      <div class="pup-dz-text" id="pupDzText">Drop photo here</div>
+      <div class="pup-dz-sub">JPG · PNG · WEBP · or click to browse</div>
+      <input type="file" id="pupFileInput" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" style="display:none"/>
+    </div>
+    <img id="pupPreview" class="pup-preview" alt="preview"/>
+    <div class="pup-section">
+      <label class="pup-label">Camera Model</label>
+      <input type="text" id="pupCamera" class="pup-input" placeholder="e.g. Sony A7R2"/>
+    </div>
+    <div class="pup-section">
+      <label class="pup-label">EXIF (auto-read · editable)</label>
+      <div class="pup-exif-row">
+        <div>
+          <label class="pup-label" style="font-size:10px">ISO</label>
+          <input type="text" id="pupIso" class="pup-input" placeholder="400"/>
+        </div>
+        <div>
+          <label class="pup-label" style="font-size:10px">Aperture f/</label>
+          <input type="text" id="pupAperture" class="pup-input" placeholder="2.8"/>
+        </div>
+        <div>
+          <label class="pup-label" style="font-size:10px">Focal Length mm</label>
+          <input type="text" id="pupFocal" class="pup-input" placeholder="50"/>
+        </div>
+      </div>
+    </div>
+    <div class="pup-section">
+      <label class="pup-label">Title</label>
+      <div class="pup-row2">
+        <input type="text" id="pupTitleZh" class="pup-input" placeholder="中文标题"/>
+        <input type="text" id="pupTitleEn" class="pup-input" placeholder="English Title"/>
+      </div>
+    </div>
+    <div class="pup-section">
+      <label class="pup-label">Location</label>
+      <div class="pup-row2">
+        <input type="text" id="pupLocZh" class="pup-input" placeholder="地点（中文）"/>
+        <input type="text" id="pupLocEn" class="pup-input" placeholder="Location (EN)"/>
+      </div>
+    </div>
+    <div class="pup-section">
+      <label class="pup-label">Medium</label>
+      <div class="pup-toggle-group">
+        <button class="pup-toggle-btn active" data-med="digital" onclick="setPupMed('digital')">DIGITAL</button>
+        <button class="pup-toggle-btn" data-med="film" onclick="setPupMed('film')">FILM</button>
+      </div>
+    </div>
+    <div class="pup-section">
+      <label class="pup-label">Category</label>
+      <div class="pup-cat-group">
+        <button class="pup-cat-btn active" data-cat="people" onclick="setPupCat('people')">PEOPLE</button>
+        <button class="pup-cat-btn" data-cat="city" onclick="setPupCat('city')">CITY</button>
+        <button class="pup-cat-btn" data-cat="nature" onclick="setPupCat('nature')">NATURE</button>
+        <button class="pup-cat-btn" data-cat="time" onclick="setPupCat('time')">TIME</button>
+      </div>
+    </div>
+    <div class="pup-section">
+      <label class="pup-label">Filename (in repo)</label>
+      <input type="text" id="pupFilename" class="pup-input" placeholder="DSC06175.jpg"/>
+    </div>
+    <button class="pup-commit-btn" id="pupCommitBtn" onclick="commitPhotoToGithub()" disabled>COMMIT TO GITHUB</button>
+    <div class="pup-status" id="pupStatus"></div>
+  </div>
+</div>
+
 </body>
 </html>
