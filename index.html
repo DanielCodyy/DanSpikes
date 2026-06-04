@@ -1655,10 +1655,6 @@ function renderEditorLocRow(loc,di,li){
     '</div>'+
     '<div class="te-loc-detail" id="te-loc-detail-'+di+'-'+li+'">'+
     '<div class="te-field-group"><label>Time</label><input class="te-input" value="'+esc(timeVal)+'" oninput="teSetLocTime('+di+','+li+',this.value)"></div>'+
-    '<div class="te-field-group"><label>Special</label>'+
-    '<select class="te-select" onchange="editDraft.days_arr['+di+'].locations['+li+'].special=this.value">'+
-    specialOpts.map(function(v){return '<option value="'+v+'"'+(loc.special===v?' selected':'')+'>'+v+'</option>';}).join('')+
-    '</select></div>'+
     '<div class="te-field-group"><label>Name ZH</label><input class="te-input" value="'+esc((loc.name&&loc.name.zh)||'')+'" oninput="editDraft.days_arr['+di+'].locations['+li+'].name.zh=this.value"></div>'+
     '<div class="te-field-group"><label>Name EN</label><input class="te-input" value="'+esc((loc.name&&loc.name.en)||'')+'" oninput="editDraft.days_arr['+di+'].locations['+li+'].name.en=this.value"></div>'+
     '<div class="te-field-group"><label>Lat</label><input class="te-input" type="number" step="0.000001" value="'+esc(lat)+'" oninput="teSetLocCoord('+di+','+li+',0,this.value)"></div>'+
@@ -1670,6 +1666,10 @@ function renderEditorLocRow(loc,di,li){
     '<div class="te-field-group"><label>Reservation</label>'+
     '<select class="te-select" onchange="editDraft.days_arr['+di+'].locations['+li+'].reservation=this.value">'+
     reservationOpts.map(function(v){return '<option value="'+v+'"'+(loc.reservation===v?' selected':'')+'>'+v+'</option>';}).join('')+
+    '</select></div>'+
+    '<div class="te-field-group"><label>Special</label>'+
+    '<select class="te-select" onchange="editDraft.days_arr['+di+'].locations['+li+'].special=this.value">'+
+    specialOpts.map(function(v){return '<option value="'+v+'"'+(loc.special===v?' selected':'')+'>'+v+'</option>';}).join('')+
     '</select></div>'+
     '<div class="te-field-group" style="flex-direction:row;align-items:center;gap:6px"><label>Optional</label>'+
     '<input type="checkbox" '+(loc.optional?'checked':'')+' onchange="editDraft.days_arr['+di+'].locations['+li+'].optional=this.checked"></div>'+
