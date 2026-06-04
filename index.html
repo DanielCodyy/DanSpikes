@@ -895,14 +895,13 @@ var PHOTOS=[
   {id:'ti7',cat:'time',med:'film',ratio:0.663,title_zh:'我是007',title_en:'007 is Here',loc_zh:'香港',loc_en:'Hong Kong',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022690011.jpg'},
   {id:'ti8',cat:'time',med:'film',ratio:0.663,title_zh:'火枫',title_en:'Inside Fire',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022710038.jpg'},
   {id:'ti9',cat:'time',med:'film',ratio:1.5082,title_zh:'目的地',title_en:'Where to Go?',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022710028.jpg'},
-  {id:'u_1780547672560',cat:'nature',med:'digital',ratio:1.4991,title_zh:'好久不见',title_en:'Between the Galaxy',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'SONY ILCE-7RM2 · 100mm f/6.3 · ISO 3200',url:'assets/photos/nature/DSC09564-Enhanced-NR-2.jpg'},
 ];
 
 /* ===== PHOTO MAP LOCATIONS (grouped by place; pin shows random photo per load) ===== */
 var MAP_LOCS=[
   {name_en:'New York City',    name_zh:'纽约',    country:'US', zoom:11, lat:40.7128, lng:-74.0060,  photoIds:['c1']},
   {name_en:'Chicago',          name_zh:'芝加哥',  country:'US', zoom:11, lat:41.8781, lng:-87.6298,  photoIds:['p1','c2','c3']},
-  {name_en:'Ann Arbor',        name_zh:'安娜堡',  country:'US', zoom:12, lat:42.2808, lng:-83.7430,  photoIds:['c4','ti4','ti5','ti8','ti9','u_1780547672560']},
+  {name_en:'Ann Arbor',        name_zh:'安娜堡',  country:'US', zoom:12, lat:42.2808, lng:-83.7430,  photoIds:['c4','ti4','ti5','ti8','ti9']},
   {name_en:'Detroit',          name_zh:'底特律',  country:'US', zoom:11, lat:42.3314, lng:-83.0458,  photoIds:['ti6']},
   {name_en:'Great Salt Lake',  name_zh:'大盐湖',  country:'US', zoom:9,  lat:41.1000, lng:-112.5000, photoIds:['n1']},
   {name_en:'Antelope Canyon',  name_zh:'羚羊峡谷',country:'US', zoom:11, lat:36.8619, lng:-111.3743, photoIds:['n2','n5','n6']},
@@ -3681,6 +3680,7 @@ function initTripUploadModal(){
 async function init(){
   setLang('en');
   renderPhotoGrid();
+  updatePhotoUploadBtnVisibility();
   renderTripSelector();
   document.querySelectorAll('.nav-link').forEach(function(btn){
     btn.addEventListener('click',function(){switchSection(btn.dataset.nav);});
@@ -3794,6 +3794,7 @@ async function submitAccessPassword(){
     if(adminOk){
       setAdminMode();
       updatePhotoUploadBtnVisibility();
+      renderPhotoGrid();
       var logo=document.getElementById('navLogo');
       if(logo&&!document.getElementById('adminModeDot')){
         var dot=document.createElement('span');
@@ -4356,7 +4357,7 @@ async function _ghPutFile(token,repo,path,content,message,sha){
   return r.json();
 }
 
-/* ===== PHOTO UPLOAD REPO UPDATER =====
+/* ===== PHOTO UPLOAD REPO UPDATER ===== */
 async function _geocodeLocation(locEn,locZh){
   var q=locEn||locZh;
   if(!q)return null;
@@ -4416,7 +4417,6 @@ async function _updatePhotosInRepo(token,newEntry){
 }
 
 /* ===== PHOTO UPLOAD COMMIT HANDLER ===== */
-/* ===== PHOTO UPLOAD COMMIT HANDLER ===== */
 async function commitPhotoToGithub(){
   if(!pupFile)return;
   var token=getGithubToken();
@@ -4453,6 +4453,7 @@ async function commitPhotoToGithub(){
     btn.disabled=false;
   }
 }
+
 /* ===== PHOTO DELETE (ADMIN) ===== */
 async function _deletePhotoFromRepo(token,photoId,photoUrl){
   var REPO='danielcodyy/DanSpikes';
@@ -4466,9 +4467,7 @@ async function _deletePhotoFromRepo(token,photoId,photoUrl){
   if(updated===content)throw new Error('Photo entry not found in index.html');
 
   // Remove id from MAP_LOCS photoIds (handle all positions)
-  var esc=photoId.replace(/[.*+?^${}()|[\]\\]/g,'\\</script>
-
-<!-- Photo Upload Modal -->');
+  var esc=photoId.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
   updated=updated
     .replace(new RegExp(",'"+esc+"'"),'')
     .replace(new RegExp("'"+esc+"',"),'')
