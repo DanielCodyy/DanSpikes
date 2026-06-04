@@ -565,6 +565,71 @@ a.chip:hover{color:var(--accent)}
 .pup-token-hint{font-size:11px;color:var(--text-soft);font-family:var(--font-mono);margin-bottom:8px;line-height:1.5}
 .photo-upload-admin-btn{flex-shrink:0;padding:5px 12px;border-radius:6px;border:1px solid var(--gold-dim);background:rgba(201,168,92,.08);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);cursor:pointer;transition:all .15s;margin-left:auto;margin-right:6px;display:none}
 .photo-upload-admin-btn:hover{background:rgba(201,168,92,.18)}
+/* ===== Trip Editor ===== */
+#tripEditOverlay{display:none;position:fixed;inset:0;z-index:3100;background:rgba(10,10,9,.97);flex-direction:column;font-family:inherit;}
+.te-header{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.te-header-title{font-size:14px;font-weight:700;color:var(--text);flex:1;}
+.te-header-sub{font-size:11px;color:var(--gold);font-weight:600;letter-spacing:.08em;}
+.te-close-btn{background:none;border:1px solid var(--border);color:var(--text-soft);border-radius:8px;padding:4px 12px;cursor:pointer;font-size:12px;}
+.te-close-btn:hover{border-color:var(--gold-dim);color:var(--text);}
+.te-body{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px;}
+.te-footer{display:flex;align-items:center;gap:10px;padding:12px 18px;border-top:1px solid var(--border);flex-shrink:0;}
+.te-footer-status{flex:1;font-size:12px;color:var(--text-soft);}
+.te-save-btn{background:var(--gold);color:#000;border:none;border-radius:10px;padding:7px 18px;font-size:12px;font-weight:700;cursor:pointer;}
+.te-save-btn:hover{opacity:.88;}
+.te-save-btn:disabled{opacity:.4;cursor:default;}
+.te-cancel-btn{background:none;border:1px solid var(--border);color:var(--text-soft);border-radius:10px;padding:7px 14px;font-size:12px;cursor:pointer;}
+.te-cancel-btn:hover{border-color:var(--gold-dim);color:var(--text);}
+.te-trip-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px;background:var(--surface-2);border-radius:10px;border:1px solid var(--border);}
+.te-field-group{display:flex;flex-direction:column;gap:4px;}
+.te-field-group label{font-size:10px;color:var(--text-faint);font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
+.te-input{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:6px 9px;font-size:12px;color:var(--text);font-family:inherit;width:100%;box-sizing:border-box;}
+.te-input:focus{outline:none;border-color:var(--gold-dim);}
+.te-textarea{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:6px 9px;font-size:11px;color:var(--text);font-family:inherit;width:100%;box-sizing:border-box;resize:vertical;min-height:52px;}
+.te-textarea:focus{outline:none;border-color:var(--gold-dim);}
+.te-select{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:5px 8px;font-size:11px;color:var(--text);font-family:inherit;cursor:pointer;}
+.te-section-label{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.08em;margin-bottom:4px;}
+.te-day-card{background:var(--surface-2);border-radius:10px;border:1px solid var(--border);overflow:hidden;transition:opacity .15s;}
+.te-day-card.te-dragging{opacity:.4;border-style:dashed;}
+.te-day-card.te-drag-over{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,168,92,.25);}
+.te-day-header{display:grid;grid-template-columns:20px 1fr auto;gap:8px;align-items:start;padding:10px 12px;}
+.te-drag-handle{color:var(--text-faint);cursor:grab;font-size:14px;line-height:24px;padding-top:2px;user-select:none;}
+.te-drag-handle:active{cursor:grabbing;}
+.te-day-fields{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.te-day-row{display:flex;gap:8px;align-items:center;margin-top:6px;}
+.te-color-swatch{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid rgba(255,255,255,.15);flex-shrink:0;transition:transform .1s;}
+.te-color-swatch:hover{transform:scale(1.15);}
+.te-day-actions{display:flex;gap:6px;align-items:center;padding-top:2px;}
+.te-remove-btn{background:none;border:1px solid rgba(220,80,80,.3);color:rgba(220,80,80,.6);border-radius:7px;padding:3px 9px;font-size:11px;cursor:pointer;white-space:nowrap;transition:all .15s;}
+.te-remove-btn:hover{border-color:rgba(220,80,80,.7);color:#e55;}
+.te-remove-btn.te-confirm{background:rgba(220,80,80,.15);border-color:#e55;color:#e55;}
+.te-remove-btn:disabled{opacity:.3;cursor:default;}
+.te-locs-section{border-top:1px solid var(--border);padding:8px 12px;}
+.te-locs-toggle{background:none;border:none;color:var(--text-soft);cursor:pointer;font-size:11px;padding:0;margin-bottom:6px;}
+.te-locs-toggle:hover{color:var(--gold);}
+.te-loc-list{display:flex;flex-direction:column;gap:6px;}
+.te-loc-row{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.te-loc-row.te-dragging{opacity:.4;border-style:dashed;}
+.te-loc-row.te-drag-over{border-color:var(--gold);}
+.te-loc-summary{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:default;}
+.te-loc-summary .te-drag-handle{font-size:12px;line-height:1;}
+.te-loc-time{font-size:11px;color:var(--text-soft);width:60px;flex-shrink:0;}
+.te-loc-name{flex:1;font-size:11px;color:var(--text);}
+.te-expand-btn{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:13px;padding:0 4px;}
+.te-expand-btn:hover{color:var(--gold);}
+.te-loc-detail{padding:10px 12px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:8px;display:none;}
+.te-loc-detail.open{display:grid;}
+.te-loc-detail .te-full{grid-column:1/-1;}
+.te-add-btn{background:none;border:1px dashed var(--border);color:var(--text-faint);border-radius:8px;padding:6px 14px;font-size:11px;cursor:pointer;width:100%;text-align:center;margin-top:4px;}
+.te-add-btn:hover{border-color:var(--gold-dim);color:var(--gold);}
+.te-add-day-btn{background:none;border:1px dashed var(--gold-dim);color:var(--gold);border-radius:10px;padding:9px;font-size:12px;cursor:pointer;text-align:center;}
+.te-add-day-btn:hover{background:rgba(201,168,92,.08);}
+.te-token-row{grid-column:1/-1;display:flex;gap:6px;align-items:center;}
+.te-token-row label{font-size:11px;color:var(--text-soft);flex-shrink:0;}
+.te-token-input{flex:1;}
+.te-token-save{background:none;border:1px solid var(--gold-dim);color:var(--gold);border-radius:7px;padding:4px 10px;font-size:11px;cursor:pointer;}
+.trip-edit-btn{font-size:11px;padding:3px 10px;border-radius:8px;border:1px solid var(--gold-dim);background:none;color:var(--gold);cursor:pointer;margin-left:8px;}
+.trip-edit-btn:hover{background:rgba(201,168,92,.1);}
 </style>
 <!-- Yui mascot assistant styles -->
 <link rel="stylesheet" href="./assistant/assistant.css?v=2"/>
@@ -709,6 +774,20 @@ a.chip:hover{color:var(--accent)}
             <div class="legend" id="allLegend"></div>
           </div>
           <div class="timeline" id="timeline"></div>
+        </div>
+      </div>
+      <!-- Trip Editor Overlay -->
+      <div id="tripEditOverlay">
+        <div class="te-header">
+          <span class="te-header-sub">ADMIN · EDIT TRIP</span>
+          <span class="te-header-title" id="teHeaderTitle"></span>
+          <button class="te-close-btn" onclick="closeTripEditor()">✕ Cancel</button>
+        </div>
+        <div class="te-body" id="tripEditBody"></div>
+        <div class="te-footer">
+          <span class="te-footer-status" id="teStatus"></span>
+          <button class="te-cancel-btn" onclick="closeTripEditor()">Cancel</button>
+          <button class="te-save-btn" id="teSaveBtn" onclick="saveTripEditor()">Save & Sync ↑</button>
         </div>
       </div>
     </section>
@@ -1371,6 +1450,8 @@ function saveApiKey(k){apiKey=k;try{localStorage.setItem('anthropic_api_key',k);
 var geminiKey = (function(){try{return localStorage.getItem('gemini_api_key')||'';}catch(e){return '';}})();
 function getGeminiKey(){return geminiKey;}
 function saveGeminiKey(k){geminiKey=k;try{localStorage.setItem('gemini_api_key',k);}catch(e){}}
+var editDraft=null;   // deep copy of trip being edited; null when editor is closed
+var tripEdits={};     // {tripId: {nameZh,nameEn,subZh,subEn,days_arr}} persisted to Gist
 var githubToken=(function(){try{return localStorage.getItem('github_token')||'';}catch(e){return '';}})();
 var gistId=(function(){try{return localStorage.getItem('gist_id')||'';}catch(e){return '';}})();
 function getGithubToken(){return githubToken;}
@@ -1442,6 +1523,31 @@ async function applyGistData(data){
   if(data.expenses!=null){expenses=data.expenses;await saveExpenses();}
   if(data.adhocLocs!=null){adHocLocations=data.adhocLocs;await saveAdHocLocations();}
 }
+
+// ===== Trip Editor =====
+function openTripEditor(){
+  if(!activeTripId||!TRIP_DATA[activeTripId])return;
+  var td=TRIP_DATA[activeTripId];
+  editDraft={
+    nameZh:td.t_obj.zh.title,
+    nameEn:td.t_obj.en.title,
+    subZh:td.t_obj.zh.sub,
+    subEn:td.t_obj.en.sub,
+    days_arr:JSON.parse(JSON.stringify(td.days_arr))
+  };
+  document.getElementById('teHeaderTitle').textContent=editDraft.nameEn;
+  document.getElementById('tripEditOverlay').style.display='flex';
+  renderTripEditor();
+}
+
+function closeTripEditor(){
+  editDraft=null;
+  document.getElementById('tripEditOverlay').style.display='none';
+  document.getElementById('teStatus').textContent='';
+}
+
+function renderTripEditor(){} // implemented in Task 2
+function saveTripEditor(){} // implemented in Task 8
 
 // ===== Exchange rate =====
 async function fetchExchangeRate(){
@@ -2822,6 +2928,17 @@ async function openTrip(id){
   document.getElementById('topTitle').textContent=t[lang].title;
   document.getElementById('topSub').textContent=t[lang].sub;
   document.getElementById('tripViewName').textContent=t[lang].title;
+  // Admin edit button
+  var existingEditBtn=document.getElementById('tripEditBtn');
+  if(existingEditBtn)existingEditBtn.remove();
+  if(isAdminMode()){
+    var editBtn=document.createElement('button');
+    editBtn.id='tripEditBtn';
+    editBtn.className='trip-edit-btn';
+    editBtn.textContent='✏ Edit';
+    editBtn.onclick=openTripEditor;
+    document.getElementById('tripViewName').parentNode.insertBefore(editBtn,document.getElementById('tripViewName').nextSibling);
+  }
   var lz=document.getElementById('langZh'),le=document.getElementById('langEn');
   if(lz)lz.className=lang==='zh'?'active':'';
   if(le)le.className=lang==='en'?'active':'';
