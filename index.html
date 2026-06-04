@@ -1546,7 +1546,111 @@ function closeTripEditor(){
   document.getElementById('teStatus').textContent='';
 }
 
-function renderTripEditor(){} // implemented in Task 2
+function renderTripEditor(){
+  if(!editDraft)return;
+  var body=document.getElementById('tripEditBody');
+  var tk=getGithubToken();
+  var html='';
+
+  // Token warning (if missing)
+  if(!tk){
+    html+='<div style="background:rgba(201,168,92,.1);border:1px solid var(--gold-dim);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--gold);margin-bottom:4px">'+
+      '⚠ No GitHub token — changes will be saved locally only. Enter a token below to enable Gist sync.</div>';
+  }
+
+  // Trip-level fields
+  html+='<div class="te-section-label">TRIP INFO</div>'+
+    '<div class="te-trip-fields">'+
+    '<div class="te-field-group"><label>Title ZH</label><input class="te-input" id="te-nameZh" value="'+esc(editDraft.nameZh)+'" oninput="editDraft.nameZh=this.value;document.getElementById(\'teHeaderTitle\').textContent=editDraft.nameEn||editDraft.nameZh"></div>'+
+    '<div class="te-field-group"><label>Title EN</label><input class="te-input" id="te-nameEn" value="'+esc(editDraft.nameEn)+'" oninput="editDraft.nameEn=this.value;document.getElementById(\'teHeaderTitle\').textContent=this.value||editDraft.nameZh"></div>'+
+    '<div class="te-field-group"><label>Dates ZH</label><input class="te-input" id="te-subZh" value="'+esc(editDraft.subZh)+'" oninput="editDraft.subZh=this.value"></div>'+
+    '<div class="te-field-group"><label>Dates EN</label><input class="te-input" id="te-subEn" value="'+esc(editDraft.subEn)+'" oninput="editDraft.subEn=this.value"></div>'+
+    '</div>';
+
+  // Days
+  html+='<div class="te-section-label" style="margin-top:4px">DAYS ('+editDraft.days_arr.length+')</div>';
+  editDraft.days_arr.forEach(function(day,i){
+    html+=renderEditorDayCard(day,i);
+  });
+  html+='<button class="te-add-day-btn" onclick="addEditorDay()">+ Add Day</button>';
+
+  // Token input (if missing)
+  if(!tk){
+    html+='<div style="margin-top:8px;display:flex;gap:8px;align-items:center">'+
+      '<label style="font-size:11px;color:var(--text-soft);white-space:nowrap">GitHub Token:</label>'+
+      '<input type="password" id="te-token-input" class="te-input" style="flex:1" placeholder="ghp_…">'+
+      '<button class="te-token-save" onclick="var v=document.getElementById(\'te-token-input\').value.trim();if(v){saveGithubToken(v);renderTripEditor();}">Save</button>'+
+      '</div>';
+  }
+
+  body.innerHTML=html;
+  attachEditorListeners();
+}
+
+function renderEditorDayCard(day,i){
+  return '<div class="te-day-card" data-di="'+i+'" id="te-day-'+i+'" draggable="false">'+
+    '<div class="te-day-header">'+
+    '<span class="te-drag-handle" data-di="'+i+'">≡</span>'+
+    '<div>'+
+    '<div class="te-day-row" style="gap:8px;margin-bottom:6px">'+
+    '<input class="te-input" style="width:100px" value="'+esc(day.date||'')+'" placeholder="YYYY-MM-DD" oninput="editDraft.days_arr['+i+'].date=this.value">'+
+    '<span class="te-color-swatch" id="te-color-'+i+'" style="background:'+day.color+'" title="Click to cycle color" onclick="teCycleColor('+i+')"></span>'+
+    '<select class="te-select" onchange="editDraft.days_arr['+i+'].intensity=this.value">'+
+    ['light','easy','moderate','high','hard'].map(function(v){return '<option value="'+v+'"'+(day.intensity===v?' selected':'')+'>'+v+'</option>';}).join('')+
+    '</select>'+
+    '</div>'+
+    '<div class="te-day-fields">'+
+    '<div class="te-field-group"><label>Name ZH</label><input class="te-input" value="'+esc((day.dayName&&day.dayName.zh)||'')+'" oninput="editDraft.days_arr['+i+'].dayName.zh=this.value"></div>'+
+    '<div class="te-field-group"><label>Name EN</label><input class="te-input" value="'+esc((day.dayName&&day.dayName.en)||'')+'" oninput="editDraft.days_arr['+i+'].dayName.en=this.value"></div>'+
+    '<div class="te-field-group"><label>Area ZH</label><input class="te-input" value="'+esc((day.area&&day.area.zh)||'')+'" oninput="editDraft.days_arr['+i+'].area.zh=this.value"></div>'+
+    '<div class="te-field-group"><label>Area EN</label><input class="te-input" value="'+esc((day.area&&day.area.en)||'')+'" oninput="editDraft.days_arr['+i+'].area.en=this.value"></div>'+
+    '</div>'+
+    '</div>'+
+    '<div class="te-day-actions">'+
+    '<button class="te-remove-btn" id="te-remove-day-'+i+'" '+(editDraft.days_arr.length<=1?'disabled':'')+' onclick="teRemoveDayClick('+i+')">✕ Day</button>'+
+    '</div>'+
+    '</div>'+
+    renderEditorLocsSection(day,i)+
+    '</div>';
+}
+
+function renderEditorLocsSection(day,i){
+  var locs=day.locations||[];
+  var html='<div class="te-locs-section">'+
+    '<button class="te-locs-toggle" onclick="teToggleLocsSection('+i+')">'+
+    '▶ Locations ('+locs.length+')</button>'+
+    '<div class="te-loc-list" id="te-loclist-'+i+'" style="display:none">';
+  locs.forEach(function(loc,li){html+=renderEditorLocRow(loc,i,li);});
+  html+='<button class="te-add-btn" onclick="addEditorLocation('+i+')">+ Add Location</button>';
+  html+='</div></div>';
+  return html;
+}
+
+function teToggleLocsSection(di){
+  var list=document.getElementById('te-loclist-'+di);
+  var btn=list&&list.previousElementSibling;
+  if(!list)return;
+  var open=list.style.display==='none';
+  list.style.display=open?'flex':'none';
+  if(list.style.display==='flex')list.style.flexDirection='column';
+  if(btn)btn.textContent=(open?'▼':'▶')+' Locations ('+(editDraft.days_arr[di].locations||[]).length+')';
+}
+
+function renderEditorLocRow(loc,di,li){return '';} // Task 3
+function attachEditorListeners(){} // Tasks 4-5
+function addEditorDay(){} // Task 5
+function teRemoveDayClick(di){} // Task 5
+function addEditorLocation(di){} // Task 5
+function teRemoveLocation(di,li){} // Task 5
+function teCycleColor(di){
+  var colors=['#c9a85c','#5b8dd9','#7dd9a0','#e67e5a','#9b7dd9','#d9815b'];
+  var cur=editDraft.days_arr[di].color;
+  var idx=colors.indexOf(cur);
+  editDraft.days_arr[di].color=colors[(idx+1)%colors.length];
+  var sw=document.getElementById('te-color-'+di);
+  if(sw)sw.style.background=editDraft.days_arr[di].color;
+}
+
 function saveTripEditor(){} // implemented in Task 6
 
 // ===== Exchange rate =====
