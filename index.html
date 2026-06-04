@@ -4381,7 +4381,7 @@ async function _updatePhotosInRepo(token,newEntry){
   var entryLine='\n'+_formatPhotoEntryAsJS(newEntry)+',';
   var updated=content.slice(0,idx)+entryLine+content.slice(idx);
 
-  // 2. Patch MAP_LOCS — match existing entry or create new one
+  // 2. Patch MAP_LOCS — match by name_en only (Chinese names are unreliable for matching)
   var locEn=(newEntry.loc_en||'').trim();
   var locZh=(newEntry.loc_zh||'').trim();
   var matched=false;
@@ -4390,14 +4390,6 @@ async function _updatePhotosInRepo(token,newEntry){
     var re=new RegExp("(name_en:'"+esc+"'[^\\n]*photoIds:\\[)([^\\]]*)(\\])");
     if(re.test(updated)){
       updated=updated.replace(re,function(m,pre,ids,close){return pre+ids+(ids.trim()?',':'')+"'"+newEntry.id+"'"+close;});
-      matched=true;
-    }
-  }
-  if(!matched&&locZh){
-    var escZh=locZh.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/'/g,"\\'");
-    var reZh=new RegExp("(name_zh:'"+escZh+"'[^\\n]*photoIds:\\[)([^\\]]*)(\\])");
-    if(reZh.test(updated)){
-      updated=updated.replace(reZh,function(m,pre,ids,close){return pre+ids+(ids.trim()?',':'')+"'"+newEntry.id+"'"+close;});
       matched=true;
     }
   }
