@@ -1848,17 +1848,24 @@ function teRemoveDayClick(di){
     btn.dataset.confirm='1';
     btn.classList.add('te-confirm');
     btn.textContent='Confirm?';
-    setTimeout(function(){
+    function resetBtn(){
       if(btn.dataset.confirm==='1'){
         btn.dataset.confirm='0';
         btn.classList.remove('te-confirm');
         btn.textContent='✕ Day';
       }
-    },3000);
+    }
+    setTimeout(resetBtn,3000);
+    // Reset on click elsewhere
+    function outsideClick(e){
+      if(e.target!==btn){resetBtn();document.removeEventListener('click',outsideClick,true);}
+    }
+    setTimeout(function(){document.addEventListener('click',outsideClick,true);},0);
   }
 }
 
 function addEditorLocation(di){
+  if(!editDraft||!editDraft.days_arr[di])return;
   var locs=editDraft.days_arr[di].locations;
   locs.push({
     id:'e_'+Date.now()+'_'+locs.length,
@@ -1889,6 +1896,7 @@ function addEditorLocation(di){
 }
 
 function teRemoveLocation(di,li){
+  if(!editDraft||!editDraft.days_arr[di])return;
   editDraft.days_arr[di].locations.splice(li,1);
   var list=document.getElementById('te-loclist-'+di);
   if(list){
