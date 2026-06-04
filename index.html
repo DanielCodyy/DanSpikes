@@ -892,7 +892,6 @@ var PHOTOS=[
   {id:'ti7',cat:'time',med:'film',ratio:0.663,title_zh:'我是007',title_en:'007 is Here',loc_zh:'香港',loc_en:'Hong Kong',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022690011.jpg'},
   {id:'ti8',cat:'time',med:'film',ratio:0.663,title_zh:'火枫',title_en:'Inside Fire',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022710038.jpg'},
   {id:'ti9',cat:'time',med:'film',ratio:1.5082,title_zh:'目的地',title_en:'Where to Go?',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022710028.jpg'},
-  {id:'u_1780545804868',cat:'nature',med:'digital',ratio:1.4991,title_zh:'好久不见',title_en:'Between the Galaxy',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'',url:'assets/photos/nature/DSC09564-Enhanced-NR-2.jpg'},
 ];
 
 /* ===== PHOTO MAP LOCATIONS (grouped by place; pin shows random photo per load) ===== */
@@ -4181,26 +4180,58 @@ function showPupStatus(type,msg){
   });
 })();
 
-function _handlePupFile(file){
+function _compressPupFile(file, targetBytes){
+  return new Promise(function(resolve){
+    var img=new Image();
+    var url=URL.createObjectURL(file);
+    img.onload=function(){
+      URL.revokeObjectURL(url);
+      var canvas=document.createElement('canvas');
+      canvas.width=img.naturalWidth; canvas.height=img.naturalHeight;
+      canvas.getContext('2d').drawImage(img,0,0);
+      var lo=0.5,hi=0.99,iters=0,bestBlob=null;
+      function tryQ(q){
+        canvas.toBlob(function(blob){
+          iters++;
+          if(blob.size<=targetBytes)bestBlob=blob;
+          if(iters>=10||hi-lo<0.01){
+            var result=bestBlob||blob;
+            resolve(new File([result],file.name,{type:'image/jpeg'}));
+            return;
+          }
+          if(blob.size<=targetBytes){lo=q;}else{hi=q;}
+          tryQ((lo+hi)/2);
+        },'image/jpeg',q);
+      }
+      tryQ((lo+hi)/2);
+    };
+    img.src=url;
+  });
+}
+
+async function _handlePupFile(file){
   if(!file.type.match(/^image\/(jpeg|png|webp)/i)){
     showPupStatus('err','Only JPG, PNG, WEBP files are supported.');
     return;
   }
-  pupFile=file;
-  document.getElementById('pupFilename').value=file.name;
-  document.getElementById('pupDzText').textContent=file.name;
-  if(file.size>10*1024*1024){
-    showPupStatus('loading','⚠ File is '+(file.size/1024/1024).toFixed(1)+'MB — large files take longer to commit.');
+  var LIMIT=20*1024*1024;
+  if(file.size>LIMIT){
+    var origMB=(file.size/1024/1024).toFixed(1);
+    showPupStatus('loading','⏳ '+origMB+'MB — compressing to ~20MB…');
+    file=await _compressPupFile(file,LIMIT);
+    var newMB=(file.size/1024/1024).toFixed(1);
+    showPupStatus('ok','✓ Compressed '+origMB+'MB → '+newMB+'MB');
   }else{
     var st=document.getElementById('pupStatus');
     if(st){st.className='pup-status';st.textContent='';}
   }
+  pupFile=file;
+  document.getElementById('pupFilename').value=file.name;
+  document.getElementById('pupDzText').textContent=file.name+' ('+(file.size/1024/1024).toFixed(1)+'MB)';
   var reader=new FileReader();
   reader.onload=function(e){
     var prev=document.getElementById('pupPreview');
-    prev.onload=function(){
-      prev.dataset.ratio=(prev.naturalWidth/prev.naturalHeight).toFixed(4);
-    };
+    prev.onload=function(){prev.dataset.ratio=(prev.naturalWidth/prev.naturalHeight).toFixed(4);};
     prev.src=e.target.result;
     prev.style.display='block';
   };
