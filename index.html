@@ -4353,7 +4353,19 @@ async function _ghPutFile(token,repo,path,content,message,sha){
   return r.json();
 }
 
-/* ===== PHOTO UPLOAD REPO UPDATER ===== */
+/* ===== PHOTO UPLOAD REPO UPDATER =====
+async function _geocodeLocation(locEn,locZh){
+  var q=locEn||locZh;
+  if(!q)return null;
+  try{
+    var r=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q)+'&format=json&limit=1&addressdetails=1',{headers:{'Accept-Language':'en'}});
+    var d=await r.json();
+    if(!d||!d[0])return null;
+    var cc=((d[0].address&&d[0].address.country_code)||'').toUpperCase();
+    return{lat:parseFloat(parseFloat(d[0].lat).toFixed(4)),lng:parseFloat(parseFloat(d[0].lon).toFixed(4)),country:cc};
+  }catch(e){return null;}
+}
+
 async function _updatePhotosInRepo(token,newEntry){
   var REPO='danielcodyy/DanSpikes';
   var fileData=await _ghGetFile(token,REPO,'index.html');
@@ -4366,7 +4378,7 @@ async function _updatePhotosInRepo(token,newEntry){
   var entryLine='\n'+_formatPhotoEntryAsJS(newEntry)+',';
   var updated=content.slice(0,idx)+entryLine+content.slice(idx);
 
-  // 2. Patch MAP_LOCS — add photo id to matching location entry
+  // 2. Patch MAP_LOCS — match existing entry or create new one
   var locEn=(newEntry.loc_en||'').trim();
   var locZh=(newEntry.loc_zh||'').trim();
   var matched=false;
@@ -4374,9 +4386,7 @@ async function _updatePhotosInRepo(token,newEntry){
     var esc=locEn.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/'/g,"\\'");
     var re=new RegExp("(name_en:'"+esc+"'[^\\n]*photoIds:\\[)([^\\]]*)(\\])");
     if(re.test(updated)){
-      updated=updated.replace(re,function(m,pre,ids,close){
-        return pre+ids+(ids.trim()?',':'')+"'"+newEntry.id+"'"+close;
-      });
+      updated=updated.replace(re,function(m,pre,ids,close){return pre+ids+(ids.trim()?',':'')+"'"+newEntry.id+"'"+close;});
       matched=true;
     }
   }
@@ -4384,20 +4394,25 @@ async function _updatePhotosInRepo(token,newEntry){
     var escZh=locZh.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/'/g,"\\'");
     var reZh=new RegExp("(name_zh:'"+escZh+"'[^\\n]*photoIds:\\[)([^\\]]*)(\\])");
     if(reZh.test(updated)){
-      updated=updated.replace(reZh,function(m,pre,ids,close){
-        return pre+ids+(ids.trim()?',':'')+"'"+newEntry.id+"'"+close;
-      });
+      updated=updated.replace(reZh,function(m,pre,ids,close){return pre+ids+(ids.trim()?',':'')+"'"+newEntry.id+"'"+close;});
+      matched=true;
+    }
+  }
+  if(!matched&&(locEn||locZh)){
+    var geo=await _geocodeLocation(locEn,locZh);
+    if(geo){
+      var sq=function(s){return(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");};
+      var newLoc="  {name_en:'"+sq(locEn)+"',name_zh:'"+sq(locZh)+"',country:'"+sq(geo.country)+"',zoom:12,lat:"+geo.lat+",lng:"+geo.lng+",photoIds:['"+newEntry.id+"']}";
+      var MAP_END='\n];\n\n/* ===== TRIPS REGISTRY';
+      var mapIdx=updated.indexOf(MAP_END);
+      if(mapIdx!==-1)updated=updated.slice(0,mapIdx)+',\n'+newLoc+updated.slice(mapIdx);
     }
   }
 
-  await _ghPutFile(
-    token,REPO,'index.html',
-    _utf8ToBase64(updated),
-    'feat: add photo '+newEntry.title_en,
-    fileData.sha
-  );
+  await _ghPutFile(token,REPO,'index.html',_utf8ToBase64(updated),'feat: add photo '+newEntry.title_en,fileData.sha);
 }
 
+/* ===== PHOTO UPLOAD COMMIT HANDLER ===== */
 /* ===== PHOTO UPLOAD COMMIT HANDLER ===== */
 async function commitPhotoToGithub(){
   if(!pupFile)return;
