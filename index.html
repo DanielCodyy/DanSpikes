@@ -1533,7 +1533,11 @@ function openTripEditor(){
     nameEn:td.t_obj.en.title,
     subZh:td.t_obj.zh.sub,
     subEn:td.t_obj.en.sub,
-    days_arr:JSON.parse(JSON.stringify(td.days_arr))
+    days_arr:JSON.parse(JSON.stringify(td.days_arr)).map(function(d){
+      if(!d.dayName||typeof d.dayName!=='object')d.dayName={zh:'',en:''};
+      if(!d.area||typeof d.area!=='object')d.area={zh:'',en:''};
+      return d;
+    })
   };
   document.getElementById('teHeaderTitle').textContent=editDraft.nameEn;
   document.getElementById('tripEditOverlay').style.display='flex';
@@ -1628,8 +1632,8 @@ function renderEditorLocsSection(day,i){
 
 function teToggleLocsSection(di){
   var list=document.getElementById('te-loclist-'+di);
-  var btn=list&&list.previousElementSibling;
   if(!list)return;
+  var btn=list.previousElementSibling;
   var open=list.style.display==='none';
   list.style.display=open?'flex':'none';
   if(list.style.display==='flex')list.style.flexDirection='column';
