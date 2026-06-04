@@ -1534,6 +1534,7 @@ async function applyGistData(data){
         TRIP_DATA[id].t_obj=makeGenericT(e.nameZh,e.nameEn,e.subZh,e.subEn,e.days_arr.length);
         var tripEntry=TRIPS.find(function(tr){return tr.id===id;});
         if(tripEntry){tripEntry.name_zh=e.nameZh;tripEntry.name_en=e.nameEn;tripEntry.dates_zh=e.subZh;tripEntry.dates_en=e.subEn;}
+        if(id===activeTripId){t=TRIP_DATA[id].t_obj;days=TRIP_DATA[id].days_arr;}
       }
     });
   }
