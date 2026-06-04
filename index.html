@@ -155,6 +155,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;o
   background:rgba(201,168,92,.2);color:var(--gold);border:1px solid rgba(201,168,92,.28)}
 .photo-badge.film{background:rgba(139,38,53,.22);color:#d08890;border-color:rgba(139,38,53,.3)}
 .photo-empty{text-align:center;padding:80px 20px;color:var(--text-faint);font-family:var(--font-d);font-size:20px;font-style:italic;grid-column:1/-1}
+.photo-admin-del-btn{position:absolute;top:7px;left:7px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.55);border:1.5px solid rgba(255,255,255,.25);color:#fff;font-size:13px;cursor:pointer;opacity:0;display:flex;align-items:center;justify-content:center;z-index:5;transition:opacity .15s,background .15s;line-height:1;padding:0}
+.photo-card--masonry:hover .photo-admin-del-btn{opacity:1}
+.photo-admin-del-btn.del-confirm{background:rgba(190,40,40,.9);border-color:rgba(255,120,120,.5);opacity:1}
 
 /* photo lightbox */
 .photo-lb{position:fixed;inset:0;background:rgba(5,4,3,.96);z-index:4000;display:none;
@@ -892,7 +895,6 @@ var PHOTOS=[
   {id:'ti7',cat:'time',med:'film',ratio:0.663,title_zh:'我是007',title_en:'007 is Here',loc_zh:'香港',loc_en:'Hong Kong',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022690011.jpg'},
   {id:'ti8',cat:'time',med:'film',ratio:0.663,title_zh:'火枫',title_en:'Inside Fire',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022710038.jpg'},
   {id:'ti9',cat:'time',med:'film',ratio:1.5082,title_zh:'目的地',title_en:'Where to Go?',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'Nikon F3 · 50mm f/1.4',url:'assets/photos/time/000022710028.jpg'},
-  {id:'u_1780547071227',cat:'nature',med:'digital',ratio:1.4991,title_zh:'好久不见',title_en:'Between the Galaxy',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'SONY ILCE-7RM2 · 100mm f/6.3 · ISO 3200',url:'assets/photos/nature/DSC09564-Enhanced-NR-2.jpg'},
   {id:'u_1780547672560',cat:'nature',med:'digital',ratio:1.4991,title_zh:'好久不见',title_en:'Between the Galaxy',loc_zh:'安娜堡',loc_en:'Ann Arbor',exif:'SONY ILCE-7RM2 · 100mm f/6.3 · ISO 3200',url:'assets/photos/nature/DSC09564-Enhanced-NR-2.jpg'},
 ];
 
@@ -2948,6 +2950,7 @@ function renderPhotoGrid(){
         '<div class="photo-card-title">'+ptitle(p)+'</div>'+
         '<div class="photo-card-info">'+ploc(p)+' · '+p.exif.split(' · ')[0]+'</div>'+
       '</div>'+
+      (isAdminMode()?'<button class="photo-admin-del-btn" title="Delete photo" onclick="event.stopPropagation();adminDeletePhoto(\''+p.id+'\',\''+p.url+'\',this)">✕</button>':'')+
     '</div>';
   }).join('');
   requestAnimationFrame(function(){
@@ -4448,6 +4451,68 @@ async function commitPhotoToGithub(){
   }catch(e){
     showPupStatus('err','✗ '+((e&&e.message)||'Commit failed — check token and try again.'));
     btn.disabled=false;
+  }
+}
+/* ===== PHOTO DELETE (ADMIN) ===== */
+async function _deletePhotoFromRepo(token,photoId,photoUrl){
+  var REPO='danielcodyy/DanSpikes';
+  var fileData=await _ghGetFile(token,REPO,'index.html');
+  var content=_base64ToUtf8(fileData.content).replace(/\r\n/g,'\n');
+
+  // Remove PHOTOS entry line
+  var updated=content.split('\n').filter(function(l){
+    return l.indexOf("id:'"+photoId+"'")===-1;
+  }).join('\n');
+  if(updated===content)throw new Error('Photo entry not found in index.html');
+
+  // Remove id from MAP_LOCS photoIds (handle all positions)
+  var esc=photoId.replace(/[.*+?^${}()|[\]\\]/g,'\\</script>
+
+<!-- Photo Upload Modal -->');
+  updated=updated
+    .replace(new RegExp(",'"+esc+"'"),'')
+    .replace(new RegExp("'"+esc+"',"),'')
+    .replace(new RegExp("'"+esc+"'"),'');
+
+  // Remove MAP_LOCS entries whose photoIds became empty
+  updated=updated.replace(/\n  \{[^}\n]*photoIds:\[\][^}\n]*\},?/g,'');
+
+  await _ghPutFile(token,REPO,'index.html',_utf8ToBase64(updated),'chore: delete photo '+photoId,fileData.sha);
+
+  // Delete image file (best-effort)
+  if(photoUrl){
+    try{
+      var img=await _ghGetFile(token,REPO,photoUrl);
+      await fetch('https://api.github.com/repos/'+REPO+'/contents/'+photoUrl,{
+        method:'DELETE',
+        headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'},
+        body:JSON.stringify({message:'chore: remove photo asset '+photoUrl,sha:img.sha,branch:'main'})
+      });
+    }catch(e){}
+  }
+}
+
+async function adminDeletePhoto(photoId,photoUrl,btn){
+  if(!btn.classList.contains('del-confirm')){
+    btn.classList.add('del-confirm');
+    btn.textContent='?';
+    setTimeout(function(){
+      if(btn.classList.contains('del-confirm')){btn.classList.remove('del-confirm');btn.textContent='✕';}
+    },3000);
+    return;
+  }
+  btn.disabled=true;btn.textContent='…';
+  var token=getGithubToken();
+  if(!token){btn.disabled=false;btn.textContent='✕';btn.classList.remove('del-confirm');return;}
+  try{
+    await _deletePhotoFromRepo(token,photoId,photoUrl);
+    var i=PHOTOS.findIndex(function(p){return p.id===photoId;});
+    if(i!==-1)PHOTOS.splice(i,1);
+    renderPhotoGrid();
+    refreshHomeCatCounts();
+  }catch(e){
+    btn.disabled=false;btn.textContent='✕';btn.classList.remove('del-confirm');
+    console.error('Delete failed:',e);
   }
 }
 </script>
