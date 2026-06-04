@@ -1720,28 +1720,34 @@ function attachEditorListeners(){
 }
 
 function attachEditorDayDrag(){
-  var cards=document.querySelectorAll('.te-day-card');
+  var editor=document.getElementById('tripEditBody');
+  var cards=editor.querySelectorAll('.te-day-card');
   var dragSrc=-1;
   cards.forEach(function(card){
     var handle=card.querySelector('.te-drag-handle[data-di]');
     if(!handle)return;
     handle.addEventListener('mousedown',function(){card.setAttribute('draggable','true');});
+    handle.addEventListener('mouseup',function(){card.setAttribute('draggable','false');});
     card.addEventListener('dragstart',function(e){
       dragSrc=parseInt(card.dataset.di);
       card.classList.add('te-dragging');
       e.dataTransfer.effectAllowed='move';
+      e.dataTransfer.setData('text/plain',String(dragSrc));
     });
     card.addEventListener('dragend',function(){
       card.classList.remove('te-dragging');
-      document.querySelectorAll('.te-day-card').forEach(function(c){c.classList.remove('te-drag-over');});
+      editor.querySelectorAll('.te-day-card').forEach(function(c){c.classList.remove('te-drag-over');});
       card.setAttribute('draggable','false');
+      dragSrc=-1;
     });
     card.addEventListener('dragover',function(e){
       e.preventDefault();
       e.dataTransfer.dropEffect='move';
       if(dragSrc!==parseInt(card.dataset.di))card.classList.add('te-drag-over');
     });
-    card.addEventListener('dragleave',function(){card.classList.remove('te-drag-over');});
+    card.addEventListener('dragleave',function(e){
+      if(!card.contains(e.relatedTarget))card.classList.remove('te-drag-over');
+    });
     card.addEventListener('drop',function(e){
       e.preventDefault();
       e.stopPropagation();
@@ -1764,16 +1770,19 @@ function attachEditorLocDrag(di){
     var handle=row.querySelector('.te-drag-handle');
     if(!handle)return;
     handle.addEventListener('mousedown',function(){row.setAttribute('draggable','true');});
+    handle.addEventListener('mouseup',function(){row.setAttribute('draggable','false');});
     row.addEventListener('dragstart',function(e){
       dragSrc=parseInt(row.dataset.li);
       row.classList.add('te-dragging');
       e.dataTransfer.effectAllowed='move';
+      e.dataTransfer.setData('text/plain',String(dragSrc));
       e.stopPropagation();
     });
     row.addEventListener('dragend',function(){
       row.classList.remove('te-dragging');
       list.querySelectorAll('.te-loc-row').forEach(function(r){r.classList.remove('te-drag-over');});
       row.setAttribute('draggable','false');
+      dragSrc=-1;
     });
     row.addEventListener('dragover',function(e){
       e.preventDefault();
@@ -1781,7 +1790,9 @@ function attachEditorLocDrag(di){
       e.dataTransfer.dropEffect='move';
       if(dragSrc!==parseInt(row.dataset.li))row.classList.add('te-drag-over');
     });
-    row.addEventListener('dragleave',function(){row.classList.remove('te-drag-over');});
+    row.addEventListener('dragleave',function(e){
+      if(!row.contains(e.relatedTarget))row.classList.remove('te-drag-over');
+    });
     row.addEventListener('drop',function(e){
       e.preventDefault();
       e.stopPropagation();
