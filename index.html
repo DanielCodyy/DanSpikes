@@ -1639,7 +1639,64 @@ function teToggleLocsSection(di){
   if(btn)btn.textContent=(open?'▼':'▶')+' Locations ('+(editDraft.days_arr[di].locations||[]).length+')';
 }
 
-function renderEditorLocRow(loc,di,li){return '';} // Task 3
+function renderEditorLocRow(loc,di,li){
+  var timeVal=typeof loc.time==='object'?(loc.time.en||loc.time.zh||''):String(loc.time||'');
+  var lat=(loc.coords&&loc.coords[0]!=null)?loc.coords[0]:'';
+  var lng=(loc.coords&&loc.coords[1]!=null)?loc.coords[1]:'';
+  var reservationOpts=['free','must','rec','opt','fixed'];
+  var specialOpts=['','arrival','departure','airbnb','hotel','viewpoint','sunset','drive','hiking','camping','restaurant','activity'];
+  return '<div class="te-loc-row" data-di="'+di+'" data-li="'+li+'" id="te-loc-'+di+'-'+li+'">'+
+    '<div class="te-loc-summary">'+
+    '<span class="te-drag-handle" style="cursor:grab">≡</span>'+
+    '<span class="te-loc-time">'+esc(timeVal)+'</span>'+
+    '<span class="te-loc-name">'+esc((loc.name&&loc.name.en)||'(new)')+'</span>'+
+    '<button class="te-expand-btn" onclick="teToggleLoc(\''+di+'-'+li+'\')" id="te-expbtn-'+di+'-'+li+'">▶</button>'+
+    '<button class="te-remove-btn" style="padding:2px 7px;font-size:10px" onclick="teRemoveLocation('+di+','+li+')">✕</button>'+
+    '</div>'+
+    '<div class="te-loc-detail" id="te-loc-detail-'+di+'-'+li+'">'+
+    '<div class="te-field-group"><label>Time</label><input class="te-input" value="'+esc(timeVal)+'" oninput="teSetLocTime('+di+','+li+',this.value)"></div>'+
+    '<div class="te-field-group"><label>Special</label>'+
+    '<select class="te-select" onchange="editDraft.days_arr['+di+'].locations['+li+'].special=this.value">'+
+    specialOpts.map(function(v){return '<option value="'+v+'"'+(loc.special===v?' selected':'')+'>'+v+'</option>';}).join('')+
+    '</select></div>'+
+    '<div class="te-field-group"><label>Name ZH</label><input class="te-input" value="'+esc((loc.name&&loc.name.zh)||'')+'" oninput="editDraft.days_arr['+di+'].locations['+li+'].name.zh=this.value"></div>'+
+    '<div class="te-field-group"><label>Name EN</label><input class="te-input" value="'+esc((loc.name&&loc.name.en)||'')+'" oninput="editDraft.days_arr['+di+'].locations['+li+'].name.en=this.value"></div>'+
+    '<div class="te-field-group"><label>Lat</label><input class="te-input" type="number" step="0.000001" value="'+esc(lat)+'" oninput="teSetLocCoord('+di+','+li+',0,this.value)"></div>'+
+    '<div class="te-field-group"><label>Lng</label><input class="te-input" type="number" step="0.000001" value="'+esc(lng)+'" oninput="teSetLocCoord('+di+','+li+',1,this.value)"></div>'+
+    '<div class="te-field-group te-full"><label>Desc ZH</label><textarea class="te-textarea" oninput="editDraft.days_arr['+di+'].locations['+li+'].desc.zh=this.value">'+esc((loc.desc&&loc.desc.zh)||'')+'</textarea></div>'+
+    '<div class="te-field-group te-full"><label>Desc EN</label><textarea class="te-textarea" oninput="editDraft.days_arr['+di+'].locations['+li+'].desc.en=this.value">'+esc((loc.desc&&loc.desc.en)||'')+'</textarea></div>'+
+    '<div class="te-field-group te-full"><label>Notes ZH</label><textarea class="te-textarea" oninput="editDraft.days_arr['+di+'].locations['+li+'].notes.zh=this.value">'+esc((loc.notes&&loc.notes.zh)||'')+'</textarea></div>'+
+    '<div class="te-field-group te-full"><label>Notes EN</label><textarea class="te-textarea" oninput="editDraft.days_arr['+di+'].locations['+li+'].notes.en=this.value">'+esc((loc.notes&&loc.notes.en)||'')+'</textarea></div>'+
+    '<div class="te-field-group"><label>Reservation</label>'+
+    '<select class="te-select" onchange="editDraft.days_arr['+di+'].locations['+li+'].reservation=this.value">'+
+    reservationOpts.map(function(v){return '<option value="'+v+'"'+(loc.reservation===v?' selected':'')+'>'+v+'</option>';}).join('')+
+    '</select></div>'+
+    '<div class="te-field-group" style="flex-direction:row;align-items:center;gap:6px"><label>Optional</label>'+
+    '<input type="checkbox" '+(loc.optional?'checked':'')+' onchange="editDraft.days_arr['+di+'].locations['+li+'].optional=this.checked"></div>'+
+    '</div>'+
+    '</div>';
+}
+
+function teToggleLoc(key){
+  var detail=document.getElementById('te-loc-detail-'+key);
+  var btn=document.getElementById('te-expbtn-'+key);
+  if(!detail)return;
+  var open=!detail.classList.contains('open');
+  detail.classList.toggle('open',open);
+  if(btn)btn.textContent=open?'▼':'▶';
+}
+
+function teSetLocTime(di,li,v){
+  var loc=editDraft.days_arr[di].locations[li];
+  if(typeof loc.time==='object'){loc.time.zh=v;loc.time.en=v;}
+  else{loc.time=v;}
+}
+
+function teSetLocCoord(di,li,axis,v){
+  var loc=editDraft.days_arr[di].locations[li];
+  if(!loc.coords)loc.coords=[0,0];
+  loc.coords[axis]=parseFloat(v)||0;
+}
 function attachEditorListeners(){} // Tasks 4-5
 function addEditorDay(){} // Task 5
 function teRemoveDayClick(di){} // Task 5
