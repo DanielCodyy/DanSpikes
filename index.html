@@ -1484,7 +1484,9 @@ async function saveAdHocLocations(){await sSet('adhoc_locations',JSON.stringify(
 var GIST_FILE='paris_2026_trip.json';
 
 function buildSyncPayload(){
-  return JSON.stringify({v:1,checkins:checkins,bookings:bookings,expenses:expenses,adhocLocs:adHocLocations,at:new Date().toISOString()});
+  var p={v:1,checkins:checkins,bookings:bookings,expenses:expenses,adhocLocs:adHocLocations,at:new Date().toISOString()};
+  if(Object.keys(tripEdits).length>0)p.tripEdits=tripEdits;
+  return JSON.stringify(p);
 }
 
 async function pushToGist(){
@@ -1522,6 +1524,19 @@ async function applyGistData(data){
   if(data.bookings!=null){bookings=data.bookings;await saveBookings();}
   if(data.expenses!=null){expenses=data.expenses;await saveExpenses();}
   if(data.adhocLocs!=null){adHocLocations=data.adhocLocs;await saveAdHocLocations();}
+  if(data.tripEdits){
+    Object.keys(data.tripEdits).forEach(function(id){
+      var e=data.tripEdits[id];
+      if(!e||!e.days_arr)return;
+      tripEdits[id]=e;
+      if(TRIP_DATA[id]){
+        TRIP_DATA[id].days_arr=JSON.parse(JSON.stringify(e.days_arr));
+        TRIP_DATA[id].t_obj=makeGenericT(e.nameZh,e.nameEn,e.subZh,e.subEn,e.days_arr.length);
+        var tripEntry=TRIPS.find(function(tr){return tr.id===id;});
+        if(tripEntry){tripEntry.name_zh=e.nameZh;tripEntry.name_en=e.nameEn;tripEntry.dates_zh=e.subZh;tripEntry.dates_en=e.subEn;}
+      }
+    });
+  }
 }
 
 // ===== Trip Editor =====
@@ -1921,7 +1936,105 @@ function teCycleColor(di){
   if(sw)sw.style.background=editDraft.days_arr[di].color;
 }
 
-function saveTripEditor(){} // implemented in Task 6
+async function saveTripEditor(){
+  if(!editDraft||!activeTripId)return;
+  var saveBtn=document.getElementById('teSaveBtn');
+  var statusEl=document.getElementById('teStatus');
+  if(saveBtn)saveBtn.disabled=true;
+  statusEl.textContent='Saving…';
+
+  // Commit draft to TRIP_DATA
+  var td=TRIP_DATA[activeTripId];
+  td.days_arr=editDraft.days_arr;
+  td.t_obj=makeGenericT(editDraft.nameZh,editDraft.nameEn,editDraft.subZh,editDraft.subEn,editDraft.days_arr.length);
+
+  // Update TRIPS selector entry
+  var tripEntry=TRIPS.find(function(tr){return tr.id===activeTripId;});
+  if(tripEntry){
+    tripEntry.name_zh=editDraft.nameZh;
+    tripEntry.name_en=editDraft.nameEn;
+    tripEntry.dates_zh=editDraft.subZh;
+    tripEntry.dates_en=editDraft.subEn;
+  }
+
+  // Regenerate mapsLink for all locations
+  td.days_arr.forEach(function(day){
+    day.locations.forEach(function(loc){
+      if(loc.coords&&(loc.coords[0]||loc.coords[1])){
+        loc.mapsLink='https://www.google.com/maps/search/?api=1&query='+loc.coords[0]+','+loc.coords[1];
+      }
+    });
+  });
+
+  // Record in tripEdits for Gist persistence
+  tripEdits[activeTripId]={
+    nameZh:editDraft.nameZh,nameEn:editDraft.nameEn,
+    subZh:editDraft.subZh,subEn:editDraft.subEn,
+    days_arr:JSON.parse(JSON.stringify(editDraft.days_arr))
+  };
+
+  // Re-bind module globals
+  t=td.t_obj;days=td.days_arr;
+
+  // Keep currentDay in bounds
+  if(currentDay>=days.length)currentDay=days.length-1;
+  if(currentDay<0)currentDay=0;
+
+  // Update DOM title/sub
+  document.getElementById('topTitle').textContent=t[lang].title;
+  document.getElementById('topSub').textContent=t[lang].sub;
+  document.getElementById('tripViewName').textContent=t[lang].title;
+
+  // Re-inject edit button (tripViewName textContent was just replaced)
+  var existingEditBtn=document.getElementById('tripEditBtn');
+  if(existingEditBtn)existingEditBtn.remove();
+  if(isAdminMode()){
+    var editBtn=document.createElement('button');
+    editBtn.id='tripEditBtn';
+    editBtn.className='trip-edit-btn';
+    editBtn.textContent='✏ Edit';
+    editBtn.onclick=openTripEditor;
+    document.getElementById('tripViewName').parentNode.insertBefore(editBtn,document.getElementById('tripViewName').nextSibling);
+  }
+
+  // Re-render trip view
+  renderDayTabs();
+  renderTimeline();
+  if(tripMap)renderMap();
+
+  // Close overlay
+  editDraft=null;
+  document.getElementById('tripEditOverlay').style.display='none';
+
+  // Push to Gist (best-effort)
+  var tk=getGithubToken();
+  if(!tk){
+    showEditorToast('Saved locally. No token — Gist sync skipped.');
+    if(saveBtn)saveBtn.disabled=false;
+    return;
+  }
+  try{
+    await pushToGist();
+    showEditorToast('✓ Saved & synced to Gist');
+  }catch(err){
+    showEditorToast('⚠ Saved locally — Gist sync failed: '+(err.message||err));
+  }
+  if(saveBtn)saveBtn.disabled=false;
+}
+
+function showEditorToast(msg){
+  var toast=document.getElementById('teToast');
+  if(!toast){
+    toast=document.createElement('div');
+    toast.id='teToast';
+    toast.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:9px 18px;font-size:12px;color:var(--text);z-index:4000;transition:opacity .4s';
+    document.body.appendChild(toast);
+  }
+  toast.textContent=msg;
+  toast.style.opacity='1';
+  clearTimeout(toast._t);
+  toast._t=setTimeout(function(){toast.style.opacity='0';},3500);
+}
 
 // ===== Exchange rate =====
 async function fetchExchangeRate(){
