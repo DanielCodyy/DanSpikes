@@ -4105,7 +4105,7 @@ function openPhotoUploadModal(){
   document.getElementById('pupTokenSection').style.display=getGithubToken()?'none':'block';
   if(!_exifrLoaded){
     var s=document.createElement('script');
-    s.src='https://cdn.jsdelivr.net/npm/exifr/dist/lite.umd.js';
+    s.src='https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js';
     s.onload=function(){_exifrLoaded=true;};
     document.head.appendChild(s);
   }
@@ -4214,6 +4214,7 @@ async function _handlePupFile(file){
     showPupStatus('err','Only JPG, PNG, WEBP files are supported.');
     return;
   }
+  var origFile=file;
   var LIMIT=20*1024*1024;
   if(file.size>LIMIT){
     var origMB=(file.size/1024/1024).toFixed(1);
@@ -4226,8 +4227,8 @@ async function _handlePupFile(file){
     if(st){st.className='pup-status';st.textContent='';}
   }
   pupFile=file;
-  document.getElementById('pupFilename').value=file.name;
-  document.getElementById('pupDzText').textContent=file.name+' ('+(file.size/1024/1024).toFixed(1)+'MB)';
+  document.getElementById('pupFilename').value=origFile.name;
+  document.getElementById('pupDzText').textContent=origFile.name+' ('+(file.size/1024/1024).toFixed(1)+'MB)';
   var reader=new FileReader();
   reader.onload=function(e){
     var prev=document.getElementById('pupPreview');
@@ -4237,7 +4238,7 @@ async function _handlePupFile(file){
   };
   reader.readAsDataURL(file);
   document.getElementById('pupCommitBtn').disabled=false;
-  _tryReadExif(file);
+  _tryReadExif(origFile);
 }
 
 async function _tryReadExif(file){
