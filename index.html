@@ -1539,7 +1539,7 @@ function openTripEditor(){
       return d;
     })
   };
-  document.getElementById('teHeaderTitle').textContent=editDraft.nameEn;
+  document.getElementById('teHeaderTitle').textContent=editDraft.nameEn||editDraft.nameZh;
   document.getElementById('tripEditOverlay').style.display='flex';
   renderTripEditor();
 }
