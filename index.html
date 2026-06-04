@@ -1815,10 +1815,95 @@ function attachEditorLocDrag(di){
     });
   });
 }
-function addEditorDay(){} // Task 5
-function teRemoveDayClick(di){} // Task 5
-function addEditorLocation(di){} // Task 5
-function teRemoveLocation(di,li){} // Task 5
+function addEditorDay(){
+  var colors=['#c9a85c','#5b8dd9','#7dd9a0','#e67e5a','#9b7dd9','#d9815b'];
+  var last=editDraft.days_arr[editDraft.days_arr.length-1];
+  var nextDate='';
+  if(last&&last.date){
+    var d=new Date(last.date);
+    d.setDate(d.getDate()+1);
+    nextDate=d.toISOString().substring(0,10);
+  }
+  editDraft.days_arr.push({
+    date:nextDate,
+    color:colors[editDraft.days_arr.length%colors.length],
+    dayName:{zh:'',en:''},
+    area:{zh:'',en:''},
+    intensity:'moderate',
+    locations:[],
+    transit:[]
+  });
+  renderTripEditor();
+  var body=document.getElementById('tripEditBody');
+  if(body)body.scrollTop=body.scrollHeight;
+}
+
+function teRemoveDayClick(di){
+  var btn=document.getElementById('te-remove-day-'+di);
+  if(!btn||btn.disabled)return;
+  if(btn.dataset.confirm==='1'){
+    editDraft.days_arr.splice(di,1);
+    renderTripEditor();
+  } else {
+    btn.dataset.confirm='1';
+    btn.classList.add('te-confirm');
+    btn.textContent='Confirm?';
+    setTimeout(function(){
+      if(btn.dataset.confirm==='1'){
+        btn.dataset.confirm='0';
+        btn.classList.remove('te-confirm');
+        btn.textContent='✕ Day';
+      }
+    },3000);
+  }
+}
+
+function addEditorLocation(di){
+  var locs=editDraft.days_arr[di].locations;
+  locs.push({
+    id:'e_'+Date.now()+'_'+locs.length,
+    time:'',
+    name:{zh:'',en:''},
+    coords:[0,0],
+    mapsLink:'',
+    desc:{zh:'',en:''},
+    notes:{zh:'',en:''},
+    reservation:'free',
+    special:'',
+    optional:false
+  });
+  var list=document.getElementById('te-loclist-'+di);
+  if(list){
+    var day=editDraft.days_arr[di];
+    var newLocHtml='';
+    day.locations.forEach(function(loc,li){newLocHtml+=renderEditorLocRow(loc,di,li);});
+    newLocHtml+='<button class="te-add-btn" onclick="addEditorLocation('+di+')">+ Add Location</button>';
+    list.innerHTML=newLocHtml;
+    list.style.display='flex';
+    attachEditorLocDrag(di);
+    var toggleBtn=list.previousElementSibling;
+    if(toggleBtn)toggleBtn.textContent='▼ Locations ('+day.locations.length+')';
+    var lastRow=list.querySelector('.te-loc-row:last-of-type');
+    if(lastRow)lastRow.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }
+}
+
+function teRemoveLocation(di,li){
+  editDraft.days_arr[di].locations.splice(li,1);
+  var list=document.getElementById('te-loclist-'+di);
+  if(list){
+    var locsOpen=list.style.display!=='none';
+    var day=editDraft.days_arr[di];
+    var newLocHtml='';
+    day.locations.forEach(function(loc,li2){newLocHtml+=renderEditorLocRow(loc,di,li2);});
+    newLocHtml+='<button class="te-add-btn" onclick="addEditorLocation('+di+')">+ Add Location</button>';
+    list.innerHTML=newLocHtml;
+    if(locsOpen)list.style.display='flex';
+    attachEditorLocDrag(di);
+    var toggleBtn=list.previousElementSibling;
+    if(toggleBtn)toggleBtn.textContent=(locsOpen?'▼':'▶')+' Locations ('+day.locations.length+')';
+  }
+}
 function teCycleColor(di){
   var colors=['#c9a85c','#5b8dd9','#7dd9a0','#e67e5a','#9b7dd9','#d9815b'];
   var cur=editDraft.days_arr[di].color;
