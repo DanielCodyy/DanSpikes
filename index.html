@@ -1712,7 +1712,98 @@ function teSetLocCoord(di,li,axis,v){
   var parsed=parseFloat(v);
   if(!isNaN(parsed))loc.coords[axis]=parsed;
 }
-function attachEditorListeners(){} // Tasks 4-5
+function attachEditorListeners(){
+  attachEditorDayDrag();
+  editDraft.days_arr.forEach(function(_,di){
+    attachEditorLocDrag(di);
+  });
+}
+
+function attachEditorDayDrag(){
+  var cards=document.querySelectorAll('.te-day-card');
+  var dragSrc=-1;
+  cards.forEach(function(card){
+    var handle=card.querySelector('.te-drag-handle[data-di]');
+    if(!handle)return;
+    handle.addEventListener('mousedown',function(){card.setAttribute('draggable','true');});
+    card.addEventListener('dragstart',function(e){
+      dragSrc=parseInt(card.dataset.di);
+      card.classList.add('te-dragging');
+      e.dataTransfer.effectAllowed='move';
+    });
+    card.addEventListener('dragend',function(){
+      card.classList.remove('te-dragging');
+      document.querySelectorAll('.te-day-card').forEach(function(c){c.classList.remove('te-drag-over');});
+      card.setAttribute('draggable','false');
+    });
+    card.addEventListener('dragover',function(e){
+      e.preventDefault();
+      e.dataTransfer.dropEffect='move';
+      if(dragSrc!==parseInt(card.dataset.di))card.classList.add('te-drag-over');
+    });
+    card.addEventListener('dragleave',function(){card.classList.remove('te-drag-over');});
+    card.addEventListener('drop',function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      card.classList.remove('te-drag-over');
+      var src=dragSrc,dst=parseInt(card.dataset.di);
+      if(src===dst||src<0)return;
+      var moved=editDraft.days_arr.splice(src,1)[0];
+      editDraft.days_arr.splice(dst,0,moved);
+      renderTripEditor();
+    });
+  });
+}
+
+function attachEditorLocDrag(di){
+  var list=document.getElementById('te-loclist-'+di);
+  if(!list)return;
+  var rows=list.querySelectorAll('.te-loc-row');
+  var dragSrc=-1;
+  rows.forEach(function(row){
+    var handle=row.querySelector('.te-drag-handle');
+    if(!handle)return;
+    handle.addEventListener('mousedown',function(){row.setAttribute('draggable','true');});
+    row.addEventListener('dragstart',function(e){
+      dragSrc=parseInt(row.dataset.li);
+      row.classList.add('te-dragging');
+      e.dataTransfer.effectAllowed='move';
+      e.stopPropagation();
+    });
+    row.addEventListener('dragend',function(){
+      row.classList.remove('te-dragging');
+      list.querySelectorAll('.te-loc-row').forEach(function(r){r.classList.remove('te-drag-over');});
+      row.setAttribute('draggable','false');
+    });
+    row.addEventListener('dragover',function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect='move';
+      if(dragSrc!==parseInt(row.dataset.li))row.classList.add('te-drag-over');
+    });
+    row.addEventListener('dragleave',function(){row.classList.remove('te-drag-over');});
+    row.addEventListener('drop',function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      row.classList.remove('te-drag-over');
+      var src=dragSrc,dst=parseInt(row.dataset.li);
+      if(src===dst||src<0)return;
+      var locs=editDraft.days_arr[di].locations;
+      var moved=locs.splice(src,1)[0];
+      locs.splice(dst,0,moved);
+      var locsOpen=list.style.display!=='none';
+      var day=editDraft.days_arr[di];
+      var newLocHtml='';
+      day.locations.forEach(function(loc,li){newLocHtml+=renderEditorLocRow(loc,di,li);});
+      newLocHtml+='<button class="te-add-btn" onclick="addEditorLocation('+di+')">+ Add Location</button>';
+      list.innerHTML=newLocHtml;
+      list.style.display=locsOpen?'flex':'none';
+      attachEditorLocDrag(di);
+      var toggleBtn=list.previousElementSibling;
+      if(toggleBtn)toggleBtn.textContent=(locsOpen?'▼':'▶')+' Locations ('+day.locations.length+')';
+    });
+  });
+}
 function addEditorDay(){} // Task 5
 function teRemoveDayClick(di){} // Task 5
 function addEditorLocation(di){} // Task 5
