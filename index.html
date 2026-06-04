@@ -3680,7 +3680,6 @@ function initTripUploadModal(){
 async function init(){
   setLang('en');
   renderPhotoGrid();
-  updatePhotoUploadBtnVisibility();
   renderTripSelector();
   document.querySelectorAll('.nav-link').forEach(function(btn){
     btn.addEventListener('click',function(){switchSection(btn.dataset.nav);});
@@ -4514,6 +4513,8 @@ async function adminDeletePhoto(photoId,photoUrl,btn){
     console.error('Delete failed:',e);
   }
 }
+
+updatePhotoUploadBtnVisibility();
 </script>
 
 <!-- Photo Upload Modal -->
