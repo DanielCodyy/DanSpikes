@@ -1945,7 +1945,7 @@ async function saveTripEditor(){
 
   // Commit draft to TRIP_DATA
   var td=TRIP_DATA[activeTripId];
-  td.days_arr=editDraft.days_arr;
+  td.days_arr=JSON.parse(JSON.stringify(editDraft.days_arr));
   td.t_obj=makeGenericT(editDraft.nameZh,editDraft.nameEn,editDraft.subZh,editDraft.subEn,editDraft.days_arr.length);
 
   // Update TRIPS selector entry
@@ -2005,6 +2005,7 @@ async function saveTripEditor(){
   // Close overlay
   editDraft=null;
   document.getElementById('tripEditOverlay').style.display='none';
+  document.getElementById('teStatus').textContent='';
 
   // Push to Gist (best-effort)
   var tk=getGithubToken();
