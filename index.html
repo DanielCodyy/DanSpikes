@@ -1565,7 +1565,7 @@ function renderTripEditor(){
   // Trip-level fields
   html+='<div class="te-section-label">TRIP INFO</div>'+
     '<div class="te-trip-fields">'+
-    '<div class="te-field-group"><label>Title ZH</label><input class="te-input" id="te-nameZh" value="'+esc(editDraft.nameZh)+'" oninput="editDraft.nameZh=this.value;document.getElementById(\'teHeaderTitle\').textContent=editDraft.nameEn||editDraft.nameZh"></div>'+
+    '<div class="te-field-group"><label>Title ZH</label><input class="te-input" id="te-nameZh" value="'+esc(editDraft.nameZh)+'" oninput="editDraft.nameZh=this.value;document.getElementById(\'teHeaderTitle\').textContent=editDraft.nameEn||this.value"></div>'+
     '<div class="te-field-group"><label>Title EN</label><input class="te-input" id="te-nameEn" value="'+esc(editDraft.nameEn)+'" oninput="editDraft.nameEn=this.value;document.getElementById(\'teHeaderTitle\').textContent=this.value||editDraft.nameZh"></div>'+
     '<div class="te-field-group"><label>Dates ZH</label><input class="te-input" id="te-subZh" value="'+esc(editDraft.subZh)+'" oninput="editDraft.subZh=this.value"></div>'+
     '<div class="te-field-group"><label>Dates EN</label><input class="te-input" id="te-subEn" value="'+esc(editDraft.subEn)+'" oninput="editDraft.subEn=this.value"></div>'+
@@ -1598,7 +1598,7 @@ function renderEditorDayCard(day,i){
     '<div>'+
     '<div class="te-day-row" style="gap:8px;margin-bottom:6px">'+
     '<input class="te-input" style="width:100px" value="'+esc(day.date||'')+'" placeholder="YYYY-MM-DD" oninput="editDraft.days_arr['+i+'].date=this.value">'+
-    '<span class="te-color-swatch" id="te-color-'+i+'" style="background:'+day.color+'" title="Click to cycle color" onclick="teCycleColor('+i+')"></span>'+
+    '<span class="te-color-swatch" id="te-color-'+i+'" style="background:'+esc(day.color||'#c9a85c')+'" title="Click to cycle color" onclick="teCycleColor('+i+')"></span>'+
     '<select class="te-select" onchange="editDraft.days_arr['+i+'].intensity=this.value">'+
     ['light','easy','moderate','high','hard'].map(function(v){return '<option value="'+v+'"'+(day.intensity===v?' selected':'')+'>'+v+'</option>';}).join('')+
     '</select>'+
@@ -1636,7 +1636,6 @@ function teToggleLocsSection(di){
   var btn=list.previousElementSibling;
   var open=list.style.display==='none';
   list.style.display=open?'flex':'none';
-  if(list.style.display==='flex')list.style.flexDirection='column';
   if(btn)btn.textContent=(open?'▼':'▶')+' Locations ('+(editDraft.days_arr[di].locations||[]).length+')';
 }
 
