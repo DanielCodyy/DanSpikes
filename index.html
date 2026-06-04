@@ -4094,6 +4094,12 @@ function showSyncToast(msg,ok){
 function updatePhotoUploadBtnVisibility(){
   var btn=document.getElementById('photoUploadBtn');
   if(btn)btn.style.display=isAdminMode()?'block':'none';
+  if(isAdminMode()&&!_exifrLoaded){
+    var s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js';
+    s.onload=function(){_exifrLoaded=true;};
+    document.head.appendChild(s);
+  }
 }
 
 /* ===== PHOTO UPLOAD MODAL JS ===== */
@@ -4103,12 +4109,6 @@ function openPhotoUploadModal(){
   if(!isAdminMode())return;
   document.getElementById('photoUploadModal').style.display='flex';
   document.getElementById('pupTokenSection').style.display=getGithubToken()?'none':'block';
-  if(!_exifrLoaded){
-    var s=document.createElement('script');
-    s.src='https://cdn.jsdelivr.net/npm/exifr/dist/full.umd.js';
-    s.onload=function(){_exifrLoaded=true;};
-    document.head.appendChild(s);
-  }
 }
 
 function closePhotoUploadModal(){
@@ -4242,7 +4242,14 @@ async function _handlePupFile(file){
 }
 
 async function _tryReadExif(file){
-  if(!window.exifr)return;
+  if(!window.exifr){
+    // exifr still loading from CDN — wait up to 8s
+    for(var i=0;i<80;i++){
+      await new Promise(function(r){setTimeout(r,100);});
+      if(window.exifr)break;
+    }
+    if(!window.exifr)return;
+  }
   try{
     var data=await window.exifr.parse(file,{
       pick:['Make','Model','ISO','FNumber','FocalLength']
