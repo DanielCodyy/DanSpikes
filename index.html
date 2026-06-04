@@ -4359,12 +4359,36 @@ async function _updatePhotosInRepo(token,newEntry){
   var fileData=await _ghGetFile(token,REPO,'index.html');
   var content=_base64ToUtf8(fileData.content).replace(/\r\n/g,'\n');
 
+  // 1. Patch PHOTOS array
   var MARKER='\n];\n\n/* ===== PHOTO MAP LOCATIONS';
   var idx=content.indexOf(MARKER);
   if(idx===-1)throw new Error('Could not locate PHOTOS array end in index.html. The file may have changed.');
-
   var entryLine='\n'+_formatPhotoEntryAsJS(newEntry)+',';
   var updated=content.slice(0,idx)+entryLine+content.slice(idx);
+
+  // 2. Patch MAP_LOCS — add photo id to matching location entry
+  var locEn=(newEntry.loc_en||'').trim();
+  var locZh=(newEntry.loc_zh||'').trim();
+  var matched=false;
+  if(locEn){
+    var esc=locEn.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/'/g,"\\'");
+    var re=new RegExp("(name_en:'"+esc+"'[^\\n]*photoIds:\\[)([^\\]]*)(\\])");
+    if(re.test(updated)){
+      updated=updated.replace(re,function(m,pre,ids,close){
+        return pre+ids+(ids.trim()?',':'')+"'"+newEntry.id+"'"+close;
+      });
+      matched=true;
+    }
+  }
+  if(!matched&&locZh){
+    var escZh=locZh.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/'/g,"\\'");
+    var reZh=new RegExp("(name_zh:'"+escZh+"'[^\\n]*photoIds:\\[)([^\\]]*)(\\])");
+    if(reZh.test(updated)){
+      updated=updated.replace(reZh,function(m,pre,ids,close){
+        return pre+ids+(ids.trim()?',':'')+"'"+newEntry.id+"'"+close;
+      });
+    }
+  }
 
   await _ghPutFile(
     token,REPO,'index.html',
