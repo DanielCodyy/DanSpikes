@@ -617,7 +617,7 @@ a.chip:hover{color:var(--accent)}
 .te-loc-name{flex:1;font-size:11px;color:var(--text);}
 .te-expand-btn{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:13px;padding:0 4px;}
 .te-expand-btn:hover{color:var(--gold);}
-.te-loc-detail{padding:10px 12px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:8px;display:none;}
+.te-loc-detail{padding:10px 12px;border-top:1px solid var(--border);grid-template-columns:1fr 1fr;gap:8px;display:none;}
 .te-loc-detail.open{display:grid;}
 .te-loc-detail .te-full{grid-column:1/-1;}
 .te-add-btn{background:none;border:1px dashed var(--border);color:var(--text-faint);border-radius:8px;padding:6px 14px;font-size:11px;cursor:pointer;width:100%;text-align:center;margin-top:4px;}
@@ -1547,7 +1547,7 @@ function closeTripEditor(){
 }
 
 function renderTripEditor(){} // implemented in Task 2
-function saveTripEditor(){} // implemented in Task 8
+function saveTripEditor(){} // implemented in Task 6
 
 // ===== Exchange rate =====
 async function fetchExchangeRate(){
@@ -2958,6 +2958,7 @@ async function openTrip(id){
 }
 
 function closeTripView(){
+  closeTripEditor();
   activeTripId=null;
   document.getElementById('tripSelector').style.display='';
   document.getElementById('tripView').style.display='none';
